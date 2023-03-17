@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/myogacompany/static/css/main.21d5b053.css",
+    "main.js": "/myogacompany/static/js/main.b642ab72.js",
+    "static/media/myogaIcon2.png": "/myogacompany/static/media/myogaIcon2.f6775dd2bc40382e1bd4.png",
+    "index.html": "/myogacompany/index.html",
+    "main.21d5b053.css.map": "/myogacompany/static/css/main.21d5b053.css.map",
+    "main.b642ab72.js.map": "/myogacompany/static/js/main.b642ab72.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.21d5b053.css",
+    "static/js/main.b642ab72.js"
+  ]
+}

@@ -13,17 +13,21 @@ import NotificationsNoneIcon from "@mui/icons-material/NotificationsNone";
 import AccountCircleOutlinedIcon from "@mui/icons-material/AccountCircleOutlined";
 import { Link } from "react-router-dom";
 import { DarkModeContext } from "../../context/darkModeContext";
+import { AuthContext } from "../../context/authContext";
+
 import { useContext } from "react";
 import logo from "../assets/images/myogaIcon2.png";
 
 const Sidebar = () => {
-  const { dispatch } = useContext(DarkModeContext);
+  const { dispatch: darkModeDispatch } = useContext(DarkModeContext);
+  const { currentUser, logout } = useContext(AuthContext);
   return (
     <div className="sidebar">
       <div className="top">
         <Link to="/" style={{ textDecoration: "none" }}>
-          
-          <span className="logo"><img className="logoImg" src={logo} alt="Logo" /></span>
+          <span className="logo">
+            <img className="logoImg" src={logo} alt="Logo" />
+          </span>
         </Link>
       </div>
       <hr />
@@ -52,11 +56,11 @@ const Sidebar = () => {
 
           <Link to="/bookings" style={{ textDecoration: "none" }}>
             <li>
-            <CreditCardIcon className="icon" />
-            <span>Bookings</span>
-          </li>
+              <CreditCardIcon className="icon" />
+              <span>Bookings</span>
+            </li>
           </Link>
-          
+
           <li>
             <StoreIcon className="icon" />
             <span>Delivery</span>
@@ -64,16 +68,16 @@ const Sidebar = () => {
           <p className="title">USEFUL</p>
           <Link to="/bookingstatus" style={{ textDecoration: "none" }}>
             <li>
-            <CreditCardIcon className="icon" />
-            <span>Booking Status</span>
-          </li>
+              <CreditCardIcon className="icon" />
+              <span>Booking Status</span>
+            </li>
           </Link>
           <p className="title">USER</p>
           <li>
             <AccountCircleOutlinedIcon className="icon" />
             <span>Profile</span>
           </li>
-          <li>
+          <li onClick={logout}>
             <ExitToAppIcon className="icon" />
             <span>Logout</span>
           </li>
@@ -82,11 +86,11 @@ const Sidebar = () => {
       <div className="bottom">
         <div
           className="colorOption"
-          onClick={() => dispatch({ type: "LIGHT" })}
+          onClick={() => darkModeDispatch({ type: "LIGHT" })}
         ></div>
         <div
           className="colorOption"
-          onClick={() => dispatch({ type: "DARK" })}
+          onClick={() => darkModeDispatch({ type: "DARK" })}
         ></div>
       </div>
     </div>

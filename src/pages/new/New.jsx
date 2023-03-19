@@ -162,7 +162,6 @@ const New = ({ inputs, title }) => {
                       id={input.id}
                       type={input.type}
                       value={input.value}
-                      disabled={input.disabled}
                       placeholder={input.placeholder}
                       onChange={handleInput}
                     />

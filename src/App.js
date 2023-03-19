@@ -10,80 +10,78 @@ import { useContext } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
 import { AuthContext } from "./context/authContext";
 import Edittable from "./pages/edit/edit";
-  import { ToastContainer} from 'react-toastify';
-  import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import Bookings from "./pages/bookings/bookings";
 import Bookingstatus from "./pages/bookings status/bookingstatus";
 
 
 function App() {
   const { darkMode } = useContext(DarkModeContext);
+  const { currentUser } = useContext(AuthContext);
 
-  const {currentUser} = useContext(AuthContext);
-
-  const RequiredAuth = ({children}) => {
+  const RequiredAuth = ({ children }) => {
     return currentUser ? children : <Navigate to="/login" />;
-    };
+  };
 
   return (
     <div className={darkMode ? "app dark" : "app"}>
       <BrowserRouter>
-      <ToastContainer position="top-right" />
+        <ToastContainer position="top-right" />
         <Routes>
           <Route path="/">
             <Route path="login" element={<Login />} />
             <Route index element={
-            <RequiredAuth>
-              <Home />
-            </RequiredAuth>
-          } />
+              <RequiredAuth>
+                <Home />
+              </RequiredAuth>
+            } />
             <Route path="users">
               <Route index element={
-              <RequiredAuth>
-                <List />
-              </RequiredAuth>
+                <RequiredAuth>
+                  <List />
+                </RequiredAuth>
               } />
               <Route path="/users/:id" element={
-              <RequiredAuth>
-                <Single />
-              </RequiredAuth>
+                <RequiredAuth>
+                  <Single />
+                </RequiredAuth>
               } />
               <Route
                 path="new"
                 element={
-                <RequiredAuth>
-                  <New inputs={userInputs} title="Add New Driver" />
-                </RequiredAuth>
-              }
+                  <RequiredAuth>
+                    <New inputs={userInputs} title="Add New Driver" />
+                  </RequiredAuth>
+                }
               />
             </Route>
             <Route
-                path="edit/:id"
-                element={
+              path="edit/:id"
+              element={
                 <RequiredAuth>
-                  <Edittable inputs={userInputs} title="Update Driver"/>
+                  <Edittable inputs={userInputs} title="Update Driver" />
                 </RequiredAuth>
               }
-              />
+            />
 
-              <Route
-                path="bookings"
-                element={
+            <Route
+              path="bookings"
+              element={
                 <RequiredAuth>
-                  <Bookings title="Bookings"/>
+                  <Bookings title="Bookings" />
                 </RequiredAuth>
               }
-              />
+            />
 
-              <Route
-                path="bookingstatus"
-                element={
+            <Route
+              path="bookingstatus"
+              element={
                 <RequiredAuth>
-                  <Bookingstatus title="Bookings Status"/>
+                  <Bookingstatus title="Bookings Status" />
                 </RequiredAuth>
               }
-              />
-
+            />
           </Route>
         </Routes>
       </BrowserRouter>

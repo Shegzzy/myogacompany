@@ -89,7 +89,6 @@ export const userInputs = [
     id: "Verified",
     label: "Verification Status",
     type: "select",
-    value: "1",
     options: [
       { value: "", label: "Status" },
       { value: "1", label: "Verified" },
@@ -100,10 +99,11 @@ export const userInputs = [
   {
     id: "Online",
     label: "Active Status",
-    type: "text",
-    value: "0",
-    placeholder: "0",
-    disabled: true
+    type: "select",
+    options: [
+      { value: "", label: "Status" },
+      { value: "0", label: "Offline" },
+    ],
   },
 
   {

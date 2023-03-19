@@ -60,15 +60,21 @@ const Single = () => {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const fetchUser = async (id) => {
-      const userRef = doc(db, "Bookings", id);
-      const userDoc = await getDoc(userRef);
-      if (userDoc.exists()) {
-        setData(userDoc.data());
-      }
+    const bookingsQuery = query(
+      collection(db, "Bookings"),
+      where("Driver ID", "==", id)
+    );
+    const unsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
+      const bookingsData = [];
+      snapshot.forEach((doc) => {
+        const booking = doc.data();
+        bookingsData.push(booking);
+      });
+      setData(bookingsData);
+    });
+    return () => {
+      unsubscribe();
     };
-
-    fetchUser(id);
   }, [id]);
 
   return (
@@ -150,12 +156,15 @@ const Single = () => {
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
-                  <TableCell className="tableCell">Tracking ID</TableCell>
+                  <TableCell className="tableCell">Booking Number</TableCell>
                   <TableCell className="tableCell">Product</TableCell>
                   <TableCell className="tableCell">Customer</TableCell>
                   <TableCell className="tableCell">Date</TableCell>
                   <TableCell className="tableCell">Amount</TableCell>
                   <TableCell className="tableCell">Payment Method</TableCell>
+                  <TableCell className="tableCell">Distance</TableCell>
+                  <TableCell className="tableCell">Pick Up</TableCell>
+                  <TableCell className="tableCell">Drop Off</TableCell>
                   <TableCell className="tableCell">Status</TableCell>
                 </TableRow>
               </TableHead>
@@ -166,10 +175,36 @@ const Single = () => {
                       <TableCell className="tableCell">
                         {row["Booking Number"]}
                       </TableCell>
-                      <TableCell className="tableCell">{row.Amount}</TableCell>
-                      <TableCell className="tableCell">{row.date}</TableCell>
-                      <TableCell className="tableCell">{row.amount}</TableCell>
-                      <TableCell className="tableCell">{row.method}</TableCell>
+                      <TableCell className="tableCell">
+                        {row["Package Type"]}
+                      </TableCell>
+                      <TableCell className="tableCell">
+                        {row["Customer Name"]}
+                      </TableCell>
+                      <TableCell className="tableCell">
+                        {new Date(row["Date Created"]).toLocaleDateString(
+                          "en-US"
+                        )}
+                      </TableCell>
+
+                      <TableCell className="tableCell">
+                        {row["Amount"]}
+                      </TableCell>
+                      <TableCell className="tableCell" width={200}>
+                        {row["Payment Method"]}
+                      </TableCell>
+                      <TableCell className="tableCell">
+                        {row["Distance"]}
+                      </TableCell>
+                      <TableCell className="tableCell">
+                        {row["PickUp Address"]}
+                      </TableCell>
+                      <TableCell className="tableCell">
+                        {row["DropOff Address"]}
+                      </TableCell>
+                      <TableCell className="tableCell">
+                        {row["Status"]}
+                      </TableCell>
                     </TableRow>
                   ))}
               </TableBody>

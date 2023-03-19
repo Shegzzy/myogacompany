@@ -62,7 +62,6 @@ const Widget = ({ type }) => {
     sumPrice();
   }, []);
 
-  // this month's total
   const [totalPrices, setTotalPrices] = useState(0);
 
   useEffect(() => {
@@ -83,7 +82,6 @@ const Widget = ({ type }) => {
         where("Date Created", ">=", startOfMonth),
         where("Date Created", "<=", endOfMonth)
       );
-
       const querySnapshot = await getDocs(q);
       let total = 0;
       querySnapshot.forEach((doc) => {

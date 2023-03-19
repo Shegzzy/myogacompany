@@ -10,7 +10,7 @@ const AuthReducer = (state, action) => {
         currentUser: null,
       };
     }
-    
+
     default:
       return state;
   }

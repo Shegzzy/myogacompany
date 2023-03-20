@@ -11,17 +11,14 @@ import {
 import {
   addDoc,
   collection,
-  doc,
+  getDocs,
+  query,
   serverTimestamp,
-  setDoc,
+  where,
 } from "firebase/firestore";
 import { AuthContext } from "../../context/authContext";
-import {
-  getDownloadURL,
-  ref,
-  uploadBytes,
-  uploadBytesResumable,
-} from "firebase/storage";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const [email, setemail] = useState("");
@@ -38,17 +35,35 @@ const Login = () => {
   const [error, seterror] = useState(false);
   const [Errormsg, seterrormsg] = useState(false);
   const [newUser, setnewUser] = useState(false);
+  const [companyError, setCompanyError] = useState("");
 
   const navigate = useNavigate();
 
   const { dispatch } = useContext(AuthContext);
 
-  const handleFileInputChange = (event) => {
-    const fileList = event.target.files;
+  const handleFileInputChange = (e) => {
+    const fileList = e.target.files;
     const fileArray = Array.from(fileList).map((file) =>
       URL.createObjectURL(file)
     );
     setdocuments(fileArray);
+  };
+
+  const handleCompanyInputChange = (e) => {
+    const inputCompany = e.target.value;
+    const validCompanyRegex = /^[a-zA-Z0-9\s'-]+$/; // Only allow letters, spaces, and special characters like hyphens or apostrophes
+    if (inputCompany && !validCompanyRegex.test(inputCompany)) {
+      setCompanyError(
+        "Invalid company name. Please enter only letters, number, spaces, and special characters."
+      );
+    } else if (inputCompany && inputCompany.length > 50) {
+      setCompanyError(
+        "Company name is too long. Please limit to 50 characters."
+      );
+    } else {
+      setcompany(inputCompany);
+      setCompanyError("");
+    }
   };
 
   useEffect(() => {
@@ -99,17 +114,40 @@ const Login = () => {
         seterrormsg(errormsg);
       });
     } else {
-      signInWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
+      try {
+        // Query the Companies collection to check if the email and password are valid
+        const companiesCollection = collection(db, "Companies");
+        const q = query(
+          companiesCollection,
+          where("email", "==", email),
+          where("password", "==", password)
+        );
+        const querySnapshot = await getDocs(q);
+
+        // If the query returns a document, the email and password are valid
+        if (!querySnapshot.empty) {
+          // Sign in with the email and password
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
           const user = userCredential.user;
+
+          // Update the state to indicate that the user is logged in
           dispatch({ type: "LOGIN", payload: user });
+
+          // Navigate to the dashboard
           navigate("/");
-        })
-        .catch((error) => {
+        } else {
+          // If the query doesn't return a document, the email and password are invalid
           seterror(true);
-          const errormsg = error.message;
+          const errormsg = "Invalid email or password";
           seterrormsg(errormsg);
-        });
+        }
+      } catch (error) {
+        toast.error(error);
+      }
     }
   };
 
@@ -145,12 +183,13 @@ const Login = () => {
         {newUser && (
           <div className="company">
             <input
-              onChange={(e) => setcompany(e.target.value)}
+              onChange={handleCompanyInputChange}
               id="company"
               type="text"
               placeholder="Company Name"
               required
             />
+            {companyError && <span className="error">{companyError}</span>}
           </div>
         )}
 

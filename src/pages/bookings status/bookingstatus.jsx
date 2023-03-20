@@ -124,7 +124,7 @@ const Bookingstatus = ({ inputs, title }) => {
                     {row["Ride Type"]}
                   </TableCell>
                   <TableCell className="tableCell">
-                    <span className={`status ${row.Status}`}>{row.Status}</span>
+                    <span className="status">{row.Status}</span>
                   </TableCell>
                 </TableRow>
               ))}

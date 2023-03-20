@@ -47,8 +47,8 @@ const Widget = ({ type }) => {
 
       const q = query(
         collection(db, "Bookings"),
-        where("Date Created", ">=", endOfMonth),
-        where("Date Created", "<", startOfMonth)
+        where("Date Created", ">=", endOfMonth.toISOString()),
+        where("Date Created", "<", startOfMonth.toISOString())
       );
 
       const querySnapshot = await getDocs(q);
@@ -79,20 +79,20 @@ const Widget = ({ type }) => {
       );
       const q = query(
         bookingsRef,
-        where("Date Created", ">=", startOfMonth),
-        where("Date Created", "<=", endOfMonth)
+        where("Date Created", ">=", startOfMonth.toISOString()),
+        where("Date Created", "<=", endOfMonth.toISOString())
       );
+
       const querySnapshot = await getDocs(q);
       let total = 0;
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        const dateCreated = data["Date Created"].toDate();
         total += parseFloat(data.Amount);
-        const formattedPrice = new Intl.NumberFormat("en-NG", {
-          style: "currency",
-          currency: "NGN",
-        }).format(total);
       });
+      // const formattedPrice = new Intl.NumberFormat("en-NG", {
+      //   style: "currency",
+      //   currency: "NGN",
+      // }).format(total);
       setTotalPrices(total);
     };
     sumPrice();

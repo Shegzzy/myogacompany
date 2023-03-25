@@ -36,12 +36,24 @@ const Datatable = () => {
     };
   }, []);
 
-  const handleDelete = async (id) => {
+  const [idToDelete, setIdToDelete] = useState(null);
+
+  const handleDelete = async () => {
     try {
-      await deleteDoc(doc(db, "Drivers", id));
-      setData(data.filter((item) => item.id !== id));
+      await deleteDoc(doc(db, "Drivers", idToDelete));
+      setData(data.filter((item) => item.id !== idToDelete));
+      setIdToDelete(null);
+      toast.success("Successfully deleted!");
     } catch (err) {
       toast.error("Something went wrong");
+    }
+  };
+
+  const handleDeleteConfirmation = (id) => {
+    setIdToDelete(id);
+    // Show confirmation dialog box
+    if (window.confirm("Are you sure you want to delete this item?")) {
+      handleDelete();
     }
   };
 
@@ -70,7 +82,7 @@ const Datatable = () => {
             </Link>
             <div
               className="deleteButton"
-              onClick={() => handleDelete(params.row.id)}
+              onClick={() => handleDeleteConfirmation(params.row.id)}
             >
               Delete
             </div>
@@ -89,9 +101,9 @@ const Datatable = () => {
   return (
     <div className="datatable">
       <div className="datatableTitle">
-        Add New User
+        Riders
         <Link to="/users/new" className="link">
-          Add New Driver
+          Add New Rider
         </Link>
       </div>
       <DataGrid

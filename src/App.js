@@ -14,6 +14,9 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Bookings from "./pages/bookings/bookings";
 import Bookingstatus from "./pages/bookings status/bookingstatus";
+import Delivery from "./pages/delivery/delivery";
+import '../node_modules/bootstrap/scss/bootstrap.scss';
+
 
 
 function App() {
@@ -79,6 +82,15 @@ function App() {
               element={
                 <RequiredAuth>
                   <Bookingstatus title="Bookings Status" />
+                </RequiredAuth>
+              }
+            />
+
+            <Route
+              path="delivery"
+              element={
+                <RequiredAuth>
+                  <Delivery title="Delivery Status" />
                 </RequiredAuth>
               }
             />

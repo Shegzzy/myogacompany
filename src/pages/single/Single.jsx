@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "@mui/material";
 import { toast } from "react-toastify";
+import { DisabledByDefault } from "@mui/icons-material";
 
 const Single = () => {
   const { id } = useParams();
@@ -84,13 +85,17 @@ const Single = () => {
         <Navbar />
         <div className="top">
           <div className="left">
-            <div className="editButton">
-              <Link to={`/edit/${id}`} style={{ textDecoration: "none" }}>
-                Edit
-              </Link>
-            </div>
+            {user ? (
+              <div className="editButton">
+                <Link to={`/edit/${id}`} style={{ textDecoration: "none" }}>
+                  Edit
+                </Link>
+              </div>
+            ) : (
+              <div className="editButtons"></div>
+            )}
             <h1 className="title">Information</h1>
-            {user && (
+            {user ? (
               <div className="item">
                 <img src={user["Profile Photo"]} alt="" className="itemImg" />
                 <div className="details">
@@ -112,6 +117,12 @@ const Single = () => {
                     <span className="itemValue">{user.State}</span>
                   </div>
                 </div>
+              </div>
+            ) : (
+              <div className="detailItem">
+                <span className="itemKey">
+                  Driver Not Found or Has Been Deleted
+                </span>
               </div>
             )}
           </div>

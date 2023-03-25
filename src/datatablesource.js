@@ -4,7 +4,7 @@ export const userColumns = [
     field: "FullName",
     headerName: "User",
     width: 150,
-    
+
   },
   {
     field: "Profile Photo",
@@ -57,7 +57,7 @@ export const userColumns = [
     width: 100,
   },
 
-    {
+  {
     field: "Vehicle Color",
     headerName: "Vehicle Color",
     width: 100,
@@ -97,6 +97,16 @@ export const userColumns = [
     field: "Verified",
     headerName: "Verified",
     width: 100,
+    renderCell: (params) => {
+      const value = params.value;
+      if (value === '0') {
+        return <span>Unverified</span>;
+      } else if (value === '1') {
+        return <span>Verified</span>;
+      } else {
+        return null;
+      }
+    },
   },
 
   {

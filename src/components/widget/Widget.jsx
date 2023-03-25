@@ -62,8 +62,8 @@ const Widget = ({ type }) => {
     sumPrice();
   }, []);
 
+  //This month's total
   const [totalPrices, setTotalPrices] = useState(0);
-
   useEffect(() => {
     const sumPrice = async () => {
       const bookingsRef = collection(db, "Bookings");
@@ -104,11 +104,11 @@ const Widget = ({ type }) => {
   switch (type) {
     case "user":
       data = {
-        title: "DRIVERS",
+        title: "RIDERS",
         isMoney: false,
         link: (
           <Link to={`/users/`} style={{ textDecoration: "none" }}>
-            See all drivers
+            See all riders
           </Link>
         ),
         icon: (

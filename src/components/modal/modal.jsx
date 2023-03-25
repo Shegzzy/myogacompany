@@ -1,13 +1,12 @@
 import {
-  Modal,
   Button,
-  ListGroup,
-  ModalFooter,
+  Modal,
   ModalBody,
+  ModalFooter,
   ModalHeader,
   ModalTitle,
+  Table,
 } from "react-bootstrap";
-
 import "./modal.scss";
 
 const DriverSelectionModal = ({
@@ -29,22 +28,37 @@ const DriverSelectionModal = ({
       centered
     >
       <ModalHeader closeButton className="close">
-        <ModalTitle>Select a Rider</ModalTitle>
+        <ModalTitle>Select a driver</ModalTitle>
       </ModalHeader>
       <ModalBody className="modal-content">
-        <ListGroup>
-          {availableDrivers.map((driver) => (
-            <ListGroup.Item
-              key={driver.id}
-              active={selectedDriverId === driver.id}
-              onClick={() => setSelectedDriverId(driver.id)}
-              className="list"
-            >
-              {driver.id}
-              {driver["FullName"]}
-            </ListGroup.Item>
-          ))}
-        </ListGroup>
+        <Table hover bordered className="table" style={{ width: "100%" }}>
+          <thead>
+            <tr>
+              <th>Select</th>
+              <th>Rider's ID</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {availableDrivers.map((driver) => (
+              <tr
+                key={driver.id}
+                onClick={() => setSelectedDriverId(driver.id)}
+                className={selectedDriverId === driver.id ? "selected" : ""}
+              >
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={selectedDriverId === driver.id}
+                    readOnly
+                  />
+                </td>
+                <td>{driver.id}</td>
+                <td>{driver.FullName}</td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
       </ModalBody>
       <ModalFooter>
         <Button variant="secondary" onClick={cancelDriverSelection}>

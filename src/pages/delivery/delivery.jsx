@@ -22,6 +22,7 @@ import { db } from "../../firebase";
 //import { toast } from "react-toastify";
 import DriverSelectionModal from "../../components/modal/modal";
 import { Button } from "react-bootstrap";
+import { toast } from "react-toastify";
 
 const Delivery = ({ title }) => {
   const [data, setData] = useState([]);
@@ -36,6 +37,12 @@ const Delivery = ({ title }) => {
       "Driver ID": selectedDriverId,
     });
 
+    // update the driver's status in the database
+    await updateDoc(doc(db, "Drivers", selectedDriverId), {
+      Online: "0",
+    });
+
+    toast.success(`Rider have been assigned to booking ${selectedBookingId}`);
     setSelectedBookingId(null);
     setSelectedDriverId(null);
   };
@@ -79,6 +86,8 @@ const Delivery = ({ title }) => {
           ...booking,
         });
       });
+      // Sort the bookingsData array in descending order by Timestamp
+      bookingsData.sort((a, b) => b.Timestamp - a.Timestamp);
       setData(bookingsData);
     });
     return () => {

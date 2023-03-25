@@ -122,7 +122,7 @@ const Bookings = ({ inputs, title }) => {
                   </TableCell>
                   <TableCell className="tableCell">{row["Distance"]}</TableCell>
                   <TableCell className="tableCell">
-                    {row["Ride Type"]}
+                    {row["Ride Type"] === "1" ? "Car" : "Motorcycle"}
                   </TableCell>
                 </TableRow>
               ))}

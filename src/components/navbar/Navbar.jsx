@@ -1,23 +1,79 @@
 import "./navbar.scss";
+import { useState, useContext, useEffect } from "react";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
-//import FullscreenExitOutlinedIcon from "@mui/icons-material/FullscreenExitOutlined";
-//import NotificationsNoneOutlinedIcon from "@mui/icons-material/NotificationsNoneOutlined";
-//import ChatBubbleOutlineOutlinedIcon from "@mui/icons-material/ChatBubbleOutlineOutlined";
-//import ListOutlinedIcon from "@mui/icons-material/ListOutlined";
 import { DarkModeContext } from "../../context/darkModeContext";
-import { useContext } from "react";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../firebase";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const { dispatch } = useContext(DarkModeContext);
+  const [searchTerm, setSearchTerm] = useState("");
+  //const [category, setCategory] = useState("");
+  const [items, setItems] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
+
+  useEffect(() => {
+    // Fetch the data from Firestore
+    const unsubscribe = onSnapshot(collection(db, "Drivers"), (snapshot) => {
+      const data = snapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      // Filter the items array based on the search term
+      const filtered = data.filter((driver) => {
+        const name = driver.FullName?.toLowerCase() ?? "";
+        return name.includes(searchTerm?.toLowerCase() ?? "");
+      });
+      setItems(data);
+      setFilteredItems(filtered);
+    });
+
+    // Clean up the listener when the component unmounts
+    return () => unsubscribe();
+  }, [searchTerm]);
+
+  const handleSearch = () => {
+    const filtered = items.filter((driver) => {
+      const name = driver.FullName?.toLowerCase() ?? "";
+      return name.includes(searchTerm?.toLowerCase() ?? "");
+    });
+    setFilteredItems(filtered);
+  };
 
   return (
     <div className="navbar">
       <div className="wrapper">
         <div className="search">
-          <input type="text" placeholder="Search..." />
-          <SearchOutlinedIcon />
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              handleSearch();
+            }}
+          />
+
+          <SearchOutlinedIcon
+            onClick={handleSearch}
+            style={{ cursor: "pointer" }}
+          />
+          {searchTerm !== "" && filteredItems.length > 0 && (
+            <div className="dropdown">
+              {filteredItems.map((driver) => (
+                <Link
+                  key={driver.id}
+                  to={`/users/${driver.id}`}
+                  className="dropdown-item"
+                >
+                  {driver.FullName}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
         <div className="items">
           <div className="item">

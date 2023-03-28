@@ -90,7 +90,7 @@ function App() {
               path="delivery"
               element={
                 <RequiredAuth>
-                  <Delivery title="Delivery Status" />
+                  <Delivery title="Pending Orders" />
                 </RequiredAuth>
               }
             />

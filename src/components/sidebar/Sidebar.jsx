@@ -64,7 +64,7 @@ const Sidebar = () => {
           <Link to="/delivery" style={{ textDecoration: "none" }}>
             <li>
               <StoreIcon className="icon" />
-              <span>Delivery</span>
+              <span>Pending Orders</span>
             </li>
           </Link>
 

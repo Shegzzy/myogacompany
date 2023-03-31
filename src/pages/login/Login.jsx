@@ -9,11 +9,12 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import {
-  addDoc,
   collection,
+  doc,
   getDocs,
   query,
   serverTimestamp,
+  setDoc,
   where,
 } from "firebase/firestore";
 import { AuthContext } from "../../context/authContext";
@@ -93,26 +94,29 @@ const Login = () => {
 
     if (newUser) {
       await createUserWithEmailAndPassword(auth, email, password);
-      await addDoc(
-        collection(db, "Companies"),
-        {
-          email: email,
-          password: password,
-          company: company,
-          date: date,
-          regnumber: regnumber,
-          location: location,
-          address: address,
-          phone: phone,
-          documents: documents || [],
-          timeStamp: serverTimestamp(),
-        },
-        navigate("/")
-      ).catch((error) => {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredential.user;
+      await setDoc(doc(db, "Companies", user.uid), {
+        email: email,
+        password: password,
+        company: company,
+        date: date,
+        regnumber: regnumber,
+        location: location,
+        address: address,
+        phone: phone,
+        documents: documents || [],
+        timeStamp: serverTimestamp(),
+      }).catch((error) => {
         seterror(true);
         const errormsg = error.message;
         seterrormsg(errormsg);
       });
+      navigate("/");
     } else {
       try {
         // Query the Companies collection to check if the email and password are valid

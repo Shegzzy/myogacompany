@@ -16,11 +16,13 @@ import { DarkModeContext } from "../../context/darkModeContext";
 import { AuthContext } from "../../context/authContext";
 import { useContext } from "react";
 import logo from "../assets/images/myogaIcon2.png";
+import { auth } from "../../firebase";
 //import logos from "../assets/images/myogaIcon1.png";
 
 const Sidebar = () => {
   const { dispatch: darkModeDispatch } = useContext(DarkModeContext);
   const { logout } = useContext(AuthContext);
+  const userId = auth.currentUser?.uid;
   return (
     <div className="sidebar">
       <div className="top">
@@ -75,11 +77,15 @@ const Sidebar = () => {
               <span>Booking Status</span>
             </li>
           </Link>
+
           <p className="title">USER</p>
-          <li>
-            <AccountCircleOutlinedIcon className="icon" />
-            <span>Profile</span>
-          </li>
+          <Link to={`/profile/${userId}`} style={{ textDecoration: "none" }}>
+            <li>
+              <AccountCircleOutlinedIcon className="icon" />
+              <span>Profile</span>
+            </li>
+          </Link>
+
           <li onClick={logout}>
             <ExitToAppIcon className="icon" />
             <span>Logout</span>

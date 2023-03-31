@@ -30,7 +30,7 @@ const Widget = ({ type }) => {
       setTotalBookings(snapshot.size);
     });
 
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
   //Last month's total

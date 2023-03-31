@@ -20,14 +20,15 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
-import { toast } from "react-toastify";
-import { DisabledByDefault } from "@mui/icons-material";
+// import { toast } from "react-toastify";
+// import { DisabledByDefault } from "@mui/icons-material";
 
 const Single = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [totalBookings, setTotalBookings] = useState(0);
 
+  //Fetching rider's data
   useEffect(() => {
     const fetchUser = async () => {
       const userRef = doc(db, "Drivers", id);
@@ -40,6 +41,7 @@ const Single = () => {
     fetchUser();
   }, [id]);
 
+  // Calculating rider's total earnings
   useEffect(() => {
     const bookingsQuery = query(
       collection(db, "Bookings"),
@@ -59,7 +61,7 @@ const Single = () => {
   }, [id]);
 
   const [data, setData] = useState([]);
-
+  // Fetching all rider's deliveries
   useEffect(() => {
     const bookingsQuery = query(
       collection(db, "Bookings"),
@@ -182,7 +184,7 @@ const Single = () => {
               <TableBody>
                 {data &&
                   data.map((row) => (
-                    <TableRow key={row.id}>
+                    <TableRow key={row.uuid}>
                       <TableCell className="tableCell">
                         {row["Booking Number"]}
                       </TableCell>

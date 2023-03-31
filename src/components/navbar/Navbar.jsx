@@ -5,7 +5,7 @@ import LanguageOutlinedIcon from "@mui/icons-material/LanguageOutlined";
 import DarkModeOutlinedIcon from "@mui/icons-material/DarkModeOutlined";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "../../firebase";
+import { auth, db } from "../../firebase";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
@@ -14,6 +14,7 @@ const Navbar = () => {
   //const [category, setCategory] = useState("");
   const [items, setItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
+  const userId = auth.currentUser?.uid;
 
   useEffect(() => {
     // Fetch the data from Firestore
@@ -57,10 +58,7 @@ const Navbar = () => {
             }}
           />
 
-          <SearchOutlinedIcon
-            onClick={handleSearch}
-            style={{ cursor: "pointer" }}
-          />
+          <SearchOutlinedIcon style={{ cursor: "pointer" }} />
           {searchTerm !== "" && filteredItems.length > 0 && (
             <div className="dropdown">
               {filteredItems.map((driver) => (
@@ -87,11 +85,13 @@ const Navbar = () => {
             />
           </div>
           <div className="item">
-            <img
-              src="https://images.pexels.com/photos/941693/pexels-photo-941693.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
-              alt=""
-              className="avatar"
-            />
+            <Link to={`/profile/${userId}`}>
+              <img
+                src="https://images.pexels.com/photos/941693/pexels-photo-941693.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
+                alt=""
+                className="avatar"
+              />
+            </Link>
           </div>
         </div>
       </div>

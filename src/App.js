@@ -16,6 +16,9 @@ import Bookings from "./pages/bookings/bookings";
 import Bookingstatus from "./pages/bookings status/bookingstatus";
 import Delivery from "./pages/delivery/delivery";
 import '../node_modules/bootstrap/scss/bootstrap.scss';
+import AdminProfile from "./pages/profile/profile";
+import EdittableAdmin from "./pages/adminEdit/editAdmin";
+import { companyInputs } from "./companyEditFormSource";
 
 
 
@@ -91,6 +94,24 @@ function App() {
               element={
                 <RequiredAuth>
                   <Delivery title="Pending Orders" />
+                </RequiredAuth>
+              }
+            />
+
+            <Route
+              path="profile/:id"
+              element={
+                <RequiredAuth>
+                  <AdminProfile title="Admin Profile" />
+                </RequiredAuth>
+              }
+            />
+
+            <Route
+              path="admin/:id"
+              element={
+                <RequiredAuth>
+                  <EdittableAdmin inputs={companyInputs} title="Update Profile" />
                 </RequiredAuth>
               }
             />

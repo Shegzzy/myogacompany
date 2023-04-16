@@ -38,9 +38,9 @@ const Delivery = ({ title }) => {
     });
 
     // update the driver's status in the database
-    await updateDoc(doc(db, "Drivers", selectedDriverId), {
-      Online: "0",
-    });
+    // await updateDoc(doc(db, "Drivers", selectedDriverId), {
+    //   Online: "0",
+    // });
 
     toast.success(`Rider have been assigned to booking ${selectedBookingId}`);
     setSelectedBookingId(null);
@@ -103,146 +103,150 @@ const Delivery = ({ title }) => {
         <div className="top">
           <h1>{title}</h1>
         </div>
-        {data.lenght > 0 ? (
-          <TableContainer component={Paper} className="table">
-            <Table sx={{ minWidth: 700 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell className="tableCell" width={80}>
-                    Booking Number
-                  </TableCell>
+        <div className="b-table">
+          {data.lenght > 0 ? (
+            <TableContainer component={Paper} className="table">
+              <Table sx={{ minWidth: 700 }} aria-label="simple table">
+                <TableHead>
+                  <TableRow>
+                    <TableCell className="tableCell" width={80}>
+                      Booking Number
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={80}>
-                    Package
-                  </TableCell>
+                    <TableCell className="tableCell" width={80}>
+                      Package
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={200}>
-                    Customer Name
-                  </TableCell>
+                    <TableCell className="tableCell" width={200}>
+                      Customer Name
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={130}>
-                    Phone
-                  </TableCell>
+                    <TableCell className="tableCell" width={130}>
+                      Phone
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={300}>
-                    Pickup Location
-                  </TableCell>
+                    <TableCell className="tableCell" width={300}>
+                      Pickup Location
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={130}>
-                    Dropoff Location
-                  </TableCell>
+                    <TableCell className="tableCell" width={130}>
+                      Dropoff Location
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={130}>
-                    Distance
-                  </TableCell>
+                    <TableCell className="tableCell" width={130}>
+                      Distance
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={50}>
-                    Amount
-                  </TableCell>
+                    <TableCell className="tableCell" width={50}>
+                      Amount
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={130}>
-                    Date
-                  </TableCell>
+                    <TableCell className="tableCell" width={130}>
+                      Date
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={20}>
-                    Payment Method
-                  </TableCell>
+                    <TableCell className="tableCell" width={20}>
+                      Payment Method
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={130}>
-                    Ride Type
-                  </TableCell>
+                    <TableCell className="tableCell" width={130}>
+                      Ride Type
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={200}>
-                    Driver ID
-                  </TableCell>
+                    <TableCell className="tableCell" width={200}>
+                      Driver ID
+                    </TableCell>
 
-                  <TableCell className="tableCell" width={130}>
-                    Status
-                  </TableCell>
-                  <TableCell className="tableCell" width={300}>
-                    Action
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {data.map(
-                  ({
-                    id,
-                    "Booking Number": bookingNumber,
-                    "Package Type": packageType,
-                    "Customer Name": customerName,
-                    "Customer Phone": customerPhone,
-                    "PickUp Address": pickupAddress,
-                    "DropOff Address": dropOffAddress,
-                    Distance,
-                    Amount,
-                    "Date Created": dateCreated,
-                    "Payment Method": paymentMethod,
-                    "Ride Type": rideType,
-                    "Driver ID": driverID,
-                    Status,
-                  }) => (
-                    <TableRow key={id}>
-                      <TableCell className="tableCell" width={100}>
-                        {bookingNumber}
-                      </TableCell>
+                    <TableCell className="tableCell" width={130}>
+                      Status
+                    </TableCell>
+                    <TableCell className="tableCell" width={300}>
+                      Action
+                    </TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {data.map(
+                    ({
+                      id,
+                      "Booking Number": bookingNumber,
+                      "Package Type": packageType,
+                      "Customer Name": customerName,
+                      "Customer Phone": customerPhone,
+                      "PickUp Address": pickupAddress,
+                      "DropOff Address": dropOffAddress,
+                      Distance,
+                      Amount,
+                      "Date Created": dateCreated,
+                      "Payment Method": paymentMethod,
+                      "Ride Type": rideType,
+                      "Driver ID": driverID,
+                      Status,
+                    }) => (
+                      <TableRow key={id}>
+                        <TableCell className="tableCell" width={100}>
+                          {bookingNumber}
+                        </TableCell>
 
-                      <TableCell className="tableCell">{packageType}</TableCell>
+                        <TableCell className="tableCell">
+                          {packageType}
+                        </TableCell>
 
-                      <TableCell className="tableCell" width={200}>
-                        {customerName}
-                      </TableCell>
+                        <TableCell className="tableCell" width={200}>
+                          {customerName}
+                        </TableCell>
 
-                      <TableCell className="tableCell">
-                        {customerPhone}
-                      </TableCell>
+                        <TableCell className="tableCell">
+                          {customerPhone}
+                        </TableCell>
 
-                      <TableCell className="tableCell" width={300}>
-                        {pickupAddress}
-                      </TableCell>
+                        <TableCell className="tableCell" width={300}>
+                          {pickupAddress}
+                        </TableCell>
 
-                      <TableCell className="tableCell" width={300}>
-                        {dropOffAddress}
-                      </TableCell>
+                        <TableCell className="tableCell" width={300}>
+                          {dropOffAddress}
+                        </TableCell>
 
-                      <TableCell className="tableCell">{Distance}</TableCell>
+                        <TableCell className="tableCell">{Distance}</TableCell>
 
-                      <TableCell className="tableCell">{Amount}</TableCell>
+                        <TableCell className="tableCell">{Amount}</TableCell>
 
-                      <TableCell className="tableCell">
-                        {new Date(dateCreated).toLocaleDateString("en-US")}
-                      </TableCell>
+                        <TableCell className="tableCell">
+                          {new Date(dateCreated).toLocaleDateString("en-US")}
+                        </TableCell>
 
-                      <TableCell className="tableCell">
-                        {paymentMethod}
-                      </TableCell>
+                        <TableCell className="tableCell">
+                          {paymentMethod}
+                        </TableCell>
 
-                      <TableCell className="tableCell">{rideType}</TableCell>
+                        <TableCell className="tableCell">{rideType}</TableCell>
 
-                      <TableCell className="tableCell">{driverID}</TableCell>
+                        <TableCell className="tableCell">{driverID}</TableCell>
 
-                      <TableCell className="tableCell">
-                        <span className="status">{Status}</span>
-                      </TableCell>
+                        <TableCell className="tableCell">
+                          <span className="status">{Status}</span>
+                        </TableCell>
 
-                      <TableCell className="tableCell" width={300}>
-                        <Button
-                          variant="primary"
-                          onClick={() => setSelectedBookingId(id)}
-                          size="sm"
-                        >
-                          <span>Assign</span>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  )
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        ) : (
-          <div className="no-data-message">No pending orders</div>
-        )}
+                        <TableCell className="tableCell" width={300}>
+                          <Button
+                            variant="primary"
+                            onClick={() => setSelectedBookingId(id)}
+                            size="sm"
+                          >
+                            <span>Assign</span>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : (
+            <div className="no-data-message">No pending orders</div>
+          )}
+        </div>
       </div>
       <DriverSelectionModal
         show={selectedBookingId !== null}

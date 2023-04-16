@@ -91,5 +91,23 @@
       color: lightgray;
       margin-bottom: 20px;
     }
+
+         .no-data-message {
+           position: absolute;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           display: flex;
+           align-items: center;
+           justify-content: center;
+           font-size: 24px;
+           color: #999;
+           text-align: center;
+           padding: 20px;
+           background-color: #f7f7f7;
+           border-radius: 10px;
+           box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+           margin: 20px;
+         }
   }
 }

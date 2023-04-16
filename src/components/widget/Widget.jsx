@@ -19,51 +19,58 @@ const Widget = ({ type }) => {
   let data;
   const [totalDrivers, setTotalDrivers] = useState(0);
   const [totalBookings, setTotalBookings] = useState(0);
-  const [totalPrice, setTotalPrice] = useState(0);
+  const [previousMonthTotalPrice, setPreviousMonthTotalPrice] = useState(0);
+  const [totalThisMonth, setTotalThisMonth] = useState(0);
+  const [diff, setDiff] = useState("");
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "Drivers"), (snapshot) => {
       setTotalDrivers(snapshot.size);
     });
 
-    onSnapshot(collection(db, "Bookings"), (snapshot) => {
-      setTotalBookings(snapshot.size);
-    });
+    const bookingsUnsubscribe = onSnapshot(
+      collection(db, "Bookings"),
+      (snapshot) => {
+        setTotalBookings(snapshot.size);
+      }
+    );
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribe();
+      bookingsUnsubscribe();
+    };
   }, []);
 
   //Last month's total
   useEffect(() => {
     const sumPrice = async () => {
-      const startOfMonth = new Date();
-      startOfMonth.setDate(1);
-      startOfMonth.setHours(0, 0, 0, 0);
+      const startOfPreviousMonth = new Date();
+      startOfPreviousMonth.setMonth(startOfPreviousMonth.getMonth() - 1);
+      startOfPreviousMonth.setDate(1);
+      startOfPreviousMonth.setHours(0, 0, 0, 0);
 
-      const endOfMonth = new Date();
-      endOfMonth.setMonth(endOfMonth.getMonth() - 1);
-      endOfMonth.setDate(1);
-      endOfMonth.setHours(0, 0, 0, 0);
+      const endOfPreviousMonth = new Date();
+      endOfPreviousMonth.setDate(0);
+      endOfPreviousMonth.setHours(23, 59, 59, 999);
 
-      const q = query(
+      const prevMonthQuery = query(
         collection(db, "Bookings"),
-        where("Date Created", ">=", endOfMonth.toISOString()),
-        where("Date Created", "<", startOfMonth.toISOString())
+        where("Date Created", ">=", startOfPreviousMonth.toISOString()),
+        where("Date Created", "<=", endOfPreviousMonth.toISOString())
       );
 
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDocs(prevMonthQuery);
       let total = 0;
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         total += parseFloat(data.Amount);
       });
-      setTotalPrice(total);
+      setPreviousMonthTotalPrice(total);
     };
     sumPrice();
   }, []);
 
   //This month's total
-  const [totalPrices, setTotalPrices] = useState(0);
   useEffect(() => {
     const sumPrice = async () => {
       const bookingsRef = collection(db, "Bookings");
@@ -77,29 +84,25 @@ const Widget = ({ type }) => {
         new Date().getMonth() + 1,
         0
       );
-      const q = query(
+      const thisMonthQuery = query(
         bookingsRef,
         where("Date Created", ">=", startOfMonth.toISOString()),
         where("Date Created", "<=", endOfMonth.toISOString())
       );
 
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDocs(thisMonthQuery);
       let total = 0;
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         total += parseFloat(data.Amount);
       });
-      // const formattedPrice = new Intl.NumberFormat("en-NG", {
-      //   style: "currency",
-      //   currency: "NGN",
-      // }).format(total);
-      setTotalPrices(total);
+      setTotalThisMonth(total);
+      const percentageDiff =
+        ((total - previousMonthTotalPrice) / previousMonthTotalPrice) * 100;
+      setDiff(percentageDiff);
     };
     sumPrice();
-  }, []);
-
-  //temporary
-  const diff = 20;
+  }, [previousMonthTotalPrice]);
 
   switch (type) {
     case "user":
@@ -181,8 +184,8 @@ const Widget = ({ type }) => {
           {type === "user" && `${totalDrivers}`}
           {type === "order" && `${totalBookings}`}
           {data.isMoney && "\u20A6 "}
-          {type === "earning" && `${totalPrices}`}
-          {type === "balance" && `${totalPrice}`}
+          {type === "earning" && `${totalThisMonth}`}
+          {type === "balance" && `${previousMonthTotalPrice}`}
         </span>
         <span className="link">{data.link}</span>
       </div>

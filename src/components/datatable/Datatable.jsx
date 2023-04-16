@@ -2,39 +2,53 @@ import "./datatable.scss";
 import { DataGrid } from "@mui/x-data-grid";
 import { userColumns } from "../../datatablesource";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import {
   collection,
   deleteDoc,
   doc,
   onSnapshot,
   getDoc,
+  query,
+  where,
+  updateDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { toast } from "react-toastify";
+import { AuthContext } from "../../context/authContext";
 
 const Datatable = () => {
+  const { currentUser } = useContext(AuthContext);
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    const unsub = onSnapshot(
-      collection(db, "Drivers"),
-      (snapShot) => {
-        let list = [];
-        snapShot.docs.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() });
-        });
-        setData(list);
-      },
-      (error) => {
-        toast.error(error);
+    const fetchData = async () => {
+      if (currentUser) {
+        const userRef = doc(db, "Companies", currentUser.uid);
+        const docs = await getDoc(userRef);
+        console.log(docs.data().phone);
+        const unsub = onSnapshot(
+          query(
+            collection(db, "Drivers"),
+            where("Company", "==", docs.data().company)
+          ),
+          (snapShot) => {
+            let list = [];
+            snapShot.docs.forEach((doc) => {
+              list.push({ id: doc.id, ...doc.data() });
+            });
+            setData(list);
+          },
+          (error) => {
+            toast.error(error);
+          }
+        );
+        return () => unsub();
       }
-    );
-
-    return () => {
-      unsub();
     };
-  }, []);
+
+    fetchData();
+  }, [currentUser]);
 
   const [idToDelete, setIdToDelete] = useState(null);
 
@@ -67,6 +81,25 @@ const Datatable = () => {
     }
   };
 
+  const handleVerify = async (id) => {
+    try {
+      const driverRef = doc(db, "Drivers", id);
+      await updateDoc(driverRef, { Verified: "1" });
+      setData(
+        data.map((driver) => {
+          if (driver.id === id) {
+            return { ...driver, Verified: "1" };
+          } else {
+            return driver;
+          }
+        })
+      );
+      toast.success("Driver verified!");
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
+  };
+
   const actionColumn = [
     {
       field: "action",
@@ -86,12 +119,17 @@ const Datatable = () => {
             >
               Delete
             </div>
-            <div
-              className="verifyButton"
-              //onClick={}
-            >
-              Verify
-            </div>
+
+            {params.row.Verified === "1" ? (
+              <div className="verifiedButton">Verified</div>
+            ) : (
+              <div
+                className="verifyButton"
+                onClick={() => handleVerify(params.row.id)}
+              >
+                Verify
+              </div>
+            )}
           </div>
         );
       },

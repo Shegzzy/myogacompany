@@ -123,7 +123,9 @@ const Single = () => {
             ) : (
               <div className="detailItem">
                 <span className="itemKey">
-                  Driver Not Found or Has Been Deleted
+                  <div className="no-data-message">
+                    Driver Not Found or Has Been Deleted
+                  </div>
                 </span>
               </div>
             )}
@@ -141,6 +143,7 @@ const Single = () => {
                     strokeWidth={5}
                   />
                 </div>
+                <br />
                 <p className="title">Total Earning</p>
                 <p className="amount">₦ {totalBookings}</p>
                 <div className="summary">

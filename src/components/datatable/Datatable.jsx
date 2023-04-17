@@ -26,7 +26,6 @@ const Datatable = () => {
       if (currentUser) {
         const userRef = doc(db, "Companies", currentUser.uid);
         const docs = await getDoc(userRef);
-        console.log(docs.data().phone);
         const unsub = onSnapshot(
           query(
             collection(db, "Drivers"),

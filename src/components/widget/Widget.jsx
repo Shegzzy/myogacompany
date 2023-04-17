@@ -5,15 +5,18 @@ import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalance
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { db } from "../../firebase";
 import {
   collection,
+  doc,
+  getDoc,
   getDocs,
   onSnapshot,
   query,
   where,
 } from "firebase/firestore";
+import { AuthContext } from "../../context/authContext";
 
 const Widget = ({ type }) => {
   let data;
@@ -22,24 +25,42 @@ const Widget = ({ type }) => {
   const [previousMonthTotalPrice, setPreviousMonthTotalPrice] = useState(0);
   const [totalThisMonth, setTotalThisMonth] = useState(0);
   const [diff, setDiff] = useState("");
+  const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "Drivers"), (snapshot) => {
-      setTotalDrivers(snapshot.size);
-    });
+    const fetchData = async () => {
+      if (currentUser) {
+        const userRef = doc(db, "Companies", currentUser.uid);
+        const docs = await getDoc(userRef);
+        const unsubscribe = onSnapshot(
+          query(
+            collection(db, "Drivers"),
+            where("Company", "==", docs.data().company)
+          ),
+          (snapShot) => {
+            setTotalDrivers(snapShot.size);
+          }
+        );
 
-    const bookingsUnsubscribe = onSnapshot(
-      collection(db, "Bookings"),
-      (snapshot) => {
-        setTotalBookings(snapshot.size);
+        const bookingsUnsubscribe = onSnapshot(
+          collection(db, "Bookings"),
+          (snapshot) => {
+            setTotalBookings(snapshot.size);
+          }
+        );
+        return () => {
+          unsubscribe();
+          bookingsUnsubscribe();
+        };
       }
-    );
-
-    return () => {
-      unsubscribe();
-      bookingsUnsubscribe();
     };
-  }, []);
+
+    // const unsubscribe = onSnapshot(collection(db, "Drivers"), (snapshot) => {
+    //   setTotalDrivers(snapshot.size);
+    // });
+
+    fetchData();
+  }, [currentUser]);
 
   //Last month's total
   useEffect(() => {
@@ -53,27 +74,31 @@ const Widget = ({ type }) => {
       endOfPreviousMonth.setDate(0);
       endOfPreviousMonth.setHours(23, 59, 59, 999);
 
-      const prevMonthQuery = query(
-        collection(db, "Bookings"),
-        where("Date Created", ">=", startOfPreviousMonth.toISOString()),
-        where("Date Created", "<=", endOfPreviousMonth.toISOString())
-      );
+      if (currentUser) {
+        const userRef = doc(db, "Companies", currentUser.uid);
+        const docs = await getDoc(userRef);
+        const prevMonthQuery = query(
+          collection(db, "Earnings"),
+          where("Company", "==", docs.data().company),
+          where("DateCreated", ">=", startOfPreviousMonth.toISOString()),
+          where("DateCreated", "<=", endOfPreviousMonth.toISOString())
+        );
 
-      const querySnapshot = await getDocs(prevMonthQuery);
-      let total = 0;
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        total += parseFloat(data.Amount);
-      });
-      setPreviousMonthTotalPrice(total);
+        const querySnapshot = await getDocs(prevMonthQuery);
+        let total = 0;
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          total += parseFloat(data.Amount);
+        });
+        setPreviousMonthTotalPrice(total);
+      }
     };
     sumPrice();
-  }, []);
+  }, [currentUser]);
 
   //This month's total
   useEffect(() => {
     const sumPrice = async () => {
-      const bookingsRef = collection(db, "Bookings");
       const startOfMonth = new Date(
         new Date().getFullYear(),
         new Date().getMonth(),
@@ -84,25 +109,33 @@ const Widget = ({ type }) => {
         new Date().getMonth() + 1,
         0
       );
-      const thisMonthQuery = query(
-        bookingsRef,
-        where("Date Created", ">=", startOfMonth.toISOString()),
-        where("Date Created", "<=", endOfMonth.toISOString())
-      );
 
-      const querySnapshot = await getDocs(thisMonthQuery);
-      let total = 0;
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        total += parseFloat(data.Amount);
-      });
-      setTotalThisMonth(total);
-      const percentageDiff =
-        ((total - previousMonthTotalPrice) / previousMonthTotalPrice) * 100;
-      setDiff(percentageDiff);
+      if (currentUser) {
+        const userRef = doc(db, "Companies", currentUser.uid);
+        const docs = await getDoc(userRef);
+        const thisMonthQuery = query(
+          collection(db, "Earnings"),
+          where("Company", "==", docs.data().company),
+          where("DateCreated", ">=", startOfMonth.toISOString()),
+          where("DateCreated", "<", endOfMonth.toISOString())
+        );
+
+        const querySnapshot = await getDocs(thisMonthQuery);
+        let total = 0;
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          total += parseFloat(data.Amount);
+        });
+        setTotalThisMonth(total);
+        const percentageDiff =
+          ((totalThisMonth - previousMonthTotalPrice) /
+            previousMonthTotalPrice) *
+          100;
+        setDiff(percentageDiff);
+      }
     };
     sumPrice();
-  }, [previousMonthTotalPrice]);
+  }, [previousMonthTotalPrice, currentUser, totalThisMonth]);
 
   switch (type) {
     case "user":

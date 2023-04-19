@@ -8,16 +8,19 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
+import { AuthContext } from "../../context/authContext";
+
 import {
   collection,
   doc,
   getDocs,
+  getDoc,
   onSnapshot,
   query,
   updateDoc,
   where,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { db } from "../../firebase";
 //import { toast } from "react-toastify";
 import DriverSelectionModal from "../../components/modal/modal";
@@ -25,6 +28,7 @@ import { Button } from "react-bootstrap";
 import { toast } from "react-toastify";
 
 const Delivery = ({ title }) => {
+  const { currentUser } = useContext(AuthContext);
   const [data, setData] = useState([]);
 
   const [selectedBookingId, setSelectedBookingId] = useState(null);
@@ -54,25 +58,31 @@ const Delivery = ({ title }) => {
   useEffect(() => {
     const fetchAvailableDrivers = async () => {
       // fetch the list of available drivers from the database
-      const driversQuery = query(
-        collection(db, "Drivers"),
-        where("Online", "==", "1")
-      );
-      const driversSnapshot = await getDocs(driversQuery);
-      const driversData = driversSnapshot.docs.map((doc) => {
-        return { ...doc.data(), id: doc.id };
-      });
+      if (currentUser) {
+        const userRef = doc(db, "Companies", currentUser.uid);
+        const docs = await getDoc(userRef);
+        const driversQuery = query(
+          collection(db, "Drivers"),
+          where("Company", "==", docs.data().company),
+          where("Online", "==", "1")
+        );
+        const driversSnapshot = await getDocs(driversQuery);
+        const driversData = driversSnapshot.docs.map((doc) => {
+          return { ...doc.data(), id: doc.id };
+        });
 
-      // set the availableDrivers state variable to the fetched data
-      setAvailableDrivers(driversData);
+        // set the availableDrivers state variable to the fetched data
+        setAvailableDrivers(driversData);
+      }
     };
 
     if (selectedBookingId) {
       fetchAvailableDrivers();
     }
-  }, [selectedBookingId]);
+  }, [selectedBookingId, currentUser]);
 
   useEffect(() => {
+    //Fetch all unasigned bookings
     const bookingsQuery = query(
       collection(db, "Bookings"),
       where("Driver ID", "==", null)
@@ -87,7 +97,9 @@ const Delivery = ({ title }) => {
         });
       });
       // Sort the bookingsData array in descending order by Timestamp
-      bookingsData.sort((a, b) => b.Timestamp - a.Timestamp);
+      bookingsData.sort(
+        (a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"])
+      );
       setData(bookingsData);
     });
     return () => {
@@ -104,7 +116,7 @@ const Delivery = ({ title }) => {
           <h1>{title}</h1>
         </div>
         <div className="b-table">
-          {data.lenght > 0 ? (
+          {data.length > 0 ? (
             <TableContainer component={Paper} className="table">
               <Table sx={{ minWidth: 700 }} aria-label="simple table">
                 <TableHead>
@@ -234,7 +246,7 @@ const Delivery = ({ title }) => {
                             onClick={() => setSelectedBookingId(id)}
                             size="sm"
                           >
-                            <span>Assign</span>
+                            Assign
                           </Button>
                         </TableCell>
                       </TableRow>

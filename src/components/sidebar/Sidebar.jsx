@@ -2,7 +2,7 @@ import "./sidebar.scss";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 //import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
-import CreditCardIcon from "@mui/icons-material/CreditCard";
+//import CreditCardIcon from "@mui/icons-material/CreditCard";
 import StoreIcon from "@mui/icons-material/Store";
 //import InsertChartIcon from "@mui/icons-material/InsertChart";
 //import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
@@ -55,13 +55,13 @@ const Sidebar = () => {
               <span>Riders</span>
             </li>
           </Link>
-
+          {/* 
           <Link to="/bookings" style={{ textDecoration: "none" }}>
             <li>
               <CreditCardIcon className="icon" />
               <span>Bookings</span>
             </li>
-          </Link>
+          </Link> */}
 
           <Link to="/delivery" style={{ textDecoration: "none" }}>
             <li>
@@ -70,13 +70,13 @@ const Sidebar = () => {
             </li>
           </Link>
 
-          <p className="title">USEFUL</p>
+          {/* <p className="title">USEFUL</p>
           <Link to="/bookingstatus" style={{ textDecoration: "none" }}>
             <li>
               <CreditCardIcon className="icon" />
               <span>Booking Status</span>
             </li>
-          </Link>
+          </Link> */}
 
           <p className="title">USER</p>
           <Link to={`/profile/${userId}`} style={{ textDecoration: "none" }}>

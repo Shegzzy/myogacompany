@@ -16,6 +16,7 @@ import {
 import { db } from "../../firebase";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/authContext";
+import { Button } from "react-bootstrap";
 
 const Datatable = () => {
   const { currentUser } = useContext(AuthContext);
@@ -36,13 +37,19 @@ const Datatable = () => {
             snapShot.docs.forEach((doc) => {
               list.push({ id: doc.id, ...doc.data() });
             });
+            list.sort(
+              (a, b) =>
+                new Date(b["Date Created"]) - new Date(a["Date Created"])
+            );
             setData(list);
           },
           (error) => {
             toast.error(error);
           }
         );
-        return () => unsub();
+        return () => {
+          unsub(); // Unsubscribe from the snapshot listener when the component unmounts
+        };
       }
     };
 
@@ -99,34 +106,73 @@ const Datatable = () => {
     }
   };
 
+  const handleUnVerify = async (id) => {
+    try {
+      const driverRef = doc(db, "Drivers", id);
+      await updateDoc(driverRef, { Verified: "0" });
+      setData(
+        data.map((driver) => {
+          if (driver.id === id) {
+            return { ...driver, Verified: "0" };
+          } else {
+            return driver;
+          }
+        })
+      );
+      toast.success("Rider Unverified!");
+    } catch (err) {
+      toast.error("Something went wrong");
+    }
+  };
+
   const actionColumn = [
     {
       field: "action",
       headerName: "Action",
-      width: 200,
+      width: 250,
       renderCell: (params) => {
         return (
           <div className="cellAction">
-            <Link to={`/users/${params.id}`} style={{ textDecoration: "none" }}>
-              <div className="viewButton" onClick={() => handleView(params.id)}>
+            <Link
+              className="viewButton-link"
+              to={`/users/${params.id}`}
+              style={{ textDecorationColor: "none", color: "white" }}
+            >
+              <Button
+                className="viewButton"
+                variant="primary"
+                onClick={() => handleView(params.id)}
+              >
                 View
-              </div>
+              </Button>
             </Link>
-            <div
+            <Button
               className="deleteButton"
-              onClick={() => handleDeleteConfirmation(params.row.id)}
+              variant="danger"
+              onClick={() => handleDeleteConfirmation(params.id)}
             >
               Delete
-            </div>
+            </Button>
 
             {params.row.Verified === "1" ? (
-              <div className="verifiedButton">Verified</div>
+              <div>
+                <Button
+                  className="verifyButton"
+                  variant="secondary"
+                  onClick={() => handleUnVerify(params.row.id)}
+                >
+                  Unverify
+                </Button>
+              </div>
             ) : (
-              <div
-                className="verifyButton"
-                onClick={() => handleVerify(params.row.id)}
-              >
-                Verify
+              <div>
+                <Button
+                  className="verifyButton"
+                  variant="secondary"
+                  onClick={() => handleVerify(params.row.id)}
+                >
+                  Verify
+                </Button>
               </div>
             )}
           </div>

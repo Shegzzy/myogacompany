@@ -31,7 +31,14 @@ const AdminProfile = () => {
   }, [currentUser]);
 
   if (!user) {
-    return <div>Loading...</div>;
+    return (
+      <div className="single-container">
+        <div className="loader">
+          <div className="lds-dual-ring"></div>
+          <div>Loading... </div>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -79,7 +86,7 @@ const AdminProfile = () => {
               <Card className="card">
                 <CardContent>
                   <Typography variant="h6" component="h2">
-                    Bio
+                    Company Registered Number
                   </Typography>
                   <Typography variant="body2" component="p">
                     {user.regnumber}

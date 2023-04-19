@@ -54,8 +54,12 @@
       color: gray;
       border: none;
 
-      .viewButton,
-      .deleteButton,
+      .viewButton{
+        color: azure;
+      }
+      .deleteButton{
+        color: white;
+      }
       .cellWithStatus {
         color: gray;
         border: none;

@@ -68,26 +68,31 @@
     gap: 15px;
 
     .viewButton {
+            font-family: 'Times New Roman';
       padding: 2px 5px;
       border-radius: 5px;
-      color: darkblue;
-      border: 1px dotted rgba(0, 0, 139, 0.596);
+      border: none;
+      color: aliceblue;
+      width: 60px;
       cursor: pointer;
     }
     
     .deleteButton {
+            font-family: 'Times New Roman';
       padding: 2px 5px;
+      width: 60px;
       border-radius: 5px;
-      color: crimson;
-      border: 1px dotted rgba(220, 20, 60, 0.6);
+      color: rgb(255, 255, 255);
+      border: none;
       cursor: pointer;
     }
     
     .verifyButton {
-      padding: 2px 5px;
+      font-family:'Times New Roman';
+      padding: 2px 10px;
       border-radius: 5px;
-      color: green;
-      border: 1px dotted rgba(220, 20, 60, 0.6);
+      color: white;
+      border: none;
       cursor: pointer;
     }
   }

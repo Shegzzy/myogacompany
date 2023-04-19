@@ -91,9 +91,9 @@ const New = ({ inputs, title }) => {
         ...data,
         Documents: data.Documents || [],
         timeStamp: serverTimestamp(),
-        'Date Created': Date.now().toString(),
+        "Date Created": Date.now().toString(),
       });
-      toast.success("Driver added successfully!!");
+      toast.success("Rider added successfully!!");
       navigate(-1);
     } catch (err) {
       toast.error(err);

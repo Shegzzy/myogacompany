@@ -143,6 +143,7 @@ const Featured = () => {
     );
 
     if (currentUser) {
+      //This Month's Earning Query
       const userRef = doc(db, "Companies", currentUser.uid);
       const docs = await getDoc(userRef);
       const thisMonthQuery = query(
@@ -151,6 +152,8 @@ const Featured = () => {
         where("DateCreated", ">=", firstDayOfMonth.toISOString()),
         where("DateCreated", "<=", today.toISOString())
       );
+
+      //Last Month's Earning Query
       const lastMonthQuery = query(
         collection(db, "Earnings"),
         where("Company", "==", docs.data().company),
@@ -163,12 +166,15 @@ const Featured = () => {
       //   where("timeStamp", "<=", lastMonth),
       //   where("timeStamp", ">", prevMonth)
       // );
+      //A week ago
       const oneWeekQuery = query(
         collection(db, "Earnings"),
         where("Company", "==", docs.data().company),
         where("timeStamp", "<=", today),
         where("timeStamp", ">", oneWeekAgo)
       );
+
+      //Two weeks ago
       const twoWeekQuery = query(
         collection(db, "Earnings"),
         where("Company", "==", docs.data().company),
@@ -180,11 +186,19 @@ const Featured = () => {
       const thisMonthData = await getDocs(thisMonthQuery);
       // const oneWeekData = await getDocs(oneWeekQuery);
       // const twoWeekData = await getDocs(twoWeekQuery);
-      setDiff(
+      // setDiff(
+      //   ((thisMonthData.docs.length - lastMonthData.docs.length) /
+      //     lastMonthData.docs.length) *
+      //     100
+      // );
+
+      //Gettin the percentage difference
+      const currentMonthPercentageDiff =
         ((thisMonthData.docs.length - lastMonthData.docs.length) /
           lastMonthData.docs.length) *
-          100
-      );
+        100;
+      const roundedDiff = currentMonthPercentageDiff.toFixed(2); // round up to 2 decimal places
+      setDiff(roundedDiff);
 
       // getDocs(lastMonthQuery).then((querySnapshot) => {
       //   let total = 0;
@@ -195,6 +209,7 @@ const Featured = () => {
       //   setLData(total);
       // });
 
+      //Calculating a week ago amount
       getDocs(oneWeekQuery).then((querySnapshot) => {
         let total = 0;
         querySnapshot.forEach((doc) => {
@@ -204,6 +219,7 @@ const Featured = () => {
         setOData(total);
       });
 
+      //Calculating two weeks ago amount
       getDocs(twoWeekQuery).then((querySnapshot) => {
         let total = 0;
         querySnapshot.forEach((doc) => {

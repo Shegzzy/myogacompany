@@ -1,5 +1,6 @@
 import "./widget.scss";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import KeyboardArrowUpOutlinedIcon from "@mui/icons-material/KeyboardArrowUpOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import AccountBalanceWalletOutlinedIcon from "@mui/icons-material/AccountBalanceWalletOutlined";
 import ShoppingCartOutlinedIcon from "@mui/icons-material/ShoppingCartOutlined";
@@ -25,6 +26,7 @@ const Widget = ({ type }) => {
   const [previousMonthTotalPrice, setPreviousMonthTotalPrice] = useState(0);
   const [totalThisMonth, setTotalThisMonth] = useState(0);
   const [diff, setDiff] = useState("");
+  const [lMDiff, setLMDiff] = useState("");
   const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
@@ -127,15 +129,71 @@ const Widget = ({ type }) => {
           total += parseFloat(data.Amount);
         });
         setTotalThisMonth(total);
-        const percentageDiff =
-          ((totalThisMonth - previousMonthTotalPrice) /
-            previousMonthTotalPrice) *
-          100;
-        setDiff(percentageDiff);
       }
     };
     sumPrice();
   }, [previousMonthTotalPrice, currentUser, totalThisMonth]);
+
+  useEffect(() => {
+    getData();
+  });
+
+  const getData = async () => {
+    const startOfPreviousMonth = new Date();
+    startOfPreviousMonth.setMonth(startOfPreviousMonth.getMonth() - 1);
+    startOfPreviousMonth.setDate(1);
+    startOfPreviousMonth.setHours(0, 0, 0, 0);
+
+    const endOfPreviousMonth = new Date();
+    endOfPreviousMonth.setDate(0);
+    endOfPreviousMonth.setHours(23, 59, 59, 999);
+
+    const startOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0
+    );
+
+    if (currentUser) {
+      const userRef = doc(db, "Companies", currentUser.uid);
+      const docs = await getDoc(userRef);
+      const prevMonthQuery = query(
+        collection(db, "Earnings"),
+        where("Company", "==", docs.data().company),
+        where("DateCreated", ">=", startOfPreviousMonth.toISOString()),
+        where("DateCreated", "<=", endOfPreviousMonth.toISOString())
+      );
+
+      const thisMonthQuery = query(
+        collection(db, "Earnings"),
+        where("Company", "==", docs.data().company),
+        where("DateCreated", ">=", startOfMonth.toISOString()),
+        where("DateCreated", "<", endOfMonth.toISOString())
+      );
+
+      const lastMonthData = await getDocs(prevMonthQuery);
+      const thisMonthData = await getDocs(thisMonthQuery);
+
+      const currentMonthPercentageDiff =
+        ((thisMonthData.docs.length - lastMonthData.docs.length) /
+          lastMonthData.docs.length) *
+        100;
+      const roundedDiff = currentMonthPercentageDiff.toFixed(2); // round up to 2 decimal places
+      setDiff(roundedDiff);
+
+      const lastMonthPercentageDiff =
+        ((lastMonthData.docs.length - thisMonthData.docs.length) /
+          thisMonthData.docs.length) *
+        100;
+      const roundedLastMonthDiff = lastMonthPercentageDiff.toFixed(2); // round up to 2 decimal places
+      setLMDiff(roundedLastMonthDiff);
+    }
+  };
 
   switch (type) {
     case "user":
@@ -224,8 +282,39 @@ const Widget = ({ type }) => {
       </div>
       <div className="right">
         <div className="percentage positive">
-          <KeyboardArrowUpIcon />
-          {diff} %
+          {type === "earning" && (
+            <>
+              {totalThisMonth > previousMonthTotalPrice ? (
+                <KeyboardArrowUpOutlinedIcon
+                  style={{ color: "green" }}
+                  fontSize="small"
+                />
+              ) : (
+                <KeyboardArrowDownIcon
+                  style={{ color: "red" }}
+                  fontSize="small"
+                />
+              )}
+              {`${diff}%`}
+            </>
+          )}
+
+          {type === "balance" && (
+            <>
+              {previousMonthTotalPrice > totalThisMonth ? (
+                <KeyboardArrowUpOutlinedIcon
+                  style={{ color: "green" }}
+                  fontSize="small"
+                />
+              ) : (
+                <KeyboardArrowDownIcon
+                  style={{ color: "red" }}
+                  fontSize="small"
+                />
+              )}
+              {`${lMDiff}%`}
+            </>
+          )}
         </div>
         {data.icon}
       </div>

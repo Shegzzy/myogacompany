@@ -70,7 +70,7 @@ const Login = () => {
   useEffect(() => {
     const uploadDocuments = async () => {
       const promises = documents.map((file) => {
-        const storageRef = ref(storage, file.name);
+        const storageRef = ref(storage, "company_documents/" + file.name);
         const uploadTask = uploadBytesResumable(storageRef, file);
         return uploadTask;
       });
@@ -146,7 +146,7 @@ const Login = () => {
         } else {
           // If the query doesn't return a document, the email and password are invalid
           seterror(true);
-          const errormsg = "Invalid email or password";
+          const errormsg = Errormsg;
           seterrormsg(errormsg);
         }
       } catch (error) {

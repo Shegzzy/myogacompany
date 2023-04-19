@@ -6,7 +6,13 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../../firebase";
-import { collection, doc, getDoc, onSnapshot } from "firebase/firestore";
+import {
+  collection,
+  doc,
+  getDoc,
+  onSnapshot,
+  getDocs,
+} from "firebase/firestore";
 import KeyboardArrowUpOutlinedIcon from "@mui/icons-material/KeyboardArrowUpOutlined";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "../../components/featured/featured.scss";
@@ -20,32 +26,44 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import ModalContainer from "../../components/modal/ModalContainer";
 // import { toast } from "react-toastify";
 // import { DisabledByDefault } from "@mui/icons-material";
 
 const Single = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
-  const [totalBookings, setTotalBookings] = useState(0);
+  const [totalEarnings, setTotalEarnings] = useState(0);
+  const [diff, setDiff] = useState(null);
+  const [oData, setOData] = useState([]);
+  const [lWData, setLWData] = useState([]);
 
   //Fetching rider's data
   useEffect(() => {
+    let isMounted = true;
+
     const fetchUser = async () => {
       const userRef = doc(db, "Drivers", id);
       const userDoc = await getDoc(userRef);
-      if (userDoc.exists()) {
+      if (isMounted && userDoc.exists()) {
         setUser(userDoc.data());
       }
     };
 
     fetchUser();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   // Calculating rider's total earnings
   useEffect(() => {
+    let isMounted = true;
+
     const bookingsQuery = query(
-      collection(db, "Bookings"),
-      where("Driver ID", "==", id)
+      collection(db, "Earnings"),
+      where("Driver", "==", id)
     );
     const unsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
       let totalAmount = 0;
@@ -53,9 +71,13 @@ const Single = () => {
         const booking = doc.data();
         totalAmount += parseFloat(booking.Amount);
       });
-      setTotalBookings(totalAmount);
+      if (isMounted) {
+        setTotalEarnings(totalAmount);
+      }
     });
+
     return () => {
+      isMounted = false;
       unsubscribe();
     };
   }, [id]);
@@ -63,6 +85,8 @@ const Single = () => {
   const [data, setData] = useState([]);
   // Fetching all rider's deliveries
   useEffect(() => {
+    let isMounted = true;
+
     const bookingsQuery = query(
       collection(db, "Bookings"),
       where("Driver ID", "==", id)
@@ -71,14 +95,143 @@ const Single = () => {
       const bookingsData = [];
       snapshot.forEach((doc) => {
         const booking = doc.data();
-        bookingsData.push(booking);
+        const bookingId = doc.id; // unique ID for this booking document
+        bookingsData.push({ ...booking, id: bookingId }); // include ID in booking data
       });
-      setData(bookingsData);
+      if (isMounted) {
+        bookingsData.sort(
+          (a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"])
+        );
+        setData(bookingsData);
+      }
     });
+
     return () => {
+      isMounted = false;
       unsubscribe();
     };
   }, [id]);
+
+  useEffect(() => {
+    getData();
+  });
+
+  const getData = async () => {
+    // let dataArray = [];
+    // let dataOArray = [];
+    const today = new Date();
+    const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const twoWeekAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    // const prevMonth = new Date(new Date().setMonth(today.getMonth() - 2));
+
+    const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+    const endOfMonth = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      0,
+      23,
+      59,
+      59,
+      999
+    );
+
+    //This Month's Earning Query
+    const thisMonthQuery = query(
+      collection(db, "Earnings"),
+      where("Driver", "==", id),
+      where("DateCreated", ">=", firstDayOfMonth.toISOString()),
+      where("DateCreated", "<=", today.toISOString())
+    );
+
+    //Last Month's Earning Query
+    const lastMonthQuery = query(
+      collection(db, "Earnings"),
+      where("Driver", "==", id),
+      where("DateCreated", ">=", lastMonth.toISOString()),
+      where("DateCreated", "<=", endOfMonth.toISOString())
+    );
+    // const prevMonthQuery = query(
+    //   collection(db, "Earnings"),
+    //   where("Company", "==", docs.data().company),
+    //   where("timeStamp", "<=", lastMonth),
+    //   where("timeStamp", ">", prevMonth)
+    // );
+    //A week ago
+    const oneWeekQuery = query(
+      collection(db, "Earnings"),
+      where("Driver", "==", id),
+      where("timeStamp", "<=", today),
+      where("timeStamp", ">", oneWeekAgo)
+    );
+
+    //Two weeks ago
+    const twoWeekQuery = query(
+      collection(db, "Earnings"),
+      where("Driver", "==", id),
+      where("timeStamp", "<=", oneWeekAgo),
+      where("timeStamp", ">", twoWeekAgo)
+    );
+
+    const lastMonthData = await getDocs(lastMonthQuery);
+    const thisMonthData = await getDocs(thisMonthQuery);
+    // const oneWeekData = await getDocs(oneWeekQuery);
+    // const twoWeekData = await getDocs(twoWeekQuery);
+    // setDiff(
+    //   ((thisMonthData.docs.length - lastMonthData.docs.length) /
+    //     lastMonthData.docs.length) *
+    //     100
+    // );
+
+    //Gettin the percentage difference
+    const currentMonthPercentageDiff =
+      ((thisMonthData.docs.length - lastMonthData.docs.length) /
+        lastMonthData.docs.length) *
+      100;
+    const roundedDiff = currentMonthPercentageDiff.toFixed(2); // round up to 2 decimal places
+    setDiff(roundedDiff);
+
+    // getDocs(lastMonthQuery).then((querySnapshot) => {
+    //   let total = 0;
+    //   querySnapshot.forEach((doc) => {
+    //     const data = doc.data();
+    //     total += parseFloat(data.Amount);
+    //   });
+    //   setLData(total);
+    // });
+
+    //Calculating a week ago amount
+    getDocs(oneWeekQuery).then((querySnapshot) => {
+      let total = 0;
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        total += parseFloat(data.Amount);
+      });
+      setOData(total);
+    });
+
+    //Calculating two weeks ago amount
+    getDocs(twoWeekQuery).then((querySnapshot) => {
+      let total = 0;
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        total += parseFloat(data.Amount);
+      });
+      setLWData(total);
+    });
+
+    // const total = lData.reduce(
+    //   (total, item) => total + parseInt(item.Amount),
+    //   0
+    // );
+    // setLastSum(total);
+
+    // const sum = oData.reduce(
+    //   (total, item) => total + parseInt(item.Amount),
+    //   0
+    // );
+    // setOneSum(sum);
+  };
 
   return (
     <div className="single">
@@ -133,32 +286,32 @@ const Single = () => {
           <div className="right">
             <div className="featured">
               <div className="top">
-                <h1 className="title">Total Income</h1>
+                <h1 className="title">Total Earning</h1>
               </div>
               <div className="bottom">
                 <div className="featuredChart">
                   <CircularProgressbar
-                    value={70}
-                    text={"70%"}
+                    value={diff}
+                    text={`${diff}%`}
                     strokeWidth={5}
                   />
                 </div>
                 <br />
-                <p className="title">Total Earning</p>
-                <p className="amount">₦ {totalBookings}</p>
+                <p className="title">Total</p>
+                <p className="amount">₦ {totalEarnings}</p>
                 <div className="summary">
                   <div className="item">
                     <div className="itemTitle">Last Week</div>
                     <div className="itemResult positive">
                       <KeyboardArrowUpOutlinedIcon fontSize="small" />
-                      <div className="resultAmount">₦12.4k</div>
+                      <div className="resultAmount">₦{oData}</div>
                     </div>
                   </div>
                   <div className="item">
-                    <div className="itemTitle">Last Month</div>
+                    <div className="itemTitle">Two Weeks Ago</div>
                     <div className="itemResult positive">
                       <KeyboardArrowUpOutlinedIcon fontSize="small" />
-                      <div className="resultAmount">₦12.4k</div>
+                      <div className="resultAmount">₦{lWData}</div>
                     </div>
                   </div>
                 </div>
@@ -185,9 +338,9 @@ const Single = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data &&
+                {data ? (
                   data.map((row) => (
-                    <TableRow key={row.uuid}>
+                    <TableRow key={row.id}>
                       <TableCell className="tableCell">
                         {row["Booking Number"]}
                       </TableCell>
@@ -220,9 +373,17 @@ const Single = () => {
                       </TableCell>
                       <TableCell className="tableCell">
                         {row["Status"]}
+                        {<ModalContainer id={row.id} />}
                       </TableCell>
                     </TableRow>
-                  ))}
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={10} align="center">
+                      No data available.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
           </TableContainer>

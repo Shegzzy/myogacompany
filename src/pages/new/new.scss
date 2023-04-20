@@ -70,13 +70,34 @@
             cursor: pointer;
             margin-top: 10px;
 
-            &:disabled{
-              background-color: rgb(4, 230, 230);
-              cursor: not-allowed;
-            }
           }
         }
       }
     }
+  }
+}
+.uploading-message {
+  position: relative;
+  animation-name: fade-in-out;
+  animation-duration: 2s;
+  animation-iteration-count: infinite;
+  color: blueviolet;
+}
+
+.uploaded-message {
+  color: lightgreen;
+}
+
+@keyframes fade-in-out {
+  0% {
+    opacity: 0;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
   }
 }

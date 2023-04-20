@@ -13,8 +13,12 @@ import { toast } from "react-toastify";
 const New = ({ inputs, title }) => {
   const [file, setFile] = useState("");
   const [data, setData] = useState({});
-  const [per, setPerc] = useState(null);
+  const [per, setPerc] = useState(0);
   const [files, setFiles] = useState([]);
+  const [uploaded, setUploaded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,10 +29,18 @@ const New = ({ inputs, title }) => {
 
       uploadTask.on(
         "state_changed",
+
         (snapshot) => {
+          let progres = null;
+
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-
+          setUploadLoading(true);
+          progres = progress;
+          if (progres === 100) {
+            setUploadLoading(false);
+            setUploaded(true);
+          }
           setPerc(progress);
           switch (snapshot.state) {
             case "paused":
@@ -80,6 +92,7 @@ const New = ({ inputs, title }) => {
   };
 
   const handleAdd = async (e) => {
+    setLoading(true);
     e.preventDefault();
     try {
       const res = await createUserWithEmailAndPassword(
@@ -118,6 +131,11 @@ const New = ({ inputs, title }) => {
               }
               alt=""
             />
+            {uploadLoading ? (
+              <p className="uploading-message">Uploading {parseInt(per)}%</p>
+            ) : uploaded ? (
+              <p className="uploaded-message">Uploaded</p>
+            ) : null}
           </div>
           <div className="right">
             <form onSubmit={handleAdd}>
@@ -167,8 +185,19 @@ const New = ({ inputs, title }) => {
                   )}
                 </div>
               ))}
-              <button disabled={per !== null && per < 100} type="submit">
+              {/* <button disabled={per !== null && per < 100} type="submit">
                 Send
+              </button> */}
+              <button
+                type="submit"
+                className={loading ? "spinner-btn" : ""}
+                disabled={loading}
+              >
+                <span className={loading ? "hidden" : ""}>Save</span>
+                <span className={loading ? "" : "hidden"}>
+                  <div className="spinner"></div>
+                </span>
+                {loading && <span>Saving...</span>}
               </button>
             </form>
           </div>

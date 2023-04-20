@@ -14,6 +14,7 @@ const Edittable = ({ inputs, title }) => {
   const [files, setFiles] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
   const { id } = useParams();
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,6 +33,7 @@ const Edittable = ({ inputs, title }) => {
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       // Upload new photo to Firebase Storage
       let photoUrl = userProfile["Profile Photo"];
@@ -59,7 +61,7 @@ const Edittable = ({ inputs, title }) => {
       };
       const userRef = doc(db, "Drivers", id);
       await updateDoc(userRef, updatedProfile);
-      toast.success("Driver updated");
+      toast.success("Rider updated");
     } catch (error) {
       toast.error(error.message);
     }
@@ -151,7 +153,18 @@ const Edittable = ({ inputs, title }) => {
                 </div>
               ))}
 
-              <button type="submit">Save</button>
+              {/* <button type="submit">Save</button> */}
+              <button
+                type="submit"
+                className={loading ? "spinner-btn" : ""}
+                disabled={loading}
+              >
+                <span className={loading ? "hidden" : ""}>Update</span>
+                <span className={loading ? "" : "hidden"}>
+                  <div className="spinner"></div>
+                </span>
+                {loading && <span>Updating...</span>}
+              </button>
             </form>
           </div>
         </div>

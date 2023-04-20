@@ -108,6 +108,50 @@
     color: #aa0c6e;
     cursor: pointer;
 }
+button {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.spinner-btn:disabled {
+    background-color: #7e7070;
+    cursor: not-allowed;
+}
 
+.hidden {
+    display: none;
+}
 
+.spinner {
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    animation: spin 0.8s linear infinite;
+    margin-right: 10px;
+}
+
+.spinner-btn {
+    background-color: #810555;
+    border: none;
+    border-radius: 20px;
+    margin-top: 20px;
+    padding: 10px;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
 

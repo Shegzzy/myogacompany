@@ -2,6 +2,7 @@ import "./login.scss";
 import logo from "../../components/assets/images/myogaIcon2.png";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Button } from "react-bootstrap";
 
 import { auth, db, storage } from "../../firebase";
 import {
@@ -37,6 +38,7 @@ const Login = () => {
   const [Errormsg, seterrormsg] = useState(false);
   const [newUser, setnewUser] = useState(false);
   const [companyError, setCompanyError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -89,6 +91,7 @@ const Login = () => {
   }, [documents]);
 
   const submit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     seterror(false);
 
@@ -273,7 +276,19 @@ const Login = () => {
         {error && <span className="error">Process Failed!!</span>}
         {error && <span className="error">{Errormsg}</span>}
 
-        <button type="submit">{newUser ? "Sing Up" : "Login"}</button>
+        <button
+          type="submit"
+          className={loading ? "spinner-btn" : ""}
+          disabled={loading}
+        >
+          <span className={loading ? "hidden" : ""}>
+            {newUser ? "Sign Up" : "Login"}
+          </span>
+          <span className={loading ? "" : "hidden"}>
+            <div className="spinner"></div>
+          </span>
+          {loading && <span>Signing In...</span>}
+        </button>
 
         {newUser ? (
           <span className="user-stat">

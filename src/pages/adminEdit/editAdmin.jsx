@@ -15,6 +15,7 @@ const EdittableAdmin = ({ inputs, title }) => {
   const [userProfile, setUserProfile] = useState(null);
   const { id } = useParams();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -31,6 +32,7 @@ const EdittableAdmin = ({ inputs, title }) => {
   }, [id]);
 
   const handleFormSubmit = async (e) => {
+    setLoading(true);
     e.preventDefault();
     try {
       // Upload new photo to Firebase Storage
@@ -129,7 +131,17 @@ const EdittableAdmin = ({ inputs, title }) => {
                 </div>
               ))}
 
-              <button type="submit">Save</button>
+              <button
+                type="submit"
+                className={loading ? "spinner-btn" : ""}
+                disabled={loading}
+              >
+                <span className={loading ? "hidden" : ""}>Update</span>
+                <span className={loading ? "" : "hidden"}>
+                  <div className="spinner"></div>
+                </span>
+                {loading && <span>Updating...</span>}
+              </button>
             </form>
           </div>
         </div>

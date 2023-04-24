@@ -193,11 +193,20 @@ const Featured = () => {
       // );
 
       //Gettin the percentage difference
-      const currentMonthPercentageDiff =
-        ((thisMonthData.docs.length - lastMonthData.docs.length) /
-          lastMonthData.docs.length) *
-        100;
-      const roundedDiff = currentMonthPercentageDiff.toFixed(2); // round up to 2 decimal places
+      const lastMonthDocsCount = lastMonthData.docs.length;
+      const thisMonthDocsCount = thisMonthData.docs.length;
+
+      let currentMonthPercentageDiff = 0;
+      if (lastMonthDocsCount > 0) {
+        currentMonthPercentageDiff =
+          ((thisMonthDocsCount - lastMonthDocsCount) / lastMonthDocsCount) *
+          100;
+      } else {
+        currentMonthPercentageDiff = 100;
+      }
+
+      const roundedDiff = currentMonthPercentageDiff.toFixed(0); // round up to 0 decimal places
+
       setDiff(roundedDiff);
 
       // getDocs(lastMonthQuery).then((querySnapshot) => {

@@ -15,20 +15,24 @@ import { Link } from "react-router-dom";
 import { DarkModeContext } from "../../context/darkModeContext";
 import { AuthContext } from "../../context/authContext";
 import { useContext } from "react";
-import logo from "../assets/images/myogaIcon2.png";
+import lightLogo from "../assets/images/myogaIcon2.png";
 import { auth } from "../../firebase";
-//import logos from "../assets/images/myogaIcon1.png";
+import darkLogo from "../assets/images/myogaIcon1.png";
 
 const Sidebar = () => {
   const { dispatch: darkModeDispatch } = useContext(DarkModeContext);
+  const { darkMode } = useContext(DarkModeContext);
   const { logout } = useContext(AuthContext);
   const userId = auth.currentUser?.uid;
+
+  const logoSrc = darkMode ? lightLogo : darkLogo;
+
   return (
     <div className="sidebar">
       <div className="top">
         <Link to="/" style={{ textDecoration: "none" }}>
           <span className="logo">
-            <img className="logoImg" src={logo} alt="Logo" />
+            <img className="logoImg" src={logoSrc} alt="Logo" />
           </span>
         </Link>
       </div>

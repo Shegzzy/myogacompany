@@ -27,6 +27,7 @@ const OrderStatus = (props) => {
 
   useEffect(() => {
     const fetchBooking = async () => {
+      console.log(bookID);
       try {
         const booking = [];
         const docRef = doc(db, "Order_Status", bookID);
@@ -36,10 +37,10 @@ const OrderStatus = (props) => {
           setDriverID(docSnap.data()["Driver ID"]);
           setOrderA(docSnap.data()["Order Assigned"]);
           setOutPick(docSnap.data()["Out For PickUp"]);
-          setArrivedP(docSnap.data()["Arrived at PickUp"]);
+          setArrivedP(docSnap.data()["Arrive at PickUp"]);
           setParcelP(docSnap.data()["Parcel Picked"]);
           setGoingD(docSnap.data()["Going to DropOff"]);
-          setArrivedD(docSnap.data()["Arrived at DropOff"]);
+          setArrivedD(docSnap.data()["Arrive DropOff"]);
           setComplete(docSnap.data().Completed);
           booking.push({
             bookN: docSnap.data()["Booking Number"],
@@ -47,8 +48,8 @@ const OrderStatus = (props) => {
             outPick: docSnap.data()["Out For PickUp"],
             parcelP: docSnap.data()["Parcel Picked"],
             goingD: docSnap.data()["Going to DropOff"],
-            arrivedP: docSnap.data()["Arrived at PickUp"],
-            arrivedD: docSnap.data()["Arrived at DropOff"],
+            arrivedP: docSnap.data()["Arrive at PickUp"],
+            arrivedD: docSnap.data()["Arrive DropOff"],
             complete: docSnap.data().Completed,
           });
           setBdata(booking);

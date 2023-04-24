@@ -21,6 +21,7 @@ import {
 import { AuthContext } from "../../context/authContext";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { toast } from "react-toastify";
+import { gridColumnVisibilityModelSelector } from "@mui/x-data-grid";
 
 const Login = () => {
   const [email, setemail] = useState("");
@@ -91,35 +92,38 @@ const Login = () => {
   }, [documents]);
 
   const submit = async (e) => {
-    setLoading(true);
     e.preventDefault();
+    setLoading(true);
     seterror(false);
 
     if (newUser) {
-      await createUserWithEmailAndPassword(auth, email, password);
-      const userCredential = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      await setDoc(doc(db, "Companies", user.uid), {
-        email: email,
-        password: password,
-        company: company,
-        date: date,
-        regnumber: regnumber,
-        location: location,
-        address: address,
-        phone: phone,
-        documents: documents || [],
-        timeStamp: serverTimestamp(),
-      }).catch((error) => {
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
+        const user = userCredential.user;
+        await setDoc(doc(db, "Companies", user.uid), {
+          email: email,
+          password: password,
+          company: company,
+          date: date,
+          regnumber: regnumber,
+          location: location,
+          address: address,
+          phone: phone,
+          documents: documents || [],
+          timeStamp: serverTimestamp(),
+        });
+        navigate("/");
+      } catch (error) {
         seterror(true);
         const errormsg = error.message;
         seterrormsg(errormsg);
-      });
-      navigate("/");
+        setLoading(false);
+      }
     } else {
       try {
         // Query the Companies collection to check if the email and password are valid
@@ -154,6 +158,8 @@ const Login = () => {
         }
       } catch (error) {
         toast.error(error);
+      } finally {
+        setLoading(false);
       }
     }
   };

@@ -1,10 +1,12 @@
 .login-page{
-    position: relative;
+    position: absolute;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin: auto;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     background: linear-gradient(55deg, #810555, #fff);
     width: 420px;
     height: auto;

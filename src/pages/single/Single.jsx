@@ -27,6 +27,7 @@ import {
   TableRow,
 } from "@mui/material";
 import ModalContainer from "../../components/modal/ModalContainer";
+import { KeyboardArrowDownOutlined } from "@mui/icons-material";
 // import { toast } from "react-toastify";
 // import { DisabledByDefault } from "@mui/icons-material";
 
@@ -37,6 +38,8 @@ const Single = () => {
   const [diff, setDiff] = useState(null);
   const [oData, setOData] = useState([]);
   const [lWData, setLWData] = useState([]);
+  const [lMData, setLData] = useState([]);
+  const [mData, setMData] = useState([]);
 
   //Fetching rider's data
   useEffect(() => {
@@ -173,32 +176,34 @@ const Single = () => {
       where("timeStamp", ">", twoWeekAgo)
     );
 
-    const lastMonthData = await getDocs(lastMonthQuery);
-    const thisMonthData = await getDocs(thisMonthQuery);
-    // const oneWeekData = await getDocs(oneWeekQuery);
-    // const twoWeekData = await getDocs(twoWeekQuery);
-    // setDiff(
-    //   ((thisMonthData.docs.length - lastMonthData.docs.length) /
-    //     lastMonthData.docs.length) *
-    //     100
-    // );
-
     //Gettin the percentage difference
-    const currentMonthPercentageDiff =
-      ((thisMonthData.docs.length - lastMonthData.docs.length) /
-        lastMonthData.docs.length) *
-      100;
-    const roundedDiff = currentMonthPercentageDiff.toFixed(2); // round up to 2 decimal places
+    let currentMonthPercentageDiff = 0;
+
+    if (lMData > 0) {
+      currentMonthPercentageDiff = ((mData - lMData) / lMData) * 100;
+    } else {
+      currentMonthPercentageDiff = 100;
+    }
+    const roundedDiff = currentMonthPercentageDiff.toFixed(0); // round up to 0 decimal places
     setDiff(roundedDiff);
 
-    // getDocs(lastMonthQuery).then((querySnapshot) => {
-    //   let total = 0;
-    //   querySnapshot.forEach((doc) => {
-    //     const data = doc.data();
-    //     total += parseFloat(data.Amount);
-    //   });
-    //   setLData(total);
-    // });
+    getDocs(lastMonthQuery).then((querySnapshot) => {
+      let total = 0;
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        total += parseInt(data.Amount);
+      });
+      setLData(total);
+    });
+
+    getDocs(thisMonthQuery).then((querySnapshot) => {
+      let total = 0;
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        total += parseInt(data.Amount);
+      });
+      setMData(total);
+    });
 
     //Calculating a week ago amount
     getDocs(oneWeekQuery).then((querySnapshot) => {
@@ -277,7 +282,12 @@ const Single = () => {
               <div className="detailItem">
                 <span className="itemKey">
                   <div className="no-data-message">
-                    Driver Not Found or Has Been Deleted
+                    <div className="single-container">
+                      <div className="loader">
+                        <div className="lds-dual-ring"></div>
+                        <div>Loading... </div>
+                      </div>
+                    </div>
                   </div>
                 </span>
               </div>
@@ -299,21 +309,43 @@ const Single = () => {
                 <br />
                 <p className="title">Total</p>
                 <p className="amount">₦ {totalEarnings}</p>
+
                 <div className="summary">
-                  <div className="item">
-                    <div className="itemTitle">Last Week</div>
-                    <div className="itemResult positive">
-                      <KeyboardArrowUpOutlinedIcon fontSize="small" />
-                      <div className="resultAmount">₦{oData}</div>
+                  {oData > lWData ? (
+                    <div className="item">
+                      <div className="itemTitle">Last Week</div>
+                      <div className="itemResult positive">
+                        <KeyboardArrowUpOutlinedIcon fontSize="small" />
+                        <div className="resultAmount">₦{oData}</div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="item">
-                    <div className="itemTitle">Two Weeks Ago</div>
-                    <div className="itemResult positive">
-                      <KeyboardArrowUpOutlinedIcon fontSize="small" />
-                      <div className="resultAmount">₦{lWData}</div>
+                  ) : (
+                    <div className="item">
+                      <div className="itemTitle">Last Week</div>
+                      <div className="itemResult positive">
+                        <KeyboardArrowDownOutlined fontSize="small" />
+                        <div className="resultAmount">₦{oData}</div>
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {lWData > oData ? (
+                    <div className="item">
+                      <div className="itemTitle">Two Weeks Ago</div>
+                      <div className="itemResult positive">
+                        <KeyboardArrowUpOutlinedIcon fontSize="small" />
+                        <div className="resultAmount">₦{lWData}</div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="item">
+                      <div className="itemTitle">Two Weeks Ago</div>
+                      <div className="itemResult positive">
+                        <KeyboardArrowDownOutlined fontSize="small" />
+                        <div className="resultAmount">₦{lWData}</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -373,7 +405,7 @@ const Single = () => {
                       </TableCell>
                       <TableCell className="tableCell">
                         {row["Status"]}
-                        {<ModalContainer id={row.id} />}
+                        {<ModalContainer id={row["Booking Number"]} />}
                       </TableCell>
                     </TableRow>
                   ))

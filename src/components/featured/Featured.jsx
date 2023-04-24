@@ -293,7 +293,15 @@ const Featured = () => {
                   fontSize="small"
                 />
               )}
-              <div className="resultAmount">₦{oData}</div>
+              {oData > lWData ? (
+                <div className="resultAmount" style={{ color: "green" }}>
+                  ₦{oData}
+                </div>
+              ) : (
+                <div className="resultAmount" style={{ color: "red" }}>
+                  ₦{oData}
+                </div>
+              )}
             </div>
           </div>
           <div className="item">
@@ -310,7 +318,15 @@ const Featured = () => {
                   fontSize="small"
                 />
               )}
-              <div className="resultAmount">₦{lWData}</div>
+              {lWData > oData ? (
+                <div className="resultAmount" style={{ color: "green" }}>
+                  ₦{lWData}
+                </div>
+              ) : (
+                <div className="resultAmount" style={{ color: "red" }}>
+                  ₦{lWData}
+                </div>
+              )}
             </div>
           </div>
           {/* <div className="item">

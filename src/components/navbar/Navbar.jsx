@@ -24,6 +24,23 @@ const Navbar = () => {
   const [filteredItems, setFilteredItems] = useState([]);
   const userId = auth.currentUser?.uid;
   const { currentUser } = useContext(AuthContext);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (currentUser) {
+        const userRef = doc(db, "Companies", currentUser.uid);
+        const docs = await getDoc(userRef);
+        if (docs.exists) {
+          setUser(docs.data());
+        } else {
+          console.log("No such document!");
+        }
+      }
+    };
+
+    return fetchUser();
+  }, [currentUser]);
 
   useEffect(() => {
     // Fetch the data from Firestore      if (currentUser) {
@@ -110,8 +127,8 @@ const Navbar = () => {
           <div className="item">
             <Link to={`/profile/${userId}`}>
               <img
-                src="https://images.pexels.com/photos/941693/pexels-photo-941693.jpeg?auto=compress&cs=tinysrgb&dpr=2&w=500"
-                alt=""
+                src={user ? user["Profile Photo"] : "https://picsum.photos/200"}
+                alt="User Avatar"
                 className="avatar"
               />
             </Link>

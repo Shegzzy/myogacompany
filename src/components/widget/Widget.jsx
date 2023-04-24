@@ -305,7 +305,10 @@ const Widget = ({ type }) => {
                   fontSize="small"
                 />
               )}
-              {`${diff}%`}
+
+              <span
+                style={{ color: diff > 0 ? "green" : "red" }}
+              >{`${diff}%`}</span>
             </>
           )}
 
@@ -322,7 +325,9 @@ const Widget = ({ type }) => {
                   fontSize="small"
                 />
               )}
-              {`${lMDiff}%`}
+              <span
+                style={{ color: lMDiff > 0 ? "green" : "red" }}
+              >{`${lMDiff}%`}</span>
             </>
           )}
         </div>

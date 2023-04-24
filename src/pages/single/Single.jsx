@@ -315,16 +315,29 @@ const Single = () => {
                     <div className="item">
                       <div className="itemTitle">Last Week</div>
                       <div className="itemResult positive">
-                        <KeyboardArrowUpOutlinedIcon fontSize="small" />
-                        <div className="resultAmount">₦{oData}</div>
+                        <KeyboardArrowUpOutlinedIcon
+                          fontSize="small"
+                          style={{ color: "green" }}
+                        />
+                        <div
+                          className="resultAmount"
+                          style={{ color: "green" }}
+                        >
+                          ₦{oData}
+                        </div>
                       </div>
                     </div>
                   ) : (
                     <div className="item">
                       <div className="itemTitle">Last Week</div>
                       <div className="itemResult positive">
-                        <KeyboardArrowDownOutlined fontSize="small" />
-                        <div className="resultAmount">₦{oData}</div>
+                        <KeyboardArrowDownOutlined
+                          fontSize="small"
+                          style={{ color: "red" }}
+                        />
+                        <div className="resultAmount" style={{ color: "red" }}>
+                          ₦{oData}
+                        </div>
                       </div>
                     </div>
                   )}
@@ -333,16 +346,29 @@ const Single = () => {
                     <div className="item">
                       <div className="itemTitle">Two Weeks Ago</div>
                       <div className="itemResult positive">
-                        <KeyboardArrowUpOutlinedIcon fontSize="small" />
-                        <div className="resultAmount">₦{lWData}</div>
+                        <KeyboardArrowUpOutlinedIcon
+                          fontSize="small"
+                          style={{ color: "green" }}
+                        />
+                        <div
+                          className="resultAmount"
+                          style={{ color: "green" }}
+                        >
+                          ₦{lWData}
+                        </div>
                       </div>
                     </div>
                   ) : (
                     <div className="item">
                       <div className="itemTitle">Two Weeks Ago</div>
                       <div className="itemResult positive">
-                        <KeyboardArrowDownOutlined fontSize="small" />
-                        <div className="resultAmount">₦{lWData}</div>
+                        <KeyboardArrowDownOutlined
+                          fontSize="small"
+                          style={{ color: "red" }}
+                        />
+                        <div className="resultAmount" style={{ color: "red" }}>
+                          ₦{lWData}
+                        </div>
                       </div>
                     </div>
                   )}

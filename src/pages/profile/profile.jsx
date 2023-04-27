@@ -61,7 +61,10 @@ const AdminProfile = () => {
               </div>
             </div>
             <div className="header-right">
-              <Link to={`/admin/${currentUser.uid}`}>
+              <Link
+                to={`/admin/${currentUser.uid}`}
+                style={{ textDecoration: "none" }}
+              >
                 <button className="button" style={{ cursor: "pointer" }}>
                   Edit Profile
                 </button>

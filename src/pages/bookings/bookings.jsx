@@ -127,12 +127,12 @@ const Bookings = ({ inputs, title }) => {
                     </TableCell>
                     <TableCell className="tableCell">{row["Distance"]}</TableCell>
                     <TableCell className="tableCell">
-                      {row["Ride Type"] === "1" ? "Truck" : "Motorcycle"}
+                      {row["Ride Type"]}
                     </TableCell>
                     <TableCell className="tableCell">
                       <div className={`cellWithStatus ${row["Status"]}`}>
                         {row["Status"]}
-                        {<ModalContainer id={row.id} />}
+                        {<ModalContainer id={row["Booking Number"]} />}
                       </div>
                     </TableCell>
                   </TableRow>

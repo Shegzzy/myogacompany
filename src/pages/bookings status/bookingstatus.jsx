@@ -121,10 +121,13 @@ const Bookingstatus = ({ inputs, title }) => {
                   </TableCell>
                   <TableCell className="tableCell">{row["Distance"]}</TableCell>
                   <TableCell className="tableCell">
-                    {row["Ride Type"] === "1" ? "Car" : "Motorcycle"}
+                    {row["Ride Type"]}
                   </TableCell>
                   <TableCell className="tableCell">
-                    <span className="status">{row.Status}</span>
+                    <div className={`cellWithStatus ${row["Status"]}`}>
+                      {row["Status"]}
+                      {<ModalContainer id={row["Booking Number"]} />}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

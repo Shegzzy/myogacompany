@@ -1,7 +1,14 @@
 import "./orderStatus.scss";
 import React from "react";
 import { useEffect, useState } from "react";
-import { doc, getDocs, getDoc, where, query, collection } from "firebase/firestore";
+import {
+  doc,
+  getDocs,
+  getDoc,
+  where,
+  query,
+  collection,
+} from "firebase/firestore";
 import { db } from "../../firebase";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import TwoWheelerIcon from "@mui/icons-material/TwoWheeler";
@@ -29,19 +36,31 @@ const OrderStatus = (props) => {
     const fetchBooking = async () => {
       try {
         const booking = [];
-        const q = query(collection(db, "Order_Status"), where("Booking Number", "==", bookID));
+        const q = query(
+          collection(db, "Order_Status"),
+          where("Booking Number", "==", bookID)
+        );
         const docSnap = await getDocs(q);
         docSnap.forEach((doc) => {
-          setCusID(doc.data()['Customer ID']);
-          setDriverID(doc.data()['Driver ID']);
-          setOrderA(doc.data()['Order Assigned']);
-          setOutPick(doc.data()['Out For PickUp']);
-          setArrivedP(doc.data()['Arrive at PickUp']);
-          setParcelP(doc.data()['Parcel Picked']);
-          setGoingD(doc.data()['Going to DropOff']);
-          setArrivedD(doc.data()['Arrive DropOff']);
+          setCusID(doc.data()["Customer ID"]);
+          setDriverID(doc.data()["Driver ID"]);
+          setOrderA(doc.data()["Order Assigned"]);
+          setOutPick(doc.data()["Out For PickUp"]);
+          setArrivedP(doc.data()["Arrive at PickUp"]);
+          setParcelP(doc.data()["Parcel Picked"]);
+          setGoingD(doc.data()["Going to DropOff"]);
+          setArrivedD(doc.data()["Arrive DropOff"]);
           setComplete(doc.data().Completed);
-          booking.push({ bookN: doc.data()['Booking Number'], orderA: doc.data()['Order Assigned'], outPick: doc.data()['Out For PickUp'], parcelP: doc.data()['Parcel Picked'], goingD: doc.data()['Going to DropOff'], arrivedP: doc.data()['Arrive at PickUp'], arrivedD: doc.data()['Arrive DropOff'], complete: doc.data().Completed })
+          booking.push({
+            bookN: doc.data()["Booking Number"],
+            orderA: doc.data()["Order Assigned"],
+            outPick: doc.data()["Out For PickUp"],
+            parcelP: doc.data()["Parcel Picked"],
+            goingD: doc.data()["Going to DropOff"],
+            arrivedP: doc.data()["Arrive at PickUp"],
+            arrivedD: doc.data()["Arrive DropOff"],
+            complete: doc.data().Completed,
+          });
           console.log(doc.id, " => ", doc.data());
         });
         setBdata(booking);
@@ -129,22 +148,22 @@ const OrderStatus = (props) => {
             <div className="text-center space-y-2 sm:text-left">
               <div className="space-y-0.5">
                 <p className="text-lg text-black font-semibold">
-                  {Ddata.map((Ddata) => Ddata.name)}
+                  Driver Name: {Ddata.map((Ddata) => Ddata.name)}
                 </p>
                 <p className="text-slate-500 font-medium">
-                  {Ddata.map((Ddata) => Ddata.phone)}
+                  Phone: {Ddata.map((Ddata) => Ddata.phone)}
                 </p>
                 <p className="text-slate-500 font-medium">
-                  {Ddata.map((Ddata) => Ddata.company)}
+                  Company: {Ddata.map((Ddata) => Ddata.company)}
                 </p>
                 <p className="text-slate-500 font-medium">
-                  {Ddata.map((Ddata) => Ddata.vehicleT)}
+                  Vehicle Type: {Ddata.map((Ddata) => Ddata.vehicleT)}
                 </p>
                 <p className="text-slate-500 font-medium">
-                  {Ddata.map((Ddata) => Ddata.vehicleC)}
+                  Vehicle Color: {Ddata.map((Ddata) => Ddata.vehicleC)}
                 </p>
                 <p className="text-slate-500 font-medium">
-                  {Ddata.map((Ddata) => Ddata.vehicleN)}
+                  Vehicle Number: {Ddata.map((Ddata) => Ddata.vehicleN)}
                 </p>
               </div>
             </div>
@@ -166,16 +185,16 @@ const OrderStatus = (props) => {
             <div className="text-center space-y-2 sm:text-left">
               <div className="space-y-0.5">
                 <p className="text-lg text-black font-semibold">
-                  {Cdata.map((Cdata) => Cdata.name)}
+                  Customer Name: {Cdata.map((Cdata) => Cdata.name)}
                 </p>
                 <p className="text-slate-500 font-medium">
-                  {Cdata.map((Cdata) => Cdata.email)}
+                  Email: {Cdata.map((Cdata) => Cdata.email)}
                 </p>
                 <p className="text-slate-500 font-medium">
-                  {Cdata.map((Cdata) => Cdata.phone)}
+                  Phone: {Cdata.map((Cdata) => Cdata.phone)}
                 </p>
                 <p className="text-slate-500 font-medium">
-                  {Cdata.map((Cdata) => Cdata.gender)}
+                  Gender: {Cdata.map((Cdata) => Cdata.gender)}
                 </p>
               </div>
             </div>

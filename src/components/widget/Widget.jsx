@@ -189,9 +189,13 @@ const Widget = ({ type }) => {
         currentMonthPercentageDiff =
           ((thisMonthDocsCount - lastMonthDocsCount) / lastMonthDocsCount) *
           100;
-        lastMonthPercentageDiff =
-          ((lastMonthDocsCount - thisMonthDocsCount) / thisMonthDocsCount) *
-          100;
+        if (thisMonthDocsCount > 0) {
+          lastMonthPercentageDiff =
+            ((lastMonthDocsCount - thisMonthDocsCount) / thisMonthDocsCount) *
+            100;
+        } else {
+          lastMonthPercentageDiff = 100;
+        }
       } else {
         currentMonthPercentageDiff = 100;
         lastMonthPercentageDiff = 0;

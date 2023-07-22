@@ -154,10 +154,14 @@ const Login = () => {
           // If the query doesn't return a document, the email and password are invalid
           seterror(true);
           const errormsg = Errormsg;
+          console.log(errormsg);
           seterrormsg(errormsg);
         }
       } catch (error) {
         toast.error(error);
+        const errormsg = error.message;
+        console.log(errormsg);
+        seterrormsg(errormsg);
       } finally {
         setLoading(false);
       }

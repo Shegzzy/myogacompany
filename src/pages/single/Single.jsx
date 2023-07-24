@@ -164,16 +164,16 @@ const Single = () => {
     const oneWeekQuery = query(
       collection(db, "Earnings"),
       where("Driver", "==", id),
-      where("timeStamp", "<=", today),
-      where("timeStamp", ">", oneWeekAgo)
+      where("DateCreated", "<=", today.toISOString()),
+      where("DateCreated", ">", oneWeekAgo.toISOString())
     );
 
     //Two weeks ago
     const twoWeekQuery = query(
       collection(db, "Earnings"),
       where("Driver", "==", id),
-      where("timeStamp", "<=", oneWeekAgo),
-      where("timeStamp", ">", twoWeekAgo)
+      where("DateCreated", "<=", oneWeekAgo.toISOString()),
+      where("DateCreated", ">", twoWeekAgo.toISOString())
     );
 
     //Gettin the percentage difference
@@ -224,19 +224,28 @@ const Single = () => {
       });
       setLWData(total);
     });
-
-    // const total = lData.reduce(
-    //   (total, item) => total + parseInt(item.Amount),
-    //   0
-    // );
-    // setLastSum(total);
-
-    // const sum = oData.reduce(
-    //   (total, item) => total + parseInt(item.Amount),
-    //   0
-    // );
-    // setOneSum(sum);
   };
+
+  const formattedTotalEarning = new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+  })
+    .format(totalEarnings)
+    .replace(".00", "");
+
+  const formattedoDataEarning = new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+  })
+    .format(oData)
+    .replace(".00", "");
+
+  const formattedlWEarning = new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+  })
+    .format(lWData)
+    .replace(".00", "");
 
   return (
     <div className="single">
@@ -308,7 +317,7 @@ const Single = () => {
                 </div>
                 <br />
                 <p className="title">Total</p>
-                <p className="amount">₦ {totalEarnings}</p>
+                <p className="amount">{formattedTotalEarning}</p>
 
                 <div className="summary">
                   {oData > lWData ? (
@@ -323,7 +332,7 @@ const Single = () => {
                           className="resultAmount"
                           style={{ color: "green" }}
                         >
-                          ₦{oData}
+                          {formattedoDataEarning}
                         </div>
                       </div>
                     </div>
@@ -336,7 +345,7 @@ const Single = () => {
                           style={{ color: "red" }}
                         />
                         <div className="resultAmount" style={{ color: "red" }}>
-                          ₦{oData}
+                          {formattedoDataEarning}
                         </div>
                       </div>
                     </div>
@@ -354,7 +363,7 @@ const Single = () => {
                           className="resultAmount"
                           style={{ color: "green" }}
                         >
-                          ₦{lWData}
+                          {formattedlWEarning}
                         </div>
                       </div>
                     </div>
@@ -367,7 +376,7 @@ const Single = () => {
                           style={{ color: "red" }}
                         />
                         <div className="resultAmount" style={{ color: "red" }}>
-                          ₦{lWData}
+                          {formattedlWEarning}
                         </div>
                       </div>
                     </div>

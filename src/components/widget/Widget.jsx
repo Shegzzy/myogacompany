@@ -179,8 +179,14 @@ const Widget = ({ type }) => {
       const lastMonthData = await getDocs(prevMonthQuery);
       const thisMonthData = await getDocs(thisMonthQuery);
 
-      const lastMonthDocsCount = lastMonthData.docs.length;
-      const thisMonthDocsCount = thisMonthData.docs.length;
+      const lastMonthDocsCount = lastMonthData.docs.reduce(
+        (total, doc) => total + parseFloat(doc.data().Amount),
+        0
+      );
+      const thisMonthDocsCount = thisMonthData.docs.reduce(
+        (total, doc) => total + parseFloat(doc.data().Amount),
+        0
+      );
 
       let currentMonthPercentageDiff = 0;
       let lastMonthPercentageDiff = 0;
@@ -281,6 +287,20 @@ const Widget = ({ type }) => {
       break;
   }
 
+  const formattedThisMonthAmount = new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+  })
+    .format(totalThisMonth)
+    .replace(".00", "");
+
+  const formattedLastMonthAmount = new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency: "NGN",
+  })
+    .format(previousMonthTotalPrice)
+    .replace(".00", "");
+
   return (
     <div className="widget">
       <div className="left">
@@ -288,9 +308,9 @@ const Widget = ({ type }) => {
         <span className="counter">
           {type === "user" && `${totalDrivers}`}
           {type === "order" && `${totalBookings}`}
-          {data.isMoney && "\u20A6 "}
-          {type === "earning" && `${totalThisMonth}`}
-          {type === "balance" && `${previousMonthTotalPrice}`}
+          {data.isMoney}
+          {type === "earning" && `${formattedThisMonthAmount}`}
+          {type === "balance" && `${formattedLastMonthAmount}`}
         </span>
         <span className="link">{data.link}</span>
       </div>

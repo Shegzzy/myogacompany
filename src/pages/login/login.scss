@@ -156,4 +156,31 @@ button {
         transform: rotate(360deg);
     }
 }
+/* Styles for small devices */
+@media screen and (max-width: 600px) {
+    .login-page {
+        width: 90%; 
+        padding: 10px 40px; 
+    }
 
+    .logo {
+        margin-top: 50px;
+    }
+
+    /* Adjust font size for header span on smaller devices */
+    .login-page header span {
+        font-size: 18px;
+    }
+}
+
+/* Additional styles for extra-small devices (e.g., smartphones) */
+@media screen and (max-width: 400px) {
+    .login-page {
+        padding: 10px 20px; 
+    }
+
+    /* Adjust font size for header span on extra-small devices */
+    .login-page header span {
+        font-size: 16px;
+    }
+}

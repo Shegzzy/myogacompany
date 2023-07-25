@@ -20,10 +20,7 @@ const Featured = () => {
   const [data, setData] = useState([]);
   const [oData, setOData] = useState([]);
   const [lWData, setLWData] = useState([]);
-  //const [lData, setLData] = useState([]);
   const [fieldSum, setFieldSum] = useState(0);
-  // const [oneSum, setOneSum] = useState(0);
-  // const [lastSum, setLastSum] = useState(0);
   const [diff, setDiff] = useState(null);
   const { currentUser } = useContext(AuthContext);
 

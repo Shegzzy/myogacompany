@@ -127,7 +127,11 @@ const Navbar = () => {
           <div className="item">
             <Link to={`/profile/${userId}`}>
               <img
-                src={user ? user["Profile Photo"] : "https://picsum.photos/200"}
+                src={
+                  user
+                    ? user["Profile Photo"]
+                    : "https://cdn-icons-png.flaticon.com/512/3033/3033143.png"
+                }
                 alt="User Avatar"
                 className="avatar"
               />

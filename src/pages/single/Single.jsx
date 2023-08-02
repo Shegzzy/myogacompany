@@ -278,6 +278,59 @@ const Single = () => {
                     <span className="itemValue">{user.State}</span>
                   </div>
                 </div>
+
+                <div className="details">
+                  <h1 className="name">Vehicle Details</h1>
+                  <div className="detailItem">
+                    <span className="itemKey">Type: </span>
+                    <span className="itemValue">{user["Vehicle Type"]}</span>
+                  </div>
+                  <div className="detailItem">
+                    <span className="itemKey">Make: </span>
+                    <span className="itemValue">{user["Vehicle Make"]}</span>
+                  </div>
+                  <div className="detailItem">
+                    <span className="itemKey">Model: </span>
+                    <span className="itemValue">{user["Vehicle Model"]}</span>
+                  </div>
+                  <div className="detailItem">
+                    <span className="itemKey">VNumber: </span>
+                    <span className="itemValue">{user["Vehicle Number"]}</span>
+                  </div>
+                  <div className="detailItem">
+                    <span className="itemKey">Year: </span>
+                    <span className="itemValue">{user["Vehicle Year"]}</span>
+                  </div>
+                  <div className="detailItem">
+                    <span className="itemKey">Color: </span>
+                    <span className="itemValue">{user["Vehicle Color"]}</span>
+                  </div>
+                  <div className="detailItem">
+                    <span className="itemKey">Current Location: </span>
+                    <span className="itemValue">{user["Driver Address"]}</span>
+                  </div>
+                  <div className="detailItem">
+                    <span className="itemKey">Latitude: </span>
+                    <span className="itemValue">{user["Driver Latitude"]}</span>
+                  </div>
+                  <div className="detailItem">
+                    <span className="itemKey">Longitude: </span>
+                    <span className="itemValue">
+                      {user["Driver Longitude"]}
+                    </span>
+                  </div>
+                  <div className="detailItem">
+                    <span className="itemKey">Documents: </span>
+                    {/* {row?.Documents.map((doc) => (
+                      <img src={doc} alt="avatar" className="itemImg" />
+                    ))} */}
+                    <img
+                      src={user.Documents}
+                      alt="avatar"
+                      className="itemImg"
+                    />
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="detailItem">

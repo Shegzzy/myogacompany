@@ -222,7 +222,16 @@ const Delivery = ({ title }) => {
 
                         <TableCell className="tableCell">{Distance}</TableCell>
 
-                        <TableCell className="tableCell">{Amount}</TableCell>
+                        <TableCell className="tableCell">
+                          {
+                            (Amount = new Intl.NumberFormat("en-NG", {
+                              style: "currency",
+                              currency: "NGN",
+                            })
+                              .format(Amount)
+                              .replace(".00", ""))
+                          }
+                        </TableCell>
 
                         <TableCell className="tableCell">
                           {new Date(dateCreated).toLocaleDateString("en-US")}

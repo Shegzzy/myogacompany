@@ -120,13 +120,10 @@ const Single = () => {
   });
 
   const getData = async () => {
-    // let dataArray = [];
-    // let dataOArray = [];
     const today = new Date();
     const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
     const twoWeekAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000);
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-    // const prevMonth = new Date(new Date().setMonth(today.getMonth() - 2));
 
     const lastMonth = new Date(today.getFullYear(), today.getMonth() - 1, 1);
     const endOfMonth = new Date(
@@ -154,12 +151,7 @@ const Single = () => {
       where("DateCreated", ">=", lastMonth.toISOString()),
       where("DateCreated", "<=", endOfMonth.toISOString())
     );
-    // const prevMonthQuery = query(
-    //   collection(db, "Earnings"),
-    //   where("Company", "==", docs.data().company),
-    //   where("timeStamp", "<=", lastMonth),
-    //   where("timeStamp", ">", prevMonth)
-    // );
+
     //A week ago
     const oneWeekQuery = query(
       collection(db, "Earnings"),
@@ -424,7 +416,12 @@ const Single = () => {
                       </TableCell>
 
                       <TableCell className="tableCell">
-                        {row["Amount"]}
+                        {new Intl.NumberFormat("en-NG", {
+                          style: "currency",
+                          currency: "NGN",
+                        })
+                          .format(row["Amount"])
+                          .replace(".00", "")}
                       </TableCell>
                       <TableCell className="tableCell" width={200}>
                         {row["Payment Method"]}

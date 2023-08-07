@@ -4,6 +4,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import LocalShippingIcon from "@mui/icons-material/LocalShipping";
 import CreditCardIcon from "@mui/icons-material/CreditCard";
 import StoreIcon from "@mui/icons-material/Store";
+import ContentPasteIcon from '@mui/icons-material/ContentPaste';
 //import InsertChartIcon from "@mui/icons-material/InsertChart";
 //import SettingsApplicationsIcon from "@mui/icons-material/SettingsApplications";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
@@ -79,6 +80,13 @@ const Sidebar = () => {
             <li>
               <CreditCardIcon className="icon" />
               <span>Booking Status</span>
+            </li>
+          </Link>
+
+          <Link to="/report" style={{ textDecoration: "none" }}>
+            <li>
+              <ContentPasteIcon className="icon" />
+              <span>Reports</span>
             </li>
           </Link>
 

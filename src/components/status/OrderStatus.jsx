@@ -133,21 +133,21 @@ const OrderStatus = (props) => {
     <div className="container mx-auto">
       <div className="contents flex flex-wrap justify-center">
         <div className="flex-1">
-          <div className="m-2 py-8 px-8 max-w-sm bg-white rounded-xl shadow-lg space-y-2 sm:py-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-6">
+          <div class="m-2 py-8 px-8 max-w-sm bg-white rounded-xl shadow-lg space-y-2 sm:py-4 sm:flex sm:items-center sm:space-y-0 sm:space-x-6">
             <img
               className="object-cover rounded-full h-[100px] w-[100px] block mx-auto h-24 rounded-full sm:mx-0 sm:shrink-0"
               src={Ddata.map((Ddata) => Ddata.img)}
               alt="Rider's pic"
-              // style={{
-              //   objectFit: "cover",
-              //   width: "100%",
-              //   height: "300px",
-              //   borderRadius: "10px",
-              // }}
+              style={{
+                objectFit: "cover",
+                width: "100%",
+                height: "300px",
+                borderRadius: "10px",
+              }}
             />
             <div className="text-center space-y-2 sm:text-left">
               <div className="space-y-0.5">
-                <p className="text-lg text-black font-semibold">
+                <p className="text-lg text-black font-bold">
                   Driver Name: {Ddata.map((Ddata) => Ddata.name)}
                 </p>
                 <p className="text-slate-500 font-medium">
@@ -175,16 +175,16 @@ const OrderStatus = (props) => {
               className="object-cover rounded-full h-[100px] w-[100px] block mx-auto h-24 rounded-full sm:mx-0 sm:shrink-0"
               src={Cdata.map((Cdata) => Cdata.img)}
               alt="Customer's pic"
-              // style={{
-              //   objectFit: "cover",
-              //   width: "100%",
-              //   height: "300px",
-              //   borderRadius: "10px",
-              // }}
+              style={{
+                objectFit: "cover",
+                width: "100%",
+                height: "300px",
+                borderRadius: "10px",
+              }}
             />
             <div className="text-center space-y-2 sm:text-left">
               <div className="space-y-0.5">
-                <p className="text-lg text-black font-semibold">
+                <p className="text-lg text-black font-bold">
                   Customer Name: {Cdata.map((Cdata) => Cdata.name)}
                 </p>
                 <p className="text-slate-500 font-medium">

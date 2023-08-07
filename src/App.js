@@ -3,6 +3,7 @@ import Login from "./pages/login/Login";
 import List from "./pages/list/List";
 import Single from "./pages/single/Single";
 import New from "./pages/new/New";
+import Report from "./pages/report/report";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { userInputs } from "./formSource";
 import "./style/dark.scss";
@@ -85,6 +86,15 @@ function App() {
               element={
                 <RequiredAuth>
                   <Bookingstatus title="Bookings Status" />
+                </RequiredAuth>
+              }
+            />
+
+            <Route
+              path="report"
+              element={
+                <RequiredAuth>
+                  <Report title="Report Page" />
                 </RequiredAuth>
               }
             />

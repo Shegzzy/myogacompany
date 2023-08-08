@@ -52,21 +52,8 @@ const Widget = ({ type }) => {
         const bookingsSnapshot = await getDocs(bookingsQuery);
         const totalBookings = bookingsSnapshot.size;
         setTotalBookings(totalBookings);
-        // console.log(bookingsSnapshot.size);
-
-        // const bookingsUnsubscribe = onSnapshot(
-        //   collection(db, "Bookings"),
-        //   (snapshot) => {
-        //     setTotalBookings(snapshot.size);
-        //   }
-        // );
       }
     };
-
-    // const unsubscribe = onSnapshot(collection(db, "Drivers"), (snapshot) => {
-    //   setTotalDrivers(snapshot.size);
-    // });
-
     fetchData();
   }, [currentUser]);
 
@@ -246,11 +233,11 @@ const Widget = ({ type }) => {
       data = {
         title: "BOOKINGS",
         isMoney: false,
-        // link: (
-        //   <Link to={`/bookings/`} style={{ textDecoration: "none" }}>
-        //     See all bookings
-        //   </Link>
-        // ),
+        link: (
+          <Link to={`/bookings/`} style={{ textDecoration: "none" }}>
+            See all bookings
+          </Link>
+        ),
         icon: (
           <ShoppingCartOutlinedIcon
             className="icon"

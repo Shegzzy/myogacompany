@@ -13,7 +13,6 @@ import {
   doc,
   getDoc,
   getDocs,
-  onSnapshot,
   query,
   where,
 } from "firebase/firestore";
@@ -34,26 +33,33 @@ const Widget = ({ type }) => {
       if (currentUser) {
         const userRef = doc(db, "Companies", currentUser.uid);
         const docs = await getDoc(userRef);
-        const unsubscribe = onSnapshot(
-          query(
-            collection(db, "Drivers"),
-            where("Company", "==", docs.data().company)
-          ),
-          (snapShot) => {
-            setTotalDrivers(snapShot.size);
-          }
-        );
 
-        const bookingsUnsubscribe = onSnapshot(
-          collection(db, "Bookings"),
-          (snapshot) => {
-            setTotalBookings(snapshot.size);
-          }
+        const driversQuery = query(
+          collection(db, "Drivers"),
+          where("Company", "==", docs.data().company)
         );
-        return () => {
-          unsubscribe();
-          bookingsUnsubscribe();
-        };
+        const driversSnapshot = await getDocs(driversQuery);
+        const totalDrivers = driversSnapshot.size;
+        setTotalDrivers(totalDrivers);
+
+        // Collecting Driver IDs
+        const driverIds = driversSnapshot.docs.map((driverDoc) => driverDoc.id);
+
+        const bookingsQuery = query(
+          collection(db, "Bookings"),
+          where("Driver ID", "in", driverIds)
+        );
+        const bookingsSnapshot = await getDocs(bookingsQuery);
+        const totalBookings = bookingsSnapshot.size;
+        setTotalBookings(totalBookings);
+        // console.log(bookingsSnapshot.size);
+
+        // const bookingsUnsubscribe = onSnapshot(
+        //   collection(db, "Bookings"),
+        //   (snapshot) => {
+        //     setTotalBookings(snapshot.size);
+        //   }
+        // );
       }
     };
 

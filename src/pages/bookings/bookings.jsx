@@ -8,35 +8,60 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
-import { collection, onSnapshot } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
+import { useEffect, useState, useContext } from "react";
 import { db } from "../../firebase";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import ModalContainer from "../../components/modal/ModalContainer";
+import { AuthContext } from "../../context/authContext";
 
 const Bookings = ({ inputs, title }) => {
   const [data, setData] = useState([]);
+  const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
-    const unsub = onSnapshot(
-      collection(db, "Bookings"),
-      (snapShot) => {
-        let list = [];
-        snapShot.docs.forEach((doc) => {
-          list.push({ id: doc.id, ...doc.data() });
-        });
-        setData(list);
-      },
-      (error) => {
-        toast.error(error);
-      }
-    );
+    const fetchData = async () => {
+      if (currentUser) {
+        try {
+          const userRef = doc(db, "Companies", currentUser.uid);
+          const docs = await getDoc(userRef);
 
-    return () => {
-      unsub();
+          const driversQuery = query(
+            collection(db, "Drivers"),
+            where("Company", "==", docs.data().company)
+          );
+          const driversSnapshot = await getDocs(driversQuery);
+
+          // Collecting Driver IDs
+          const driverIds = driversSnapshot.docs.map(
+            (driverDoc) => driverDoc.id
+          );
+
+          const bookingsQuery = query(
+            collection(db, "Bookings"),
+            where("Driver ID", "in", driverIds)
+          );
+          const bookingsSnapshot = await getDocs(bookingsQuery);
+
+          const bookings = bookingsSnapshot.docs.map((bookingDoc) =>
+            bookingDoc.data()
+          );
+          setData(bookings);
+        } catch (error) {
+          toast.error(error);
+        }
+      }
     };
-  }, []);
+    fetchData();
+  }, [currentUser]);
 
   return (
     <div className="new">
@@ -94,7 +119,7 @@ const Bookings = ({ inputs, title }) => {
               </TableHead>
               <TableBody>
                 {data.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow key={row["Driver ID"]}>
                     <TableCell className="tableCell" width={80}>
                       {row["Booking Number"]}
                     </TableCell>
@@ -105,7 +130,9 @@ const Bookings = ({ inputs, title }) => {
                       {row["Customer Name"]}
                     </TableCell>
                     <TableCell className="tableCell">
-                      {new Date(row["Date Created"]).toLocaleDateString("en-US")}
+                      {new Date(row["Date Created"]).toLocaleDateString(
+                        "en-US"
+                      )}
                     </TableCell>
                     <TableCell className="tableCell">{row.Amount}</TableCell>
                     <TableCell className="tableCell">
@@ -125,7 +152,9 @@ const Bookings = ({ inputs, title }) => {
                         {row["Driver ID"]}
                       </Link>
                     </TableCell>
-                    <TableCell className="tableCell">{row["Distance"]}</TableCell>
+                    <TableCell className="tableCell">
+                      {row["Distance"]}
+                    </TableCell>
                     <TableCell className="tableCell">
                       {row["Ride Type"]}
                     </TableCell>

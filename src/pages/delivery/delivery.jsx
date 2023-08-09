@@ -22,7 +22,6 @@ import {
 } from "firebase/firestore";
 import { useEffect, useState, useContext } from "react";
 import { db } from "../../firebase";
-//import { toast } from "react-toastify";
 import DriverSelectionModal from "../../components/modal/modal";
 import { Button } from "react-bootstrap";
 import { toast } from "react-toastify";
@@ -41,9 +40,11 @@ const Delivery = ({ title }) => {
       "Driver ID": selectedDriverId,
     });
 
+    // Fecting the Selected bookings data
     const bookingDocumentRef = doc(db, "Bookings", selectedBookingId);
     const bookingSnapshot = await getDoc(bookingDocumentRef);
 
+    // Fetching the assigned rider's data
     const driverDocumentRef = doc(db, "Drivers", selectedDriverId);
     const driverSnapshot = await getDoc(driverDocumentRef);
 

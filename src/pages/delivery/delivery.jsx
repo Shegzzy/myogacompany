@@ -41,12 +41,17 @@ const Delivery = ({ title }) => {
       "Driver ID": selectedDriverId,
     });
 
-    // update the driver's status in the database
-    // await updateDoc(doc(db, "Drivers", selectedDriverId), {
-    //   Online: "0",
-    // });
+    const bookingDocumentRef = doc(db, "Bookings", selectedBookingId);
+    const bookingSnapshot = await getDoc(bookingDocumentRef);
 
-    toast.success(`Rider have been assigned to booking ${selectedBookingId}`);
+    const driverDocumentRef = doc(db, "Drivers", selectedDriverId);
+    const driverSnapshot = await getDoc(driverDocumentRef);
+
+    toast.success(
+      `Rider: ${driverSnapshot.data().FullName} have been assigned to booking ${
+        bookingSnapshot.data()["Booking Number"]
+      }`
+    );
     setSelectedBookingId(null);
     setSelectedDriverId(null);
   };
@@ -85,7 +90,8 @@ const Delivery = ({ title }) => {
     //Fetch all unasigned bookings
     const bookingsQuery = query(
       collection(db, "Bookings"),
-      where("Driver ID", "==", null)
+      where("Driver ID", "==", null),
+      where("Status", "==", "pending")
     );
     const unsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
       const bookingsData = [];

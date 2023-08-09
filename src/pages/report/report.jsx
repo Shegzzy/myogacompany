@@ -18,8 +18,6 @@ const Report = () => {
             title="Completed Bookings Chart"
             aspect={4 / 3}
           />
-          <ReportChart title="Riders Chart" aspect={4 / 3} />
-          <ReportChart title="Riders Chart" aspect={4 / 3} />
         </div>
       </div>
     </div>

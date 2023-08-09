@@ -76,12 +76,12 @@ const Sidebar = () => {
           </Link>
 
           <p className="title">USEFUL</p>
-          <Link to="/bookingstatus" style={{ textDecoration: "none" }}>
+          {/* <Link to="/bookingstatus" style={{ textDecoration: "none" }}>
             <li>
               <CreditCardIcon className="icon" />
               <span>Booking Status</span>
             </li>
-          </Link>
+          </Link> */}
 
           <Link to="/report" style={{ textDecoration: "none" }}>
             <li>

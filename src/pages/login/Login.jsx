@@ -171,7 +171,7 @@ const Login = () => {
   return (
     <div className="login-page">
       <header>
-        <span>MyOga Admin</span>
+        <span>MyOga Company Admin</span>
       </header>
 
       <img className="logo" src={logo} alt="Logo" />

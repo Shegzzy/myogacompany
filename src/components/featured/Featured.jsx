@@ -91,6 +91,7 @@ const Featured = () => {
           setData(list);
           setFieldSum(total);
         }
+
         //Calculate for last month earnings
         else if (Selected === getPreviousMonth()) {
           // Calculate today
@@ -130,6 +131,7 @@ const Featured = () => {
           setData(list);
           setFieldSum(total);
         }
+
         //Calculate for two month ago earnings
         else if (Selected === getPreviousMonth(2)) {
           // Calculate today
@@ -328,7 +330,10 @@ const Featured = () => {
           });
           setData(list);
           setFieldSum(total);
-        } else if (Selected === "total") {
+        } 
+        
+        // Calculate for the current month
+        else if (Selected === "total") {
           const sumEarnings = async () => {
             const querySnapshot = await getDocs(
               query(
@@ -520,9 +525,7 @@ const Featured = () => {
         </div>
         <p className="title">Total Earnings</p>
         <p className="amount">{formattedAmount}</p>
-        {/* <p className="desc">
-          Previous transactions processing. Last payments may not be included.
-        </p> */}
+        
         <div className="summary">
           <div className="item">
             <div className="itemTitle">Last Week</div>

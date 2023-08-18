@@ -22,6 +22,8 @@ import {
 import { db } from "../../firebase";
 
 const ReportChart = ({ aspect, title }) => {
+  const [totalRiders, setTotalRiders] = useState([]);
+  const [currentMonth, setCurrentMont] = useState([]);
   const [lastMonthData, setLastMonthData] = useState([]);
   const [lastTwoMonthData, setLastTwoMonthData] = useState([]);
   const [lastThreeMonthData, setLastThreeMonthData] = useState([]);
@@ -36,6 +38,20 @@ const ReportChart = ({ aspect, title }) => {
 
   const getData = async () => {
     const today = new Date();
+
+    // Calculate the first day of current month
+    const startOfMonth = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    );
+
+    // Calculate the last day of current month
+    const endOfMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0
+    );
 
     // Calculate the first day of last month
     const firstDayOfLastMonth = new Date(
@@ -55,14 +71,14 @@ const ReportChart = ({ aspect, title }) => {
       999
     );
 
-    // Calculate the first day of last month
+    // Calculate the first day of last 2 month
     const firstDayOfLastTwoMonths = new Date(
       today.getFullYear(),
       today.getMonth() - 2,
       1
     );
 
-    // Calculate the last day of last month
+    // Calculate the last day of last 2 month
     const lastDayOfLastTwoMonths = new Date(
       today.getFullYear(),
       today.getMonth() - 1,
@@ -73,14 +89,14 @@ const ReportChart = ({ aspect, title }) => {
       999
     );
 
-    // Calculate the first day of last month
+    // Calculate the first day of last 3 month
     const firstDayOfLastThreeMonths = new Date(
       today.getFullYear(),
       today.getMonth() - 3,
       1
     );
 
-    // Calculate the last day of last month
+    // Calculate the last day of last 3 month
     const lastDayOfLastThreeMonths = new Date(
       today.getFullYear(),
       today.getMonth() - 2,
@@ -91,14 +107,14 @@ const ReportChart = ({ aspect, title }) => {
       999
     );
 
-    // Calculate the first day of last month
+    // Calculate the first day of last 4 month
     const firstDayOfLastFourMonths = new Date(
       today.getFullYear(),
       today.getMonth() - 4,
       1
     );
 
-    // Calculate the last day of last month
+    // Calculate the last day of last 4 month
     const lastDayOfLastFourMonths = new Date(
       today.getFullYear(),
       today.getMonth() - 3,
@@ -109,14 +125,14 @@ const ReportChart = ({ aspect, title }) => {
       999
     );
 
-    // Calculate the first day of last month
+    // Calculate the first day of last 5 month
     const firstDayOfLastFiveMonths = new Date(
       today.getFullYear(),
       today.getMonth() - 5,
       1
     );
 
-    // Calculate the last day of last month
+    // Calculate the last day of last 5 month
     const lastDayOfLastFiveMonths = new Date(
       today.getFullYear(),
       today.getMonth() - 4,
@@ -127,14 +143,14 @@ const ReportChart = ({ aspect, title }) => {
       999
     );
 
-    // Calculate the first day of last month
+    // Calculate the first day of last 6 month
     const firstDayOfLastSixMonths = new Date(
       today.getFullYear(),
       today.getMonth() - 6,
       1
     );
 
-    // Calculate the last day of last month
+    // Calculate the last day of last 6 month
     const lastDayOfLastSixMonths = new Date(
       today.getFullYear(),
       today.getMonth() - 5,
@@ -146,9 +162,23 @@ const ReportChart = ({ aspect, title }) => {
     );
 
     if (currentUser) {
-      //This Month's Earning Query
       const userRef = doc(db, "Companies", currentUser.uid);
       const docs = await getDoc(userRef);
+
+      // Total number of Riders
+      const totalRiders = query(
+        collection(db, "Drivers"),
+        where("Company", "==", docs.data().company)
+      )
+
+      // Current month's Riders Query
+      const currentMonthQuery = query(
+        collection(db, "Drivers"),
+        where("Company", "==", docs.data().company),
+        where("Date Created", ">=", startOfMonth.toISOString()),
+        where("Date Created", "<=", endOfMonth.toISOString())
+      );
+
 
       //Last Month's Earning Query
       const lastMonthQuery = query(
@@ -197,6 +227,18 @@ const ReportChart = ({ aspect, title }) => {
         where("Date Created", ">=", firstDayOfLastSixMonths.toISOString()),
         where("Date Created", "<=", lastDayOfLastSixMonths.toISOString())
       );
+
+      // Calculate total riders
+      getDocs(totalRiders).then((querySnapshot) => {
+        let total = querySnapshot.size;
+        setTotalRiders(total);
+      })
+
+      //Calculating current month riders
+      getDocs(currentMonthQuery).then((querySnapshot) => {
+        let total = querySnapshot.size;
+        setCurrentMont(total);
+      });
 
       //Calculating a month ago amount
       getDocs(lastMonthQuery).then((querySnapshot) => {
@@ -253,7 +295,11 @@ const ReportChart = ({ aspect, title }) => {
 
   return (
     <div className="report__chart">
-      <div className="title">{title}</div>
+      <div className="title">
+        <p>{title}</p>
+        <p>Current Month's Riders: {currentMonth}</p>
+        <p>Total Number of Riders: {totalRiders}</p>
+      </div>
       <ResponsiveContainer width="100%" aspect={aspect}>
         <BarChart width={800} height={300} data={data}>
           <XAxis dataKey="name" stroke="#8884d8" />

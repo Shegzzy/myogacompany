@@ -9,6 +9,7 @@ import { AuthContext } from "../../context/authContext";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
 
 const AdminProfile = () => {
   const { currentUser } = useContext(AuthContext);
@@ -22,7 +23,7 @@ const AdminProfile = () => {
         if (docs.exists) {
           setUser(docs.data());
         } else {
-          console.log("No such document!");
+          toast.error("User does not exist");
         }
       }
     };

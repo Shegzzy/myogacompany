@@ -13,7 +13,7 @@ import { db } from "../../firebase";
 import { AuthContext } from "../../context/authContext";
 
 const EarningProfits = () => {
-  const [Selected, setSelected] = useState("total");
+  const [Selected, setSelected] = useState("Total");
   const [data, setData] = useState([]);
   const [fieldSum, setFieldSum] = useState(0);
   const [profitSum, setProfitSum] = useState(0);
@@ -56,11 +56,12 @@ const EarningProfits = () => {
 
           // Calculating 85% of the total earnings
           const eightyFivePercent = total * 0.85;
+          const roundPercentage = eightyFivePercent.toFixed(0);
 
 
           setData(list);
           setFieldSum(total);
-          setProfitSum(eightyFivePercent);
+          setProfitSum(roundPercentage);
         }
 
         //Calculate for last month earnings
@@ -99,8 +100,14 @@ const EarningProfits = () => {
             const data = doc.data();
             total += parseFloat(data.Amount);
           });
+          // Calculating 85% of the total earnings
+          const eightyFivePercent = total * 0.85;
+          const roundPercentage = eightyFivePercent.toFixed(0);
+
+
           setData(list);
           setFieldSum(total);
+          setProfitSum(roundPercentage);
         }
 
         //Calculate for two month ago earnings
@@ -139,8 +146,14 @@ const EarningProfits = () => {
             const data = doc.data();
             total += parseFloat(data.Amount);
           });
+          // Calculating 85% of the total earnings
+          const eightyFivePercent = total * 0.85;
+          const roundPercentage = eightyFivePercent.toFixed(0);
+
+
           setData(list);
           setFieldSum(total);
+          setProfitSum(roundPercentage);
         }
 
         //Calculate for three month ago earnings
@@ -179,8 +192,14 @@ const EarningProfits = () => {
             const data = doc.data();
             total += parseFloat(data.Amount);
           });
+          // Calculating 85% of the total earnings
+          const eightyFivePercent = total * 0.85;
+          const roundPercentage = eightyFivePercent.toFixed(0);
+
+
           setData(list);
           setFieldSum(total);
+          setProfitSum(roundPercentage);
         }
 
         //Calculate for four month ago earnings
@@ -219,8 +238,14 @@ const EarningProfits = () => {
             const data = doc.data();
             total += parseFloat(data.Amount);
           });
+
+          // Calculating 85% of the total earnings
+          const eightyFivePercent = total * 0.85;
+          const roundPercentage = eightyFivePercent.toFixed(0);
+
           setData(list);
           setFieldSum(total);
+          setProfitSum(roundPercentage);
         }
 
         //Calculate for five month ago earnings
@@ -259,8 +284,15 @@ const EarningProfits = () => {
             const data = doc.data();
             total += parseFloat(data.Amount);
           });
+
+          // Calculating 85% of the total earnings
+          const eightyFivePercent = total * 0.85;
+          const roundPercentage = eightyFivePercent.toFixed(0);
+
+
           setData(list);
           setFieldSum(total);
+          setProfitSum(roundPercentage);
         }
 
         //Calculate for six month ago earnings
@@ -299,12 +331,19 @@ const EarningProfits = () => {
             const data = doc.data();
             total += parseFloat(data.Amount);
           });
+
+          // Calculating 85% of the total earnings
+          const eightyFivePercent = total * 0.85;
+          const roundPercentage = eightyFivePercent.toFixed(0);
+
+
           setData(list);
           setFieldSum(total);
+          setProfitSum(roundPercentage);
         }
 
         // Calculate for all the earnings
-        else if (Selected === "total") {
+        else if (Selected === "Total") {
           const sumEarnings = async () => {
             const querySnapshot = await getDocs(
               query(
@@ -364,7 +403,7 @@ const EarningProfits = () => {
             setSelected(e.target.value);
           }}
         >
-          <option value="total">Total</option>
+          <option value="Total">Total</option>
           <option value={getPreviousMonth(0)}>Current Month</option>
           <option value={getPreviousMonth()}>{getPreviousMonth()}</option>
           <option value={getPreviousMonth(2)}>{getPreviousMonth(2)}</option>
@@ -375,6 +414,7 @@ const EarningProfits = () => {
         </select>
       </div>
       <div className="bottom">
+        <p className="title">{Selected} Earnings and Profits</p>
         <div className="bottoms">
           <div className="place__holder">
             <div className="featuredChart total__holder">

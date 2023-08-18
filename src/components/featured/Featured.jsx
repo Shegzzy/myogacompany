@@ -330,8 +330,8 @@ const Featured = () => {
           });
           setData(list);
           setFieldSum(total);
-        } 
-        
+        }
+
         // Calculate for the current month
         else if (Selected === "total") {
           const sumEarnings = async () => {
@@ -525,7 +525,7 @@ const Featured = () => {
         </div>
         <p className="title">Total Earnings</p>
         <p className="amount">{formattedAmount}</p>
-        
+
         <div className="summary">
           <div className="item">
             <div className="itemTitle">Last Week</div>

@@ -2,11 +2,12 @@ import "./new.scss";
 import Sidebar from "../../components/sidebar/Sidebar";
 import Navbar from "../../components/navbar/Navbar";
 import DriveFolderUploadOutlinedIcon from "@mui/icons-material/DriveFolderUploadOutlined";
-import { doc, serverTimestamp, setDoc } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { doc, serverTimestamp, setDoc, getDoc } from "firebase/firestore";
+import { useContext, useEffect, useState } from "react";
 import { auth, db, storage } from "../../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { AuthContext } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -20,6 +21,28 @@ const New = ({ inputs, title }) => {
   const [uploadLoading, setUploadLoading] = useState(false);
 
   const navigate = useNavigate();
+  const { currentUser } = useContext(AuthContext);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (currentUser) {
+        const userRef = doc(db, "Companies", currentUser.uid);
+        const docs = await getDoc(userRef);
+        console.log(docs.data().company);
+        if (docs.exists) {
+          setUser(docs.data());
+          setData({
+            Company: docs.data().company,
+          });
+        } else {
+          toast.error("User does not exist");
+        }
+      }
+    };
+
+    return fetchUser();
+  }, [currentUser]);
 
   useEffect(() => {
     const uploadFile = () => {
@@ -174,15 +197,17 @@ const New = ({ inputs, title }) => {
                       onChange={(e) => setFiles([...files, ...e.target.files])}
                       multiple
                     />
-                  ) : (
-                    <input
-                      id={input.id}
-                      type={input.type}
-                      value={input.value}
-                      placeholder={input.placeholder}
-                      onChange={handleInput}
-                    />
-                  )}
+                  ) :
+                    (
+                      <input
+                        id={input.id}
+                        type={input.type}
+                        value={data[input.id] || input.value}
+                        placeholder={input.placeholder}
+                        onChange={handleInput}
+                        disabled={input.id === "Company"}
+                      />
+                    )}
                 </div>
               ))}
               {/* <button disabled={per !== null && per < 100} type="submit">

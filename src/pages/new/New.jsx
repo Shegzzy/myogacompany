@@ -22,7 +22,6 @@ const New = ({ inputs, title }) => {
 
   const navigate = useNavigate();
   const { currentUser } = useContext(AuthContext);
-  const [user, setUser] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -31,7 +30,6 @@ const New = ({ inputs, title }) => {
         const docs = await getDoc(userRef);
         console.log(docs.data().company);
         if (docs.exists) {
-          setUser(docs.data());
           setData({
             Company: docs.data().company,
           });

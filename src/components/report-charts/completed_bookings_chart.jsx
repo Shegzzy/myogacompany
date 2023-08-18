@@ -21,6 +21,8 @@ import {
 import { db } from "../../firebase";
 
 const CompletedBookingsChart = ({ aspect, title }) => {
+  const [totalBookings, setTotalBookings] = useState([]);
+  const [currentMonth, setCurrentMont] = useState([]);
   const [lastMonthData, setLastMonthData] = useState([]);
   const [lastTwoMonthData, setLastTwoMonthData] = useState([]);
   const [lastThreeMonthData, setLastThreeMonthData] = useState([]);
@@ -35,6 +37,20 @@ const CompletedBookingsChart = ({ aspect, title }) => {
 
   const getData = async () => {
     const today = new Date();
+
+    // Calculate the first day of current month
+    const startOfMonth = new Date(
+      today.getFullYear(),
+      today.getMonth(),
+      1
+    );
+
+    // Calculate the last day of current month
+    const endOfMonth = new Date(
+      today.getFullYear(),
+      today.getMonth() + 1,
+      0
+    );
 
     // Calculate the first day of last month
     const firstDayOfLastMonth = new Date(
@@ -158,6 +174,22 @@ const CompletedBookingsChart = ({ aspect, title }) => {
       // Collecting Driver IDs
       const driverIds = driversSnapshot.docs.map((driverDoc) => driverDoc.id);
 
+      //Total Month's Completed Bookings Query
+      const totalQuery = query(
+        collection(db, "Bookings"),
+        where("Driver ID", "in", driverIds),
+        where("Status", "==", "completed"),
+      );
+
+      //Current Month's Completed Bookings Query
+      const currentMonthQuery = query(
+        collection(db, "Bookings"),
+        where("Driver ID", "in", driverIds),
+        where("Status", "==", "completed"),
+        where("Date Created", ">=", startOfMonth.toISOString()),
+        where("Date Created", "<=", endOfMonth.toISOString())
+      );
+
       //Last Month's Earning Query
       const lastMonthQuery = query(
         collection(db, "Bookings"),
@@ -211,6 +243,18 @@ const CompletedBookingsChart = ({ aspect, title }) => {
         where("Date Created", ">=", firstDayOfLastSixMonths.toISOString()),
         where("Date Created", "<=", lastDayOfLastSixMonths.toISOString())
       );
+
+      //Calculating total month bookings
+      getDocs(totalQuery).then((querySnapshot) => {
+        let total = querySnapshot.size;
+        setTotalBookings(total);
+      });
+
+      //Calculating current month bookings
+      getDocs(currentMonthQuery).then((querySnapshot) => {
+        let total = querySnapshot.size;
+        setCurrentMont(total);
+      });
 
       //Calculating a month ago amount
       getDocs(lastMonthQuery).then((querySnapshot) => {
@@ -266,13 +310,11 @@ const CompletedBookingsChart = ({ aspect, title }) => {
   ];
 
   const getPath = (x, y, width, height) => {
-    return `M${x},${y + height}C${x + width / 3},${y + height} ${
-      x + width / 2
-    },${y + height / 3}
+    return `M${x},${y + height}C${x + width / 3},${y + height} ${x + width / 2
+      },${y + height / 3}
   ${x + width / 2}, ${y}
-  C${x + width / 2},${y + height / 3} ${x + (2 * width) / 3},${y + height} ${
-      x + width
-    }, ${y + height}
+  C${x + width / 2},${y + height / 3} ${x + (2 * width) / 3},${y + height} ${x + width
+      }, ${y + height}
   Z`;
   };
 
@@ -284,7 +326,11 @@ const CompletedBookingsChart = ({ aspect, title }) => {
 
   return (
     <div className="report__chart">
-      <div className="title">{title}</div>
+      <div className="title">
+        <p>{title}</p>
+        <p>Current Month's Bookings: {currentMonth}</p>
+        <p>Total Number of Bookings: {totalBookings}</p>
+      </div>
       <ResponsiveContainer width="100%" aspect={aspect}>
         <BarChart
           width={500}

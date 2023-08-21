@@ -42,6 +42,12 @@ export const companyInputs = [
 
 
   {
+    id: "account",
+    label: "Account Number",
+    type: "text",
+  },
+  
+  {
     id: "regnumber",
     label: "Registered Number",
     type: "text",

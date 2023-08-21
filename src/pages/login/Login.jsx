@@ -2,7 +2,7 @@ import "./login.scss";
 import logo from "../../components/assets/images/myogaIcon2.png";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "react-bootstrap";
+// import { Button } from "react-bootstrap";
 
 import { auth, db, storage } from "../../firebase";
 import {
@@ -21,7 +21,7 @@ import {
 import { AuthContext } from "../../context/authContext";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { toast } from "react-toastify";
-import { gridColumnVisibilityModelSelector } from "@mui/x-data-grid";
+// import { gridColumnVisibilityModelSelector } from "@mui/x-data-grid";
 
 const Login = () => {
   const [email, setemail] = useState("");
@@ -33,6 +33,7 @@ const Login = () => {
   const [location, setloction] = useState("");
   const [address, setaddress] = useState("");
   const [phone, setphone] = useState("");
+  const [account, setaccount] = useState("");
   const [documents, setdocuments] = useState([]);
 
   const [error, seterror] = useState(false);
@@ -114,6 +115,7 @@ const Login = () => {
           location: location,
           address: address,
           phone: phone,
+          account: account,
           documents: documents || [],
           timeStamp: serverTimestamp(),
         });
@@ -265,6 +267,18 @@ const Login = () => {
               id="phone"
               type="text"
               placeholder="Phone"
+              required
+            />
+          </div>
+        )}
+
+        {newUser && (
+          <div className="account">
+            <input
+              onChange={(e) => setaccount(e.target.value)}
+              id="account"
+              type="text"
+              placeholder="Account Number"
               required
             />
           </div>

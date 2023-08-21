@@ -93,7 +93,10 @@ const AdminProfile = () => {
                     Company Registered Number
                   </Typography>
                   <Typography variant="body2" component="p">
-                    {user.regnumber}
+                    Registered Number: {user.regnumber}
+                  </Typography>
+                  <Typography variant="body2" component="p">
+                    Account Number: {user.account}
                   </Typography>
                 </CardContent>
               </Card>

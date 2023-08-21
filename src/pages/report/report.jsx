@@ -13,15 +13,21 @@ const Report = () => {
       <Sidebar />
       <div className="listContainer">
         <Navbar />
-        <div className="reportTitle">Last 6 Months Report</div>
+        <div className="reportTitle">Reports</div>
         <div className="charts">
-          <ReportChart title="Riders Chart" aspect={4 / 3} />
-          <CompletedBookingsChart
-            title="Completed Bookings Chart"
-            aspect={4 / 3}
-          />
-          <Chart title="Total Earnings Chart" aspect={2 / 1} />
-          <EarningProfits title="Monthly Earnings and Profits" />
+          <div className="row">
+            <div className="col-6">
+              <ReportChart title="Registered Riders" aspect={3 / 1} />
+              <CompletedBookingsChart
+                title="Completed Bookings Chart"
+                aspect={3 / 1}
+              />
+            </div>
+            <div className="col-6">
+              <Chart title="Total Earnings Chart" aspect={3 / 1} />
+              <EarningProfits title="Monthly Earnings and Profits" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

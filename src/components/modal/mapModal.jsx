@@ -25,7 +25,7 @@ const MapModal = ({ riderLocation, show, handleClose }) => {
                 <Modal.Title>Rider Location</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <LoadScript googleMapsApiKey="AIzaSyCWWQ_Y9i0q2tABlWt8KepKE6IcAX7ty4U">
+                <LoadScript googleMapsApiKey={process.env.REACT_APP_MAP_KEY}>
                     <GoogleMap
                         mapContainerStyle={mapStyles}
                         zoom={17}

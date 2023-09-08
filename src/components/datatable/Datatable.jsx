@@ -17,10 +17,13 @@ import { db } from "../../firebase";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/authContext";
 import { Button } from "react-bootstrap";
+import MapModal from "../modal/mapModal";
 
 const Datatable = () => {
   const { currentUser } = useContext(AuthContext);
   const [data, setData] = useState([]);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [selectedRiderLocation, setSelectedRiderLocation] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,7 +51,7 @@ const Datatable = () => {
           }
         );
         return () => {
-          unsub(); // Unsubscribe from the snapshot listener when the component unmounts
+          unsub();
         };
       }
     };
@@ -56,6 +59,55 @@ const Datatable = () => {
     fetchData();
   }, [currentUser]);
 
+  // Function to open the map modal and set the selected rider's location
+  // const handleTrackButtonClick = async (id) => {
+  //   try {
+  //     const riderRef = doc(db, "Drivers", id);
+  //     const riderDoc = await getDoc(riderRef);
+  //     if (riderDoc.exists()) {
+  //       const riderData = riderDoc.data();
+  //       setSelectedRiderLocation(riderData);
+  //       setShowMapModal(true);
+  //       console.log("Latitude:", riderData["Driver Latitude"]);
+  //       console.log("Longitude:", riderData["Driver Longitude"]);
+
+  //     } else {
+  //       toast.error("Rider data not found.");
+  //     }
+  //   } catch (error) {
+  //     toast.error("Error fetching rider data.");
+  //   }
+  // };
+  const handleTrackButtonClick = async (id) => {
+    try {
+      const riderRef = doc(db, "Drivers", id);
+
+      // Set up a real-time listener for the rider's document
+      const unsubscribe = onSnapshot(riderRef, (docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const riderData = docSnapshot.data();
+          setSelectedRiderLocation(riderData);
+          setShowMapModal(true);
+        } else {
+          toast.error("Rider data not found.");
+        }
+      });
+
+      // Return a function to unsubscribe from the listener when the component unmounts
+      return () => {
+        unsubscribe();
+      };
+    } catch (error) {
+      toast.error("Error fetching rider data.");
+    }
+  };
+
+  // Function to close the map modal
+  const handleCloseMapModal = () => {
+    setShowMapModal(false);
+  };
+
+  // Function to delete rider
   const [idToDelete, setIdToDelete] = useState(null);
 
   const handleDelete = async () => {
@@ -77,6 +129,7 @@ const Datatable = () => {
     }
   };
 
+  // Function to view rider information
   const handleView = async (id) => {
     try {
       const docRef = doc(db, "Drivers", id);
@@ -87,6 +140,7 @@ const Datatable = () => {
     }
   };
 
+  // Function to verify riders
   const handleVerify = async (id) => {
     try {
       const driverRef = doc(db, "Drivers", id);
@@ -106,6 +160,8 @@ const Datatable = () => {
     }
   };
 
+
+  // Function to unverify riders
   const handleUnVerify = async (id) => {
     try {
       const driverRef = doc(db, "Drivers", id);
@@ -125,11 +181,12 @@ const Datatable = () => {
     }
   };
 
+
   const actionColumn = [
     {
       field: "action",
       headerName: "Action",
-      width: 250,
+      width: 350,
       renderCell: (params) => {
         return (
           <div className="cellAction">
@@ -146,6 +203,14 @@ const Datatable = () => {
                 View
               </Button>
             </Link>
+
+            <Button
+              className="trackButton"
+              onClick={() => handleTrackButtonClick(params.row.id)}
+            >
+              Track Rider
+            </Button>
+
             <Button
               className="deleteButton"
               variant="danger"
@@ -197,6 +262,15 @@ const Datatable = () => {
         rowsPerPageOptions={[9]}
         checkboxSelection
       />
+
+      {showMapModal && (
+        <MapModal
+          riderLocation={selectedRiderLocation}
+          show={showMapModal}
+          handleClose={handleCloseMapModal}
+        />
+      )}
+
     </div>
   );
 };

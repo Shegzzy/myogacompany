@@ -1,3 +1,4 @@
+import "./mapModal.scss";
 import React, { useEffect, useState } from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 import { Modal } from "react-bootstrap";
@@ -54,7 +55,7 @@ const MapModal = ({ riderLocation, show, handleClose }) => {
 
                     </GoogleMap>
                 </LoadScript>
-                <p>Address: {address}</p>
+                <p className="location">Current Location: {address}</p>
             </Modal.Body>
             <Modal.Footer>
                 <button className="btn btn-secondary" onClick={handleClose}>

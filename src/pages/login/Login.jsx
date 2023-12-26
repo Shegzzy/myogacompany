@@ -56,14 +56,14 @@ const Login = () => {
 
   const handleCompanyInputChange = (e) => {
     const inputCompany = e.target.value;
-    const validCompanyRegex = /^[a-zA-Z0-9\s'-]+$/; // Only allow letters, spaces, and special characters like hyphens or apostrophes
+    const validCompanyRegex = /^[a-zA-Z0-9\s'-]+$/;
     if (inputCompany && !validCompanyRegex.test(inputCompany)) {
       setCompanyError(
         "Invalid company name. Please enter only letters, number, spaces, and special characters."
       );
-    } else if (inputCompany && inputCompany.length > 50) {
+    } else if (inputCompany && inputCompany.length > 150) {
       setCompanyError(
-        "Company name is too long. Please limit to 50 characters."
+        "Company name is too long. Please limit to 150 characters."
       );
     } else {
       setcompany(inputCompany);
@@ -71,6 +71,7 @@ const Login = () => {
     }
   };
 
+  // Company's document uploads
   useEffect(() => {
     const uploadDocuments = async () => {
       const promises = documents.map((file) => {
@@ -92,6 +93,7 @@ const Login = () => {
     documents.length > 0 && uploadDocuments();
   }, [documents]);
 
+  // Form submission
   const submit = async (e) => {
     e.preventDefault();
     setLoading(true);

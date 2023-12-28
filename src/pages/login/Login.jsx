@@ -173,178 +173,181 @@ const Login = () => {
   };
 
   return (
-    <div className="login-page">
-      <header>
-        <span>MyOga Company Admin</span>
-      </header>
+    <body className="login-body">
+      <div className="login-page">
+        <header>
+          <span>MyOga Company Admin</span>
+        </header>
 
-      <img className="logo" src={logo} alt="Logo" />
+        <img className="logo" src={logo} alt="Logo" />
 
-      <form onSubmit={submit}>
-        <div className="email">
-          <input
-            onChange={(e) => setemail(e.target.value)}
-            id="email"
-            type="email"
-            placeholder="Email"
-            required
-          />
-        </div>
-
-        <div className="password">
-          <input
-            onChange={(e) => setpassword(e.target.value)}
-            id="password"
-            type="password"
-            placeholder="Password"
-            required
-          />
-        </div>
-
-        {newUser && (
-          <div className="company">
+        <form onSubmit={submit}>
+          <div className="email">
             <input
-              onChange={handleCompanyInputChange}
-              id="company"
-              type="text"
-              placeholder="Company Name"
-              required
-            />
-            {companyError && <span className="error">{companyError}</span>}
-          </div>
-        )}
-
-        {newUser && (
-          <div className="date">
-            <input
-              onChange={(e) => setdate(e.target.value)}
-              id="date"
-              type="date"
-              placeholder="Date of Establishment"
+              onChange={(e) => setemail(e.target.value)}
+              id="email"
+              type="email"
+              placeholder="Email"
               required
             />
           </div>
-        )}
 
-        {newUser && (
-          <div className="registration">
+          <div className="password">
             <input
-              onChange={(e) => setregNum(e.target.value)}
-              id="reg"
-              type="text"
-              placeholder="Reg. Number"
+              onChange={(e) => setpassword(e.target.value)}
+              id="password"
+              type="password"
+              placeholder="Password"
               required
             />
           </div>
-        )}
 
-        {newUser && (
-          <div className="location">
-            <input
-              onChange={(e) => setloction(e.target.value)}
-              id="location"
-              type="text"
-              placeholder="Location"
-              required
-            />
-          </div>
-        )}
+          {newUser && (
+            <div className="company">
+              <input
+                onChange={handleCompanyInputChange}
+                id="company"
+                type="text"
+                placeholder="Company Name"
+                required
+              />
+              {companyError && <span className="error">{companyError}</span>}
+            </div>
+          )}
 
-        {newUser && (
-          <div className="addresss">
-            <input
-              onChange={(e) => setaddress(e.target.value)}
-              id="address"
-              type="text"
-              placeholder="Address"
-              required
-            />
-          </div>
-        )}
+          {newUser && (
+            <div className="date">
+              <input
+                onChange={(e) => setdate(e.target.value)}
+                id="date"
+                type="date"
+                placeholder="Date of Establishment"
+                required
+              />
+            </div>
+          )}
 
-        {newUser && (
-          <div className="phone">
-            <input
-              onChange={(e) => setphone(e.target.value)}
-              id="phone"
-              type="text"
-              placeholder="Phone"
-              required
-            />
-          </div>
-        )}
+          {newUser && (
+            <div className="registration">
+              <input
+                onChange={(e) => setregNum(e.target.value)}
+                id="reg"
+                type="text"
+                placeholder="Reg. Number"
+                required
+              />
+            </div>
+          )}
 
-        {newUser && (
-          <div className="account">
-            <input
-              onChange={(e) => setaccount(e.target.value)}
-              id="account"
-              type="text"
-              placeholder="Account Number"
-              required
-            />
-          </div>
-        )}
+          {newUser && (
+            <div className="location">
+              <input
+                onChange={(e) => setloction(e.target.value)}
+                id="location"
+                type="text"
+                placeholder="Location"
+                required
+              />
+            </div>
+          )}
 
-        {newUser && (
-          <div className="document">
-            <input
-              onChange={handleFileInputChange}
-              id="documents"
-              type="file"
-              multiple
-              placeholder="Documents"
-              required
-            />
-          </div>
-        )}
+          {newUser && (
+            <div className="addresss">
+              <input
+                onChange={(e) => setaddress(e.target.value)}
+                id="address"
+                type="text"
+                placeholder="Address"
+                required
+              />
+            </div>
+          )}
 
-        {error && <span className="error">Process Failed!!</span>}
-        {error && <span className="error">{Errormsg}</span>}
+          {newUser && (
+            <div className="phone">
+              <input
+                onChange={(e) => setphone(e.target.value)}
+                id="phone"
+                type="text"
+                placeholder="Phone"
+                required
+              />
+            </div>
+          )}
 
-        <button
-          type="submit"
-          className={loading ? "spinner-btn" : ""}
-          disabled={loading}
-        >
-          <span className={loading ? "hidden" : ""}>
-            {newUser ? "Sign Up" : "Login"}
-          </span>
-          <span className={loading ? "" : "hidden"}>
-            <div className="spinner"></div>
-          </span>
-          {loading && <span>Signing In...</span>}
-        </button>
+          {newUser && (
+            <div className="account">
+              <input
+                onChange={(e) => setaccount(e.target.value)}
+                id="account"
+                type="text"
+                placeholder="Account Number"
+                required
+              />
+            </div>
+          )}
 
-        {newUser ? (
-          <span className="user-stat">
-            Already have an account?{" "}
-            <b
-              onClick={() => {
-                setnewUser(false);
-                seterror(false);
-              }}
-            >
-              {" "}
-              Log in
-            </b>
-          </span>
-        ) : (
-          <span className="user-stat">
-            Don't have an account?{" "}
-            <b
-              onClick={() => {
-                setnewUser(true);
-                seterror(false);
-              }}
-            >
-              {" "}
-              Sign Up
-            </b>
-          </span>
-        )}
-      </form>
-    </div>
+          {newUser && (
+            <div className="document">
+              <input
+                onChange={handleFileInputChange}
+                id="documents"
+                type="file"
+                multiple
+                placeholder="Documents"
+                required
+              />
+            </div>
+          )}
+
+          {error && <span className="error">Process Failed!!</span>}
+          {error && <span className="error">{Errormsg}</span>}
+
+          <button
+            type="submit"
+            className={loading ? "spinner-btn" : ""}
+            disabled={loading}
+          >
+            <span className={loading ? "hidden" : ""}>
+              {newUser ? "Sign Up" : "Login"}
+            </span>
+            <span className={loading ? "" : "hidden"}>
+              <div className="spinner"></div>
+            </span>
+            {loading && <span>Signing In...</span>}
+          </button>
+
+          {newUser ? (
+            <span className="user-stat">
+              Already have an account?{" "}
+              <b
+                onClick={() => {
+                  setnewUser(false);
+                  seterror(false);
+                }}
+              >
+                {" "}
+                Log in
+              </b>
+            </span>
+          ) : (
+            <span className="user-stat">
+              Don't have an account?{" "}
+              <b
+                onClick={() => {
+                  setnewUser(true);
+                  seterror(false);
+                }}
+              >
+                {" "}
+                Sign Up
+              </b>
+            </span>
+          )}
+        </form>
+      </div>
+    </body>
+
   );
 };
 

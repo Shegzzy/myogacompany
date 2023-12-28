@@ -8,7 +8,7 @@ import {
     MutedLink,
     SubmitButton,
 } from "./common";
-import { Marginer } from "../marginer";
+import { Marginer } from "./marginer";
 import { AccountContext } from './accountContext';
 
 export function SignupForm(props) {
@@ -23,12 +23,12 @@ export function SignupForm(props) {
                 <Input type="password" placeholder="Confirm password" />
             </FormContainer>
             <Marginer direction="vertical" margin={10} />
-            <SubmitButton type="submit">Signup</SubmitButton>
+            <SubmitButton type="submit">Sign Up</SubmitButton>
             <Marginer direction="vertical" margin="5px" />
             <LineText>
                 Already have an account?{" "}
                 <BoldLink onClick={switchToSignin} href="#">
-                    Signin
+                    Login
                 </BoldLink>
             </LineText>
         </BoxContainer>

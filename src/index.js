@@ -4,6 +4,7 @@ import App from "./App";
 import { DarkModeContextProvider } from "./context/darkModeContext";
 import { AuthContextProvider } from "./context/authContext";
 
+const rootElement = document.getElementById("root");
 
 ReactDOM.render(
   <React.StrictMode>
@@ -13,5 +14,5 @@ ReactDOM.render(
       </AuthContextProvider>
     </DarkModeContextProvider>
   </React.StrictMode>,
-  document.getElementById("root")
+  rootElement
 );

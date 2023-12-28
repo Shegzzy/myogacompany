@@ -1,7 +1,7 @@
 import { React, useState } from 'react';
 import styled from 'styled-components';
 import { LoginForm } from './loginForm';
-import { SignupForm } from './signupForm';
+import { SignupForm } from './signUpForm';
 import { motion } from 'framer-motion';
 import { AccountContext } from './accountContext'
 
@@ -94,7 +94,7 @@ const expandingTransition = {
 
 export default function AccountBox(props) {
     const [isExpanded, setExpanded] = useState(false);
-    const [active, setActive] = useState('signin');
+    const [active, setActive] = useState('login');
 
     const playExpandingAnimation = () => {
         setExpanded(true);
@@ -103,6 +103,7 @@ export default function AccountBox(props) {
         }, expandingTransition.duration * 1000 - 1500);
     }
 
+    // Sing Up
     const switchToSignup = () => {
         playExpandingAnimation();
         setTimeout(() => {
@@ -110,10 +111,11 @@ export default function AccountBox(props) {
         }, 400);
     }
 
+    // Login
     const switchToSignin = () => {
         playExpandingAnimation();
         setTimeout(() => {
-            setActive("signin");
+            setActive("login");
         }, 400);
     }
 
@@ -129,7 +131,7 @@ export default function AccountBox(props) {
                         variants={backdropVariants}
                         transition={expandingTransition}
                     />
-                    {active === "signin" && <HeaderContainer>
+                    {active === "login" && <HeaderContainer>
                         <HeaderText>Welcome</HeaderText>
                         <HeaderText>Back</HeaderText>
                         <SmallText>Please sign-in to continue!</SmallText>
@@ -141,7 +143,7 @@ export default function AccountBox(props) {
                     </HeaderContainer>}
                 </TopContainer>
                 <InnerContainer>
-                    {active === "signin" && <LoginForm />}
+                    {active === "login" && <LoginForm />}
                     {active === "signup" && <SignupForm />}
                 </InnerContainer>
             </BoxContainer>

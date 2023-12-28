@@ -34,20 +34,17 @@
     margin-top: 25px;
     }
 
-    .featuredChart {
-      width: 100px;
-      height: 100px;
-    }
-
     .total__holder{
-      -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
-      box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
-      padding: 10px;
-      border-radius: 50px;
-      justify-content: center;
+      // -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+      // box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+      // padding: 10px;
+      // border-radius: 50px;
       display: flex;
+      text-align: center;
+      flex-direction: row;
       justify-content: center;
       align-items: center;
+      width: 100px;
     }
 
     .place__holder {
@@ -68,7 +65,7 @@
     .amount {
       font-size: 30px;
       text-align: center;
-        justify-self: center;
+      justify-self: center;
     }
 
     .amounts{
@@ -79,6 +76,7 @@
       overflow: hidden;
       white-space: nowrap;
       max-width: 100%;
+      isolation: isolate;
     }
 
     .desc {

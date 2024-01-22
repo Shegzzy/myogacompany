@@ -4,14 +4,16 @@ import { LoginForm } from './loginForm';
 import { SignupForm } from './signUpForm';
 import { motion } from 'framer-motion';
 import { AccountContext } from './accountContext'
+import logo from "../../components/assets/images/myogaIcon2.png";
+
 
 const BoxContainer = styled.div`
-  width: 280px;
+  width: 288px;
   min-height: 550px;
   display: flex;
   flex-direction: column;
   border-radius: 19px;
-  background-color: #fff;
+  background-color: #2d2d39;
   box-shadow: 0 0 2px rgba(15, 15, 15, 0.28);
   position: relative;
   overflow: hidden;
@@ -36,10 +38,12 @@ const BackDrop = styled(motion.div)`
   border-radius: 50%;
   top: -290px;
   left: -70px;
-  transform: rotate(60deg);
-  background: linear-gradient(
-    58deg, rgba(243,172,18,1) 20%, rgba(241,196,15,1) 100%
-  );
+//   transform: rotate(60deg);
+//   background: linear-gradient(
+//     58deg, rgba(243,172,18,1) 20%, rgba(241,196,15,1) 100%
+//   );
+  transform: translate(-50%, -50%);
+  background: linear-gradient(80deg, #810599, #111);
 `;
 
 const HeaderContainer = styled.div`
@@ -53,6 +57,12 @@ const HeaderText = styled.div`
   font-weight: 600;
   line-height: 1.24;
   color: #fff;
+  z-index: 10;
+`;
+
+const HeaderLogo = styled.img`
+   margin-top: 90px;
+    width: 200px;
   z-index: 10;
 `;
 
@@ -132,11 +142,13 @@ export default function AccountBox(props) {
                         transition={expandingTransition}
                     />
                     {active === "login" && <HeaderContainer>
+                        <HeaderLogo src={logo}></HeaderLogo>
                         <HeaderText>Welcome</HeaderText>
                         <HeaderText>Back</HeaderText>
                         <SmallText>Please sign-in to continue!</SmallText>
                     </HeaderContainer>}
                     {active === "signup" && <HeaderContainer>
+                        <HeaderLogo src={logo}></HeaderLogo>
                         <HeaderText>Create</HeaderText>
                         <HeaderText>Account</HeaderText>
                         <SmallText>Please sign-up to continue!</SmallText>

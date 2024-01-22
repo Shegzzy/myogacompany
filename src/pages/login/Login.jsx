@@ -33,6 +33,7 @@ const Login = () => {
   const [location, setloction] = useState("");
   const [address, setaddress] = useState("");
   const [phone, setphone] = useState("");
+  const [bank, setBank] = useState("");
   const [account, setaccount] = useState("");
   const [documents, setdocuments] = useState([]);
 
@@ -117,6 +118,7 @@ const Login = () => {
           location: location,
           address: address,
           phone: phone,
+          bank: bank,
           account: account,
           documents: documents || [],
           timeStamp: serverTimestamp(),
@@ -173,7 +175,10 @@ const Login = () => {
   };
 
   return (
-    <body className="login-body">
+    <div className="login-body">
+      <div className="myoga-div">
+        <img className="myoga-image" src={logo} alt="" />
+      </div>
       <div className="login-page">
         <header>
           <span>MyOga Company Admin</span>
@@ -276,6 +281,18 @@ const Login = () => {
           )}
 
           {newUser && (
+            <div className="bank">
+              <input
+                onChange={(e) => setBank(e.target.value)}
+                id="bank"
+                type="text"
+                placeholder="Bank Name"
+                required
+              />
+            </div>
+          )}
+
+          {newUser && (
             <div className="account">
               <input
                 onChange={(e) => setaccount(e.target.value)}
@@ -346,7 +363,7 @@ const Login = () => {
           )}
         </form>
       </div>
-    </body>
+    </div>
 
   );
 };

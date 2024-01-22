@@ -17,10 +17,17 @@ export function SignupForm(props) {
     return (
         <BoxContainer>
             <FormContainer>
-                <Input type="text" placeholder="Full name" />
+                <Input type="text" placeholder="Company Name" />
                 <Input type="email" placeholder="Email" />
                 <Input type="password" placeholder="Password" />
-                <Input type="password" placeholder="Confirm password" />
+                <Input type="date" placeholder="Date of Establishment" />
+                <Input type="text" placeholder="Reg. Number" />
+                <Input type="text" placeholder="Location" />
+                <Input type="text" placeholder="Address" />
+                <Input type="text" placeholder="Phone Number" />
+                <Input type="text" placeholder="Bank Name" />
+                <Input type="number" placeholder="Account Number" />
+                <Input type="file" placeholder="Documents" required multiple id="documents" />
             </FormContainer>
             <Marginer direction="vertical" margin={10} />
             <SubmitButton type="submit">Sign Up</SubmitButton>

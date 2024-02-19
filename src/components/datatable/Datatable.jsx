@@ -211,13 +211,13 @@ const Datatable = () => {
               Track Rider
             </Button>
 
-            <Button
+            {/* <Button
               className="deleteButton"
               variant="danger"
               onClick={() => handleDeleteConfirmation(params.id)}
             >
               Delete
-            </Button>
+            </Button> */}
 
             {params.row.Verified === "1" ? (
               <div>

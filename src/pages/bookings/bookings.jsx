@@ -54,6 +54,9 @@ const Bookings = ({ inputs, title }) => {
           const bookings = bookingsSnapshot.docs.map((bookingDoc) =>
             bookingDoc.data()
           );
+
+          bookings.sort((a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"]));
+
           setData(bookings);
         } catch (error) {
           toast.error(error);
@@ -130,9 +133,11 @@ const Bookings = ({ inputs, title }) => {
                       {row["Customer Name"]}
                     </TableCell>
                     <TableCell className="tableCell">
-                      {new Date(row["Date Created"]).toLocaleDateString(
-                        "en-US"
-                      )}
+                      {new Date(row["Date Created"]).toLocaleDateString("en-US", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                      })}
                     </TableCell>
                     <TableCell className="tableCell">{row.Amount}</TableCell>
                     <TableCell className="tableCell">

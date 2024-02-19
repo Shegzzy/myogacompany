@@ -1,11 +1,11 @@
 import "./datatable.scss";
+import "../navbar/navbar.scss";
 import { DataGrid } from "@mui/x-data-grid";
 import { userColumns } from "../../datatablesource";
 import { Link } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 import {
   collection,
-  deleteDoc,
   doc,
   onSnapshot,
   getDoc,
@@ -18,16 +18,32 @@ import { toast } from "react-toastify";
 import { AuthContext } from "../../context/authContext";
 import { Button } from "react-bootstrap";
 import MapModal from "../modal/mapModal";
+// import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
+
 
 const Datatable = () => {
   const { currentUser } = useContext(AuthContext);
   const [data, setData] = useState([]);
   const [showMapModal, setShowMapModal] = useState(false);
   const [selectedRiderLocation, setSelectedRiderLocation] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isMounted, setIsMounted] = useState(true);
+
+
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (currentUser) {
+    setIsMounted(true);
+
+    fetchData();
+
+    return () => {
+      setIsMounted(false);
+    };
+  }, [currentUser, isMounted]);
+
+  const fetchData = async () => {
+    if (currentUser && isMounted) {
+      try {
         const userRef = doc(db, "Companies", currentUser.uid);
         const docs = await getDoc(userRef);
         const unsub = onSnapshot(
@@ -44,20 +60,24 @@ const Datatable = () => {
               (a, b) =>
                 new Date(b["Date Created"]) - new Date(a["Date Created"])
             );
-            setData(list);
+
+            if (isMounted) {
+              setData(list);
+            }
           },
           (error) => {
             toast.error(error);
           }
         );
+
         return () => {
           unsub();
         };
+      } catch (error) {
+        console.error("Error fetching data:", error);
       }
-    };
-
-    fetchData();
-  }, [currentUser]);
+    }
+  };
 
   // Function to open the map modal and set the selected rider's location
   // const handleTrackButtonClick = async (id) => {
@@ -108,26 +128,26 @@ const Datatable = () => {
   };
 
   // Function to delete rider
-  const [idToDelete, setIdToDelete] = useState(null);
+  // const [idToDelete, setIdToDelete] = useState(null);
 
-  const handleDelete = async () => {
-    try {
-      await deleteDoc(doc(db, "Drivers", idToDelete));
-      setData(data.filter((item) => item.id !== idToDelete));
-      setIdToDelete(null);
-      toast.success("Successfully deleted!");
-    } catch (err) {
-      toast.error("Something went wrong");
-    }
-  };
+  // const handleDelete = async () => {
+  //   try {
+  //     await deleteDoc(doc(db, "Drivers", idToDelete));
+  //     setData(data.filter((item) => item.id !== idToDelete));
+  //     setIdToDelete(null);
+  //     toast.success("Successfully deleted!");
+  //   } catch (err) {
+  //     toast.error("Something went wrong");
+  //   }
+  // };
 
-  const handleDeleteConfirmation = (id) => {
-    setIdToDelete(id);
-    // Show confirmation dialog box
-    if (window.confirm("Are you sure you want to delete this item?")) {
-      handleDelete();
-    }
-  };
+  // const handleDeleteConfirmation = (id) => {
+  //   setIdToDelete(id);
+  //   // Show confirmation dialog box
+  //   if (window.confirm("Are you sure you want to delete this item?")) {
+  //     handleDelete();
+  //   }
+  // };
 
   // Function to view rider information
   const handleView = async (id) => {
@@ -181,6 +201,27 @@ const Datatable = () => {
     }
   };
 
+  // Function to search for riders
+  const handleSearch = () => {
+    if (searchTerm.trim() === '') {
+      fetchData();
+    } else {
+      const filteredData = data.filter((driver) => {
+        const name = driver.FullName?.toLowerCase() ?? "";
+        return name.includes(searchTerm?.toLowerCase() ?? "");
+      });
+
+      if (filteredData.length === 0) {
+        toast.error('No search results found.');
+      }
+
+      setData(filteredData);
+    }
+  };
+
+  useEffect(() => {
+    handleSearch();
+  }, [searchTerm]);
 
   const actionColumn = [
     {
@@ -248,6 +289,16 @@ const Datatable = () => {
 
   return (
     <div className="datatable">
+      <div className="search">
+        <input
+          type="text"
+          placeholder="Search Riders..."
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+          }}
+        />
+      </div>
       <div className="datatableTitle">
         Riders
         <Link to="/users/new" className="link">
@@ -260,7 +311,6 @@ const Datatable = () => {
         columns={userColumns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
-        checkboxSelection
       />
 
       {showMapModal && (

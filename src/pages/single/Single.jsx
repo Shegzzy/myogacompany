@@ -28,6 +28,7 @@ import {
 } from "@mui/material";
 import ModalContainer from "../../components/modal/ModalContainer";
 import { KeyboardArrowDownOutlined } from "@mui/icons-material";
+import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 // import { toast } from "react-toastify";
 // import { DisabledByDefault } from "@mui/icons-material";
 
@@ -40,6 +41,7 @@ const Single = () => {
   const [lWData, setLWData] = useState([]);
   const [lMData, setLData] = useState([]);
   const [mData, setMData] = useState([]);
+  const [riderRatings, setRiderRatings] = useState({ averageRating: 0 });
 
   //Fetching rider's data
   useEffect(() => {
@@ -59,6 +61,39 @@ const Single = () => {
       isMounted = false;
     };
   }, [id]);
+
+  // Fetching rider's rating
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchRiderRatings = async () => {
+      try {
+        const userRef = doc(db, "Drivers", id);
+        const ratingsQuerySnapshot = await getDocs(collection(userRef, "Ratings"));
+
+        if (isMounted && !ratingsQuerySnapshot.empty) {
+          // Extract ratings from the documents
+          const ratings = ratingsQuerySnapshot.docs.map((doc) => doc.data().rating);
+
+          // Calculate average rating
+          const averageRating = ratings.reduce((sum, rating) => sum + rating, 0) / ratings.length;
+
+          // Set the user state with the average rating
+          setRiderRatings({ averageRating });
+        }
+      } catch (error) {
+        // Handle errors
+        console.error("Error fetching rider ratings:", error);
+      }
+    };
+
+    fetchRiderRatings();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id]);
+
 
   // Calculating rider's total earnings
   useEffect(() => {
@@ -86,6 +121,7 @@ const Single = () => {
   }, [id]);
 
   const [data, setData] = useState([]);
+
   // Fetching all rider's deliveries
   useEffect(() => {
     let isMounted = true;
@@ -98,8 +134,8 @@ const Single = () => {
       const bookingsData = [];
       snapshot.forEach((doc) => {
         const booking = doc.data();
-        const bookingId = doc.id; // unique ID for this booking document
-        bookingsData.push({ ...booking, id: bookingId }); // include ID in booking data
+        const bookingId = doc.id;
+        bookingsData.push({ ...booking, id: bookingId });
       });
       if (isMounted) {
         bookingsData.sort(
@@ -239,6 +275,22 @@ const Single = () => {
     .format(lWData)
     .replace(".00", "");
 
+  // Function to render star icons based on the average rating
+  const renderStars = (averageRating) => {
+    const stars = [];
+    for (let i = 0; i < 5; i++) {
+      stars.push(
+        i < Math.floor(averageRating) ? (
+          <AiFillStar key={i} style={{ color: averageRating < 3.0 ? 'red' : 'green' }} />
+        ) : (
+          <AiOutlineStar key={i} style={{ color: averageRating < 3.0 ? 'red' : 'green' }} />
+        )
+      );
+    }
+    return stars;
+  };
+
+
   return (
     <div className="single">
       <Sidebar />
@@ -257,6 +309,8 @@ const Single = () => {
             )}
             <h1 className="title">Information</h1>
             {user ? (
+
+              // Rider's details
               <div className="item">
                 <img src={user["Profile Photo"]} alt="" className="itemImg" />
                 <div className="details">
@@ -277,8 +331,19 @@ const Single = () => {
                     <span className="itemKey">State:</span>
                     <span className="itemValue">{user.State}</span>
                   </div>
+                  <div className="detailItem">
+                    <span className="itemKey">Ratings:</span>
+                    <span style={{ color: user.averageRating > 3.0 ? 'green' : 'red' }}>
+                      {riderRatings.averageRating.toFixed(1)}
+                    </span>
+                    <span className="itemValue">
+                      {renderStars(riderRatings.averageRating.toFixed(1))}
+                    </span>
+
+                  </div>
                 </div>
 
+                {/* Vehicle details */}
                 <div className="details">
                   <h1 className="name">Vehicle Details</h1>
                   <div className="detailItem">

@@ -40,6 +40,11 @@ export const companyInputs = [
     type: "text",
   },
 
+ {
+    id: "bank",
+    label: "Bank Name",
+    type: "text",
+  },
 
   {
     id: "account",

@@ -26,48 +26,189 @@ import { AuthContext } from "../../context/authContext";
 const CompanyEarnings = ({ title }) => {
     const [data, setData] = useState([]);
     const { currentUser } = useContext(AuthContext);
+    const [selectedFilter, setSelectedFilter] = useState("all");
+    const [isMounted, setIsMounted] = useState(true);
+    const [loading, setLoading] = useState(true);
+
 
     useEffect(() => {
-        const fetchData = async () => {
-            if (currentUser) {
-                try {
-                    const userRef = doc(db, "Companies", currentUser.uid);
-                    const docs = await getDoc(userRef);
+        setIsMounted(true);
 
+        fetchData();
+
+        return () => {
+            setIsMounted(false);
+        };
+    }, [currentUser]);
+
+    const fetchData = async () => {
+        const allBookings = [];
+        if (currentUser && isMounted) {
+            try {
+                const userRef = doc(db, "Companies", currentUser.uid);
+                const docs = await getDoc(userRef);
+
+                if (isMounted) {
                     const earningsQuery = query(
                         collection(db, "Earnings"),
                         where("Company", "==", docs.data().company)
                     );
                     const earningsSnapshot = await getDocs(earningsQuery);
-                    earningsSnapshot.docs.forEach((doc) => {
-                        console.log(doc.data().Driver);
-                    });
 
-                    // Collecting Driver IDs
+                    // Collecting Bookings IDs
                     const bookingNumbers = earningsSnapshot.docs.map(
-                        (driverDoc) => driverDoc.id
+                        (bookingrDoc) => bookingrDoc.data().BookingID,
                     );
 
-                    const bookingsQuery = query(
-                        collection(db, "Bookings"),
-                        where("Booking Number", "in", bookingNumbers)
+                    const chunkSize = 30;
+                    const bookingChunks = [];
+                    for (let i = 0; i < bookingNumbers.length; i += chunkSize) {
+                        const chunk = bookingNumbers.slice(i, i + chunkSize);
+                        bookingChunks.push(chunk);
+                    }
+
+
+
+                    for (const chunk of bookingChunks) {
+                        const bookingsQuery = query(
+                            collection(db, "Bookings"),
+                            where("Booking Number", "in", chunk)
+                        );
+
+                        try {
+                            const bookingsSnapshot = await getDocs(bookingsQuery);
+
+                            if (!bookingsSnapshot.empty) {
+                                const bookings = bookingsSnapshot.docs.map((bookingDoc) => bookingDoc.data());
+
+                                allBookings.push(...bookings);
+                            } else {
+                                console.log("No bookings found with the given Booking Numbers in this chunk.");
+                            }
+                        } catch (error) {
+                            console.error("Error fetching bookings:", error);
+                            toast.error("Error fetching bookings. Please check the console for details.");
+                        }
+                    }
+
+                    allBookings.sort(
+                        (a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"])
                     );
-                    const bookingsSnapshot = await getDocs(bookingsQuery);
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                toast.error("Error fetching data. Please check the console for details.");
+            } finally {
+                setLoading(false);
+                if (isMounted) {
+                    setData(allBookings);
+                }
+            }
+        }
+    };
 
-                    const bookings = bookingsSnapshot.docs.map((bookingDoc) =>
-                        bookingDoc.data()
-                    );
 
-                    bookings.sort((a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"]));
+    useEffect(() => {
+        let isMounted = true;
 
-                    setData(bookings);
+        const fetchDataByWeek = async () => {
+            if (currentUser && isMounted) {
+                try {
+                    const userRef = doc(db, "Companies", currentUser.uid);
+                    const docs = await getDoc(userRef);
+
+                    let startOfWeek, endOfWeek;
+
+                    if (selectedFilter === "all") {
+                        fetchData();
+                    } else {
+                        const today = new Date();
+
+                        // Calculate the start and end dates based on the selected filter
+                        if (selectedFilter === "7") {
+                            // Last Week
+                            startOfWeek = new Date(today);
+                            startOfWeek.setDate(today.getDate() - today.getDay() - 6);
+                        } else if (selectedFilter === "1") {
+                            // Two Weeks Ago
+                            startOfWeek = new Date(today);
+                            startOfWeek.setDate(today.getDate() - today.getDay() - 13);
+                        }
+                        // ... Add cases for other filters
+
+                        startOfWeek.setHours(0, 0, 0, 0);
+                        endOfWeek = new Date(startOfWeek);
+                        endOfWeek.setDate(startOfWeek.getDate() + 6);
+                        endOfWeek.setHours(23, 59, 59, 999);
+
+                        // Use startOfWeek and endOfWeek in your Firestore query
+                        const earningsQuery = query(
+                            collection(db, "Earnings"),
+                            where("Company", "==", docs.data().company),
+                            where("DateCreated", ">=", startOfWeek.toISOString()),
+                            where("DateCreated", "<=", endOfWeek.toISOString())
+                        );
+
+                        const earningsSnapshot = await getDocs(earningsQuery);
+                        // const earningsData = earningsSnapshot.docs.map((doc) => doc.data());
+
+                        // Collecting Bookings IDs
+                        const bookingNumbers = earningsSnapshot.docs.map(
+                            (bookingrDoc) => bookingrDoc.data().BookingID,
+                        );
+
+                        const chunkSize = 30;
+                        const bookingChunks = [];
+                        for (let i = 0; i < bookingNumbers.length; i += chunkSize) {
+                            const chunk = bookingNumbers.slice(i, i + chunkSize);
+                            bookingChunks.push(chunk);
+                        }
+
+                        const allBookings = [];
+
+                        for (const chunk of bookingChunks) {
+                            const bookingsQuery = query(
+                                collection(db, "Bookings"),
+                                where("Booking Number", "in", chunk)
+                            );
+
+                            try {
+                                const bookingsSnapshot = await getDocs(bookingsQuery);
+
+                                if (!bookingsSnapshot.empty) {
+                                    const bookings = bookingsSnapshot.docs.map((bookingDoc) => bookingDoc.data());
+
+                                    allBookings.push(...bookings);
+                                } else {
+                                    console.log("No bookings found with the given Booking Numbers in this chunk.");
+                                }
+                            } catch (error) {
+                                console.error("Error fetching bookings:", error);
+                                toast.error("Error fetching bookings. Please check the console for details.");
+                            }
+                        }
+
+                        allBookings.sort(
+                            (a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"])
+                        );
+
+                        if (isMounted) {
+                            setData(allBookings); // Set the filtered data to the state
+                        }
+                    }
                 } catch (error) {
                     toast.error(error);
                 }
             }
         };
-        fetchData();
-    }, [currentUser]);
+
+        fetchDataByWeek();
+        return () => {
+            isMounted = false;
+        };
+    }, [currentUser, fetchData, selectedFilter]);
+
+
 
     return (
         <div className="new">
@@ -76,8 +217,17 @@ const CompanyEarnings = ({ title }) => {
                 <Navbar />
                 <div className="top">
                     <h1>{title}</h1>
+                    <select
+                        className="chart-select"
+                        value={selectedFilter}
+                        onChange={(e) => setSelectedFilter(e.target.value)}
+                    >
+                        <option value="all">All</option>
+                        <option value="7">Last Week</option>
+                        <option value="1">Two Weeks Ago</option>
+                    </select>
                 </div>
-                <div className="b-table">
+                {!loading ? (<div className="b-table">
                     <TableContainer component={Paper} className="table">
                         <Table sx={{ minWidth: 780 }} aria-label="simple table">
                             <TableHead>
@@ -91,7 +241,7 @@ const CompanyEarnings = ({ title }) => {
                                     <TableCell className="tableCell" width={130}>
                                         Customer Name
                                     </TableCell>
-                                    <TableCell className="tableCell" width={130}>
+                                    <TableCell className="tableCell" width={80}>
                                         Date
                                     </TableCell>
                                     <TableCell className="tableCell" width={50}>
@@ -100,33 +250,12 @@ const CompanyEarnings = ({ title }) => {
                                     <TableCell className="tableCell" width={20}>
                                         Payment Method
                                     </TableCell>
-                                    <TableCell className="tableCell" width={130}>
-                                        Pickup Location
-                                    </TableCell>
-                                    <TableCell className="tableCell" width={130}>
-                                        Dropoff Location
-                                    </TableCell>
-                                    <TableCell className="tableCell" width={130}>
-                                        Phone
-                                    </TableCell>
-                                    <TableCell className="tableCell" width={130}>
-                                        Driver ID
-                                    </TableCell>
-                                    <TableCell className="tableCell" width={80}>
-                                        Distance
-                                    </TableCell>
-                                    <TableCell className="tableCell" width={130}>
-                                        Ride Type
-                                    </TableCell>
-                                    <TableCell className="tableCell" width={100}>
-                                        Status
-                                    </TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
                                 {data.map((row) => (
-                                    <TableRow key={row["Driver ID"]}>
-                                        <TableCell className="tableCell" width={80}>
+                                    <TableRow key={row["Booking Number"]}>
+                                        <TableCell className="tableCell">
                                             {row["Booking Number"]}
                                         </TableCell>
                                         <TableCell className="tableCell">
@@ -142,42 +271,35 @@ const CompanyEarnings = ({ title }) => {
                                                 year: "numeric",
                                             })}
                                         </TableCell>
-                                        <TableCell className="tableCell">{row.Amount}</TableCell>
+                                        <TableCell className="tableCell">
+                                            {new Intl.NumberFormat("en-NG", {
+                                                style: "currency",
+                                                currency: "NGN",
+                                            })
+                                                .format(row["Amount"])
+                                                .replace(".00", "")}</TableCell>
                                         <TableCell className="tableCell">
                                             {row["Payment Method"]}
                                         </TableCell>
-                                        <TableCell className="tableCell">
-                                            {row["PickUp Address"]}
-                                        </TableCell>
-                                        <TableCell className="tableCell">
-                                            {row["DropOff Address"]}
-                                        </TableCell>
-                                        <TableCell className="tableCell">
-                                            {row["Customer Phone"]}
-                                        </TableCell>
-                                        <TableCell className="tableCell">
-                                            <Link to={`/users/${row["Driver ID"]}`}>
-                                                {row["Driver ID"]}
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell className="tableCell">
-                                            {row["Distance"]}
-                                        </TableCell>
-                                        <TableCell className="tableCell">
-                                            {row["Ride Type"]}
-                                        </TableCell>
-                                        <TableCell className="tableCell">
-                                            <div className={`cellWithStatus ${row["Status"]}`}>
-                                                {row["Status"]}
-                                                {<ModalContainer id={row["Booking Number"]} />}
-                                            </div>
-                                        </TableCell>
+
                                     </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
-                </div>
+                </div>) :
+                    (<div className="detailItem">
+                        <span className="itemKey">
+                            <div className="no-data-message">
+                                <div className="single-container">
+                                    <div className="loader">
+                                        <div className="lds-dual-ring"></div>
+                                        <div>Loading... </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </span>
+                    </div>)}
             </div>
         </div>
     );

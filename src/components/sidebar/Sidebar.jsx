@@ -19,6 +19,8 @@ import { useContext } from "react";
 import lightLogo from "../assets/images/myogaIcon2.png";
 import { auth } from "../../firebase";
 import darkLogo from "../assets/images/myogaIcon1.png";
+import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
+
 
 const Sidebar = () => {
   const { dispatch: darkModeDispatch } = useContext(DarkModeContext);
@@ -68,20 +70,20 @@ const Sidebar = () => {
             </li>
           </Link>
 
-          <Link to="/delivery" style={{ textDecoration: "none" }}>
+          {/* <Link to="/delivery" style={{ textDecoration: "none" }}>
             <li>
               <StoreIcon className="icon" />
               <span>Pending Orders</span>
             </li>
-          </Link>
+          </Link> */}
 
           <p className="title">USEFUL</p>
-          {/* <Link to="/bookingstatus" style={{ textDecoration: "none" }}>
+          <Link to="/earnings" style={{ textDecoration: "none" }}>
             <li>
-              <CreditCardIcon className="icon" />
-              <span>Booking Status</span>
+              <MonetizationOnOutlinedIcon className="icon" />
+              <span>Earnings</span>
             </li>
-          </Link> */}
+          </Link>
 
           <Link to="/report" style={{ textDecoration: "none" }}>
             <li>

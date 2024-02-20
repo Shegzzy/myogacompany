@@ -28,43 +28,68 @@ const Bookings = ({ inputs, title }) => {
   const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchData = async () => {
-      if (currentUser) {
-        try {
+      try {
+        if (currentUser) {
           const userRef = doc(db, "Companies", currentUser.uid);
           const docs = await getDoc(userRef);
 
-          const driversQuery = query(
-            collection(db, "Drivers"),
-            where("Company", "==", docs.data().company)
-          );
-          const driversSnapshot = await getDocs(driversQuery);
+          if (docs.exists && isMounted) {
+            const driversQuery = query(
+              collection(db, "Drivers"),
+              where("Company", "==", docs.data().company)
+            );
+            const driversSnapshot = await getDocs(driversQuery);
 
-          // Collecting Driver IDs
-          const driverIds = driversSnapshot.docs.map(
-            (driverDoc) => driverDoc.id
-          );
+            // Collecting Driver IDs and corresponding names
+            const driverMap = new Map();
+            driversSnapshot.forEach((driverDoc) => {
+              driverMap.set(driverDoc.id, driverDoc.data().FullName);
+            });
 
-          const bookingsQuery = query(
-            collection(db, "Bookings"),
-            where("Driver ID", "in", driverIds)
-          );
-          const bookingsSnapshot = await getDocs(bookingsQuery);
+            const bookingsQuery = query(
+              collection(db, "Bookings"),
+              where("Driver ID", "in", Array.from(driverMap.keys()))
+            );
 
-          const bookings = bookingsSnapshot.docs.map((bookingDoc) =>
-            bookingDoc.data()
-          );
+            const bookingsSnapshot = await getDocs(bookingsQuery);
 
-          bookings.sort((a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"]));
+            const bookings = bookingsSnapshot.docs.map((bookingDoc) => {
+              const bookingData = bookingDoc.data();
+              return {
+                ...bookingData,
+                driverName: driverMap.get(bookingData["Driver ID"]),
+              };
+            });
 
-          setData(bookings);
-        } catch (error) {
+            bookings.sort((a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"]));
+
+            // Check if the component is still mounted before updating state
+            if (isMounted) {
+              setData(bookings);
+            }
+          }
+        }
+      } catch (error) {
+        if (error.name === 'AbortError') {
+          console.log('Fetch operation aborted due to component unmount');
+        } else {
           toast.error(error);
         }
       }
     };
+
     fetchData();
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
   }, [currentUser]);
+
+
 
   return (
     <div className="new">
@@ -107,7 +132,7 @@ const Bookings = ({ inputs, title }) => {
                     Phone
                   </TableCell>
                   <TableCell className="tableCell" width={130}>
-                    Driver ID
+                    Rider
                   </TableCell>
                   <TableCell className="tableCell" width={80}>
                     Distance
@@ -122,7 +147,7 @@ const Bookings = ({ inputs, title }) => {
               </TableHead>
               <TableBody>
                 {data.map((row) => (
-                  <TableRow key={row["Driver ID"]}>
+                  <TableRow key={row["Booking Number"]}>
                     <TableCell className="tableCell" width={80}>
                       {row["Booking Number"]}
                     </TableCell>
@@ -139,7 +164,13 @@ const Bookings = ({ inputs, title }) => {
                         year: "numeric",
                       })}
                     </TableCell>
-                    <TableCell className="tableCell">{row.Amount}</TableCell>
+                    <TableCell className="tableCell">
+                      {new Intl.NumberFormat("en-NG", {
+                        style: "currency",
+                        currency: "NGN",
+                      })
+                        .format(row["Amount"])
+                        .replace(".00", "")}</TableCell>
                     <TableCell className="tableCell">
                       {row["Payment Method"]}
                     </TableCell>
@@ -152,9 +183,9 @@ const Bookings = ({ inputs, title }) => {
                     <TableCell className="tableCell">
                       {row["Customer Phone"]}
                     </TableCell>
-                    <TableCell className="tableCell">
+                    <TableCell className="tableCell" width={100}>
                       <Link to={`/users/${row["Driver ID"]}`}>
-                        {row["Driver ID"]}
+                        {row.driverName}
                       </Link>
                     </TableCell>
                     <TableCell className="tableCell">

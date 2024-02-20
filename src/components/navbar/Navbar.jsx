@@ -22,13 +22,13 @@ const Navbar = () => {
   const fetchUser = async () => {
     try {
       if (currentUser && isMounted) {
-        console.log(currentUser.uid);
+        // console.log(currentUser.uid);
         const userRef = doc(db, "Companies", currentUser.uid);
         const docs = await getDoc(userRef);
 
         if (docs.exists && isMounted) {
           setUser(docs.data());
-          console.log(docs.data());
+          // console.log(docs.data());
         } else {
           console.log("No such document!");
         }

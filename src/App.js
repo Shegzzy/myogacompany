@@ -23,6 +23,7 @@ import EdittableAdmin from "./pages/adminEdit/editAdmin";
 import { companyInputs } from "./companyEditFormSource";
 import styled from "styled-components";
 import "./styles.css";
+import CompanyEarnings from "./pages/earnings/earnings";
 
 
 
@@ -120,6 +121,16 @@ function App() {
               element={
                 <RequiredAuth>
                   <Report title="Report Page" />
+                </RequiredAuth>
+              }
+            />
+
+            {/* Earnings page */}
+            <Route
+              path="earnings"
+              element={
+                <RequiredAuth>
+                  <CompanyEarnings title="Earnings" />
                 </RequiredAuth>
               }
             />

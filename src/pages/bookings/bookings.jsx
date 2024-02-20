@@ -26,70 +26,92 @@ import { AuthContext } from "../../context/authContext";
 const Bookings = ({ inputs, title }) => {
   const [data, setData] = useState([]);
   const { currentUser } = useContext(AuthContext);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isMounted, setIsMounted] = useState(true);
 
+
+
+  // Fetching bookings handled by the company's riders
   useEffect(() => {
-    let isMounted = true;
-
-    const fetchData = async () => {
-      try {
-        if (currentUser) {
-          const userRef = doc(db, "Companies", currentUser.uid);
-          const docs = await getDoc(userRef);
-
-          if (docs.exists && isMounted) {
-            const driversQuery = query(
-              collection(db, "Drivers"),
-              where("Company", "==", docs.data().company)
-            );
-            const driversSnapshot = await getDocs(driversQuery);
-
-            // Collecting Driver IDs and corresponding names
-            const driverMap = new Map();
-            driversSnapshot.forEach((driverDoc) => {
-              driverMap.set(driverDoc.id, driverDoc.data().FullName);
-            });
-
-            const bookingsQuery = query(
-              collection(db, "Bookings"),
-              where("Driver ID", "in", Array.from(driverMap.keys()))
-            );
-
-            const bookingsSnapshot = await getDocs(bookingsQuery);
-
-            const bookings = bookingsSnapshot.docs.map((bookingDoc) => {
-              const bookingData = bookingDoc.data();
-              return {
-                ...bookingData,
-                driverName: driverMap.get(bookingData["Driver ID"]),
-              };
-            });
-
-            bookings.sort((a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"]));
-
-            // Check if the component is still mounted before updating state
-            if (isMounted) {
-              setData(bookings);
-            }
-          }
-        }
-      } catch (error) {
-        if (error.name === 'AbortError') {
-          console.log('Fetch operation aborted due to component unmount');
-        } else {
-          toast.error(error);
-        }
-      }
-    };
+    setIsMounted(true);
 
     fetchData();
 
-    // Cleanup function
     return () => {
-      isMounted = false;
+      setIsMounted(false);
     };
-  }, [currentUser]);
+  }, [currentUser, isMounted]);
 
+  const fetchData = async () => {
+    try {
+      if (currentUser) {
+        const userRef = doc(db, "Companies", currentUser.uid);
+        const docs = await getDoc(userRef);
 
+        if (docs.exists && isMounted) {
+          const driversQuery = query(
+            collection(db, "Drivers"),
+            where("Company", "==", docs.data().company)
+          );
+          const driversSnapshot = await getDocs(driversQuery);
+
+          const driverMap = new Map();
+          driversSnapshot.forEach((driverDoc) => {
+            driverMap.set(driverDoc.id, driverDoc.data().FullName);
+          });
+
+          const bookingsQuery = query(
+            collection(db, "Bookings"),
+            where("Driver ID", "in", Array.from(driverMap.keys()))
+          );
+
+          const bookingsSnapshot = await getDocs(bookingsQuery);
+
+          const bookings = bookingsSnapshot.docs.map((bookingDoc) => {
+            const bookingData = bookingDoc.data();
+            return {
+              ...bookingData,
+              driverName: driverMap.get(bookingData["Driver ID"]),
+            };
+          });
+
+          bookings.sort((a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"]));
+
+          if (isMounted) {
+            setData(bookings);
+          }
+        }
+      }
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        console.log('Fetch operation aborted due to component unmount');
+      } else {
+        toast.error(error);
+      }
+    }
+  };
+
+  // Function to search for riders
+  const handleSearch = () => {
+    if (searchTerm.trim() === '') {
+      fetchData();
+    } else {
+      const filteredData = data.filter((bookingNumber) => {
+        const name = bookingNumber['Booking Number']?.toLowerCase() ?? "";
+        return name.includes(searchTerm?.toLowerCase() ?? "");
+      });
+
+      if (filteredData.length === 0) {
+        toast.error('No search results found.');
+      }
+
+      setData(filteredData);
+    }
+  };
+
+  useEffect(() => {
+    handleSearch();
+  }, [searchTerm]);
 
   return (
     <div className="new">
@@ -98,6 +120,15 @@ const Bookings = ({ inputs, title }) => {
         <Navbar />
         <div className="top">
           <h1>{title}</h1>
+
+          <input
+            type="text"
+            placeholder="Enter Booking Number..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+            }}
+          />
         </div>
         <div className="b-table">
           <TableContainer component={Paper} className="table">

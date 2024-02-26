@@ -28,6 +28,8 @@ const Bookings = ({ inputs, title }) => {
   const { currentUser } = useContext(AuthContext);
   const [searchTerm, setSearchTerm] = useState("");
   const [isMounted, setIsMounted] = useState(true);
+  const [loading, setLoading] = useState(true);
+
 
 
 
@@ -47,6 +49,7 @@ const Bookings = ({ inputs, title }) => {
       if (currentUser) {
         const userRef = doc(db, "Companies", currentUser.uid);
         const docs = await getDoc(userRef);
+        setLoading(true);
 
         if (docs.exists && isMounted) {
           const driversQuery = query(
@@ -88,6 +91,8 @@ const Bookings = ({ inputs, title }) => {
       } else {
         toast.error(error);
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -130,7 +135,7 @@ const Bookings = ({ inputs, title }) => {
             }}
           />
         </div>
-        <div className="b-table">
+        {!loading ? (<div className="b-table">
           <TableContainer component={Paper} className="table">
             <Table sx={{ minWidth: 780 }} aria-label="simple table">
               <TableHead>
@@ -236,7 +241,20 @@ const Bookings = ({ inputs, title }) => {
               </TableBody>
             </Table>
           </TableContainer>
-        </div>
+        </div>) :
+          (<div className="detailItem">
+            <span className="itemKey">
+              <div className="no-data-message">
+                <div className="single-container">
+                  <div className="loader">
+                    <div className="lds-dual-ring"></div>
+                    <div>Loading... </div>
+                  </div>
+                </div>
+              </div>
+            </span>
+          </div>)
+        }
       </div>
     </div>
   );

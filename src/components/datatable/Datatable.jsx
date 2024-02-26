@@ -28,6 +28,8 @@ const Datatable = () => {
   const [selectedRiderLocation, setSelectedRiderLocation] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [isMounted, setIsMounted] = useState(true);
+  const [loading, setLoading] = useState(true);
+
 
 
 
@@ -46,6 +48,8 @@ const Datatable = () => {
       try {
         const userRef = doc(db, "Companies", currentUser.uid);
         const docs = await getDoc(userRef);
+        setLoading(true);
+
         const unsub = onSnapshot(
           query(
             collection(db, "Drivers"),
@@ -75,6 +79,8 @@ const Datatable = () => {
         };
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     }
   };
@@ -305,13 +311,24 @@ const Datatable = () => {
           Add New Rider
         </Link>
       </div>
-      <DataGrid
+      {!loading ? (<DataGrid
         className="datagrid"
         rows={data}
         columns={userColumns.concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
-      />
+      />) : (<div className="detailItem">
+        <span className="itemKey">
+          <div className="no-data-message">
+            <div className="single-container">
+              <div className="loader">
+                <div className="lds-dual-ring"></div>
+                <div>Loading... </div>
+              </div>
+            </div>
+          </div>
+        </span>
+      </div>)}
 
       {showMapModal && (
         <MapModal

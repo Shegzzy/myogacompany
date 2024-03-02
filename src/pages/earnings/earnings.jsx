@@ -67,7 +67,6 @@ const CompanyEarnings = ({ title }) => {
                         (bookingrDoc) => bookingrDoc.data().BookingID,
                     );
                     let earningsTotal = 0;
-                    console.log(bookingNumbers);
 
                     earningsSnapshot.forEach((doc) => {
                         const data = doc.data();
@@ -116,11 +115,9 @@ const CompanyEarnings = ({ title }) => {
                             }
                         } catch (error) {
                             console.error("Error fetching bookings:", error);
-                            toast.error("Error fetching bookings. Please check the console for details.");
+                            toast.error("Error fetching bookings.");
                         }
                     }
-                    console.log("Total Card Payments:", sumCardPayments);
-                    console.log("Total Cash Payments:", sumCashPayments);
 
                     if (sumCardPayments > roundFifteenPercent) {
 
@@ -142,8 +139,6 @@ const CompanyEarnings = ({ title }) => {
                         totalPayOut = roundFifteenPercent - sumCardPayments;
                         totalReceive = sumCardPayments - roundFifteenPercent;
 
-                        console.log('Total receive: ', totalReceive);
-                        console.log('Total payout: ', totalPayOut);
 
                         if (isMounted) {
                             setToReceive(totalReceive);

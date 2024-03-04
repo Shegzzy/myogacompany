@@ -94,6 +94,17 @@ export const userColumns = [
   },
 
   {
+    field: 'Date Created',
+    headerName: 'Date Created',
+    width: 120,
+    renderCell: (params) => {
+      const date = new Date(params.value);
+      const formattedDate = date.toLocaleDateString("en-US");
+      return <span>{formattedDate}</span>;
+    },
+  },
+
+  {
     field: "Verified",
     headerName: "Verified",
     width: 100,

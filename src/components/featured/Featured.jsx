@@ -509,8 +509,8 @@ const Featured = () => {
           }}
         >
           <option value="total">Total</option>
-          <option value="7">Last Week</option>
           <option value="1">Yesterday</option>
+          <option value="7">Last Week</option>
           <option value={getPreviousMonth()}>{getPreviousMonth()}</option>
           <option value={getPreviousMonth(2)}>{getPreviousMonth(2)}</option>
           <option value={getPreviousMonth(3)}>{getPreviousMonth(3)}</option>

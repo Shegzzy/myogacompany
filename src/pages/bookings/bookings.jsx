@@ -29,8 +29,7 @@ const Bookings = ({ inputs, title }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMounted, setIsMounted] = useState(true);
   const [loading, setLoading] = useState(true);
-
-
+  const [selectedFilter, setSelectedRiderFilter] = useState("all");
 
 
   // Fetching bookings handled by the company's riders
@@ -118,6 +117,126 @@ const Bookings = ({ inputs, title }) => {
     handleSearch();
   }, [searchTerm]);
 
+  // Function for bookings monthly and weekly query
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchBookingDataByWeek = async () => {
+      if (currentUser && isMounted) {
+        try {
+          const userRef = doc(db, "Companies", currentUser.uid);
+          const docs = await getDoc(userRef);
+          setLoading(true);
+
+          let startOfPeriod, endOfPeriod;
+
+          if (selectedFilter === "all") {
+            fetchData();
+          } else {
+            const today = new Date();
+
+            // Calculate the start and end dates based on the selected filter
+            if (selectedFilter === "7") {
+              // Last Week
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 7);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 1);
+            } else if (selectedFilter === "1") {
+              // Two Weeks Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 14);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 8);
+            } else if (selectedFilter === "2") {
+              // Three Weeks Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 21);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 15);
+            } else if (selectedFilter === "3") {
+              // Four Weeks Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 28);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 22);
+            } else if (selectedFilter === "30") {
+              // Last Month
+              startOfPeriod = new Date(today);
+              startOfPeriod.setMonth(today.getMonth() - 1, 1);
+              startOfPeriod.setHours(0, 0, 0, 0);
+              endOfPeriod = new Date(startOfPeriod.getFullYear(), startOfPeriod.getMonth() + 1, 0);
+              // endOfPeriod.setHours(23, 59, 59, 999);
+            } else if (selectedFilter === "60") {
+              // Two Months Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setMonth(today.getMonth() - 2, 1);
+              startOfPeriod.setHours(0, 0, 0, 0);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setMonth(today.getMonth() - 1, 0);
+              // Uncomment the line below if you want to set the end time to the last millisecond of the month
+              // endOfPeriod.setHours(23, 59, 59, 999);
+            }
+
+            // startOfWeek.setHours(0, 0, 0, 0);
+            // endOfWeek = new Date(startOfWeek);
+            // endOfWeek.setDate(startOfWeek.getDate() + 6);
+            // // endOfWeek.setHours(23, 59, 59, 999);
+
+            console.log('Start of period: ' + startOfPeriod);
+            console.log('End of period: ' + endOfPeriod);
+
+            if (docs.exists && isMounted) {
+              const driversQuery = query(
+                collection(db, "Drivers"),
+                where("Company", "==", docs.data().company)
+              );
+              const driversSnapshot = await getDocs(driversQuery);
+
+              const driverMap = new Map();
+              driversSnapshot.forEach((driverDoc) => {
+                driverMap.set(driverDoc.id, driverDoc.data().FullName);
+              });
+
+              const bookingsQuery = query(
+                collection(db, "Bookings"),
+                where("Driver ID", "in", Array.from(driverMap.keys())),
+                where("Date Created", ">=", startOfPeriod.toISOString()),
+                where("Date Created", "<=", endOfPeriod.toISOString())
+              );
+
+              const bookingsSnapshot = await getDocs(bookingsQuery);
+
+              const bookings = bookingsSnapshot.docs.map((bookingDoc) => {
+                const bookingData = bookingDoc.data();
+                return {
+                  ...bookingData,
+                  driverName: driverMap.get(bookingData["Driver ID"]),
+                };
+              });
+
+              bookings.sort((a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"]));
+
+              if (isMounted) {
+                setData(bookings);
+              }
+            }
+
+          }
+        } catch (error) {
+          console.error('Error fetching bookings:', error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchBookingDataByWeek();
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser, selectedFilter]);
+
   return (
     <div className="new">
       <Sidebar />
@@ -125,6 +244,20 @@ const Bookings = ({ inputs, title }) => {
         <Navbar />
         <div className="top">
           <h1>{title}</h1>
+
+          <select
+            className="chart-select"
+            value={selectedFilter}
+            onChange={(e) => setSelectedRiderFilter(e.target.value)}
+          >
+            <option value="all">All</option>
+            <option value="7">Last Week</option>
+            <option value="1">Two Weeks Ago</option>
+            <option value="2">Three Weeks Ago</option>
+            <option value="3">Four Weeks Ago</option>
+            <option value="30">Last Month</option>
+            <option value="60">Two Months Ago</option>
+          </select>
 
           <input
             type="text"
@@ -136,7 +269,8 @@ const Bookings = ({ inputs, title }) => {
           />
         </div>
         {!loading ? (<div className="b-table">
-          <TableContainer component={Paper} className="table">
+
+          {data.length === 0 ? (<h6>There are no bookings for this filter</h6>) : (<TableContainer component={Paper} className="table">
             <Table sx={{ minWidth: 780 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
@@ -240,7 +374,7 @@ const Bookings = ({ inputs, title }) => {
                 ))}
               </TableBody>
             </Table>
-          </TableContainer>
+          </TableContainer>)}
         </div>) :
           (<div className="detailItem">
             <span className="itemKey">

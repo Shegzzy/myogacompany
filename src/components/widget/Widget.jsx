@@ -230,7 +230,7 @@ const Widget = ({ type }) => {
   }, [currentUser, selectedFilter]);
 
 
-  // Function for riders monthly and weekly query
+  // Function for bookings monthly and weekly query
   useEffect(() => {
     let isMounted = true;
 

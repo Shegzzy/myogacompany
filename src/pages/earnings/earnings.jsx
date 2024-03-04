@@ -204,19 +204,19 @@ const CompanyEarnings = ({ title }) => {
                         if (selectedFilter === "7") {
                             // Last Week
                             startOfWeek = new Date(today);
-                            startOfWeek.setDate(today.getDate() - today.getDay() - 6);
+                            startOfWeek.setDate(today.getDate() - today.getDay() - 7);
                         } else if (selectedFilter === "1") {
                             // Two Weeks Ago
                             startOfWeek = new Date(today);
-                            startOfWeek.setDate(today.getDate() - today.getDay() - 13);
+                            startOfWeek.setDate(today.getDate() - today.getDay() - 14);
                         } else if (selectedFilter === "2") {
                             // Three Weeks Ago
                             startOfWeek = new Date(today);
-                            startOfWeek.setDate(today.getDate() - today.getDay() - 20);
+                            startOfWeek.setDate(today.getDate() - today.getDay() - 21);
                         } else if (selectedFilter === "3") {
                             // Three Weeks Ago
                             startOfWeek = new Date(today);
-                            startOfWeek.setDate(today.getDate() - today.getDay() - 27);
+                            startOfWeek.setDate(today.getDate() - today.getDay() - 28);
                         }
 
                         startOfWeek.setHours(0, 0, 0, 0);
@@ -370,19 +370,22 @@ const CompanyEarnings = ({ title }) => {
                     setLoading(true);
 
                     const selectedDateFormatted = selectedDate.toISOString().slice(0, 23).replace('T', ' ');
+                    // console.log(selectedDateFormatted);
+
 
                     queryStartDate = new Date(selectedDateFormatted);
                     queryStartDate.setHours(0, 0, 0, 0);
                     queryEndDate = new Date(selectedDateFormatted);
-                    // queryEndDate.setHours(23, 59, 59, 999);
-                    // console.log(queryStartDate)
+                    queryEndDate.setHours(23, 59, 59, 999);
+                    // console.log(queryStartDate.toISOString().slice(0, 23).replace('T', ' '))
+                    // console.log(queryEndDate)
 
                     // Use queryStartDate and queryEndDate in your Firestore query
                     const earningsQuery = query(
                         collection(db, "Earnings"),
                         where("Company", "==", docs.data().company),
-                        where("timeStamp", ">=", queryStartDate),
-                        where("timeStamp", "<=", queryEndDate)
+                        where("DateCreated", ">=", queryStartDate.toISOString()),
+                        where("DateCreated", "<=", queryEndDate.toISOString())
                     );
 
                     const earningsSnapshot = await getDocs(earningsQuery);
@@ -521,7 +524,7 @@ const CompanyEarnings = ({ title }) => {
 
                     <div className="filter-select-container">
                         <select
-                            className="chart-select"
+                            className="chart-selects"
                             value={selectedFilter}
                             onChange={(e) => setSelectedFilter(e.target.value)}
                         >

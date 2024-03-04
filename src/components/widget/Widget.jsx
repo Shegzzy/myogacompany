@@ -27,7 +27,10 @@ const Widget = ({ type }) => {
   const [diff, setDiff] = useState("");
   const [lMDiff, setLMDiff] = useState("");
   const { currentUser } = useContext(AuthContext);
+  const [selectedFilter, setSelectedRiderFilter] = useState("all");
 
+
+  // company's total number of riders
   useEffect(() => {
     const fetchData = async () => {
       if (currentUser) {
@@ -112,7 +115,7 @@ const Widget = ({ type }) => {
           collection(db, "Earnings"),
           where("Company", "==", docs.data().company),
           where("DateCreated", ">=", startOfMonth.toISOString()),
-          where("DateCreated", "<", endOfMonth.toISOString())
+          where("DateCreated", "<=", endOfMonth.toISOString())
         );
 
         const querySnapshot = await getDocs(thisMonthQuery);
@@ -126,6 +129,226 @@ const Widget = ({ type }) => {
     };
     sumPrice();
   }, [previousMonthTotalPrice, currentUser, totalThisMonth]);
+
+  // Function for riders monthly and weekly query
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchDataByWeek = async () => {
+      if (currentUser && isMounted) {
+        try {
+          const userRef = doc(db, "Companies", currentUser.uid);
+          const docs = await getDoc(userRef);
+
+          let startOfPeriod, endOfPeriod;
+
+          if (selectedFilter === "all") {
+            const driversQuery = query(
+              collection(db, "Drivers"),
+              where("Company", "==", docs.data().company)
+            );
+            const driversSnapshot = await getDocs(driversQuery);
+            const totalDrivers = driversSnapshot.size;
+
+            setTotalDrivers(totalDrivers);
+          } else {
+            const today = new Date();
+
+            // Calculate the start and end dates based on the selected filter
+            if (selectedFilter === "7") {
+              // Last Week
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 7);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 1);
+            } else if (selectedFilter === "1") {
+              // Two Weeks Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 14);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 8);
+            } else if (selectedFilter === "2") {
+              // Three Weeks Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 21);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 15);
+            } else if (selectedFilter === "3") {
+              // Four Weeks Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 28);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 22);
+            } else if (selectedFilter === "30") {
+              // Last Month
+              startOfPeriod = new Date(today);
+              startOfPeriod.setMonth(today.getMonth() - 1, 1);
+              startOfPeriod.setHours(0, 0, 0, 0);
+              endOfPeriod = new Date(startOfPeriod.getFullYear(), startOfPeriod.getMonth() + 1, 0);
+              // endOfPeriod.setHours(23, 59, 59, 999);
+            } else if (selectedFilter === "60") {
+              // Two Months Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setMonth(today.getMonth() - 2, 1);
+              startOfPeriod.setHours(0, 0, 0, 0);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setMonth(today.getMonth() - 1, 0);
+              // Uncomment the line below if you want to set the end time to the last millisecond of the month
+              // endOfPeriod.setHours(23, 59, 59, 999);
+            }
+
+            // startOfWeek.setHours(0, 0, 0, 0);
+            // endOfWeek = new Date(startOfWeek);
+            // endOfWeek.setDate(startOfWeek.getDate() + 6);
+            // // endOfWeek.setHours(23, 59, 59, 999);
+
+            console.log('Start of period: ' + startOfPeriod);
+            console.log('End of period: ' + endOfPeriod);
+
+            const driversQuery = query(
+              collection(db, "Drivers"),
+              where("Company", "==", docs.data().company),
+              where("Date Created", ">=", startOfPeriod.toISOString()),
+              where("Date Created", "<=", endOfPeriod.toISOString())
+            );
+            const driversSnapshot = await getDocs(driversQuery);
+            const totalDrivers = driversSnapshot.size;
+
+            setTotalDrivers(totalDrivers);
+
+          }
+        } catch (error) {
+          // toast.error(error);
+        }
+      }
+    };
+
+    fetchDataByWeek();
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser, selectedFilter]);
+
+
+  // Function for riders monthly and weekly query
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchBookingDataByWeek = async () => {
+      if (currentUser && isMounted) {
+        try {
+          const userRef = doc(db, "Companies", currentUser.uid);
+          const docs = await getDoc(userRef);
+
+          let startOfPeriod, endOfPeriod;
+
+          if (selectedFilter === "all") {
+            const driversQuery = query(
+              collection(db, "Drivers"),
+              where("Company", "==", docs.data().company)
+            );
+            const driversSnapshot = await getDocs(driversQuery);
+
+            // Collecting Driver IDs
+            const driverIds = driversSnapshot.docs.map((driverDoc) => driverDoc.id);
+
+            const bookingsQuery = query(
+              collection(db, "Bookings"),
+              where("Driver ID", "in", driverIds)
+            );
+            const bookingsSnapshot = await getDocs(bookingsQuery);
+            const totalBookings = bookingsSnapshot.size;
+
+            console.log(totalBookings);
+            setTotalBookings(totalBookings);
+          } else {
+            const today = new Date();
+
+            // Calculate the start and end dates based on the selected filter
+            if (selectedFilter === "7") {
+              // Last Week
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 7);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 1);
+            } else if (selectedFilter === "1") {
+              // Two Weeks Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 14);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 8);
+            } else if (selectedFilter === "2") {
+              // Three Weeks Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 21);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 15);
+            } else if (selectedFilter === "3") {
+              // Four Weeks Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setDate(today.getDate() - today.getDay() - 28);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setDate(today.getDate() - today.getDay() - 22);
+            } else if (selectedFilter === "30") {
+              // Last Month
+              startOfPeriod = new Date(today);
+              startOfPeriod.setMonth(today.getMonth() - 1, 1);
+              startOfPeriod.setHours(0, 0, 0, 0);
+              endOfPeriod = new Date(startOfPeriod.getFullYear(), startOfPeriod.getMonth() + 1, 0);
+              // endOfPeriod.setHours(23, 59, 59, 999);
+            } else if (selectedFilter === "60") {
+              // Two Months Ago
+              startOfPeriod = new Date(today);
+              startOfPeriod.setMonth(today.getMonth() - 2, 1);
+              startOfPeriod.setHours(0, 0, 0, 0);
+              endOfPeriod = new Date(today);
+              endOfPeriod.setMonth(today.getMonth() - 1, 0);
+              // Uncomment the line below if you want to set the end time to the last millisecond of the month
+              // endOfPeriod.setHours(23, 59, 59, 999);
+            }
+
+            // startOfWeek.setHours(0, 0, 0, 0);
+            // endOfWeek = new Date(startOfWeek);
+            // endOfWeek.setDate(startOfWeek.getDate() + 6);
+            // // endOfWeek.setHours(23, 59, 59, 999);
+
+            console.log('Start of period: ' + startOfPeriod);
+            console.log('End of period: ' + endOfPeriod);
+
+            const driversQuery = query(
+              collection(db, "Drivers"),
+              where("Company", "==", docs.data().company),
+            );
+            const driversSnapshot = await getDocs(driversQuery);
+            const totalDrivers = driversSnapshot.size;
+            setTotalDrivers(totalDrivers);
+
+            // Collecting Driver IDs
+            const driverIds = driversSnapshot.docs.map((driverDoc) => driverDoc.id);
+
+            const bookingsQuery = query(
+              collection(db, "Bookings"),
+              where("Driver ID", "in", driverIds),
+              where("Date Created", ">=", startOfPeriod.toISOString()),
+              where("Date Created", "<=", endOfPeriod.toISOString())
+            );
+            const bookingsSnapshot = await getDocs(bookingsQuery);
+            const totalBookings = bookingsSnapshot.size;
+            console.log(totalBookings);
+            setTotalBookings(totalBookings);
+
+          }
+        } catch (error) {
+          console.error('Error fetching bookings:', error);
+        }
+      }
+    };
+
+    fetchBookingDataByWeek();
+    return () => {
+      isMounted = false;
+    };
+  }, [currentUser, selectedFilter]);
 
   useEffect(() => {
     getData();
@@ -298,6 +521,7 @@ const Widget = ({ type }) => {
     <div className="widget">
       <div className="left">
         <span className="title">{data.title}</span>
+
         <span className="counter">
           {type === "user" && `${totalDrivers}`}
           {type === "order" && `${totalBookings}`}
@@ -307,7 +531,44 @@ const Widget = ({ type }) => {
         </span>
         <span className="link">{data.link}</span>
       </div>
+
       <div className="right">
+
+        {type === "user" && (
+          <>
+            <select
+              className="chart-selects"
+              value={selectedFilter}
+              onChange={(e) => setSelectedRiderFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="7">Last Week</option>
+              <option value="1">Two Weeks Ago</option>
+              <option value="2">Three Weeks Ago</option>
+              <option value="3">Four Weeks Ago</option>
+              <option value="30">Last Month</option>
+              <option value="60">Two Months Ago</option>
+            </select>
+          </>
+        )}
+
+        {type === "order" && (
+          <>
+            <select
+              className="chart-selects"
+              value={selectedFilter}
+              onChange={(e) => setSelectedRiderFilter(e.target.value)}
+            >
+              <option value="all">All</option>
+              <option value="7">Last Week</option>
+              <option value="1">Two Weeks Ago</option>
+              <option value="2">Three Weeks Ago</option>
+              <option value="3">Four Weeks Ago</option>
+              <option value="30">Last Month</option>
+              <option value="60">Two Months Ago</option>
+            </select>
+          </>
+        )}
         <div className="percentage positive">
           {type === "earning" && (
             <>

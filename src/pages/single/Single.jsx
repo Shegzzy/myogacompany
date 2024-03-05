@@ -29,6 +29,7 @@ import {
 import ModalContainer from "../../components/modal/ModalContainer";
 import { KeyboardArrowDownOutlined } from "@mui/icons-material";
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
+import ImageViewModal from "../../components/modal/image-view-modal";
 // import { toast } from "react-toastify";
 // import { DisabledByDefault } from "@mui/icons-material";
 
@@ -290,6 +291,16 @@ const Single = () => {
     return stars;
   };
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleImageClick = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
 
   return (
     <div className="single">
@@ -386,13 +397,19 @@ const Single = () => {
                   </div>
                   <div className="detailItem">
                     <span className="itemKey">Documents: </span>
-                    {/* {row?.Documents.map((doc) => (
-                      <img src={doc} alt="avatar" className="itemImg" />
-                    ))} */}
+
                     <img
                       src={user.Documents}
-                      alt="avatar"
+                      alt="rider doc"
                       className="itemImg"
+                      onClick={handleImageClick}
+                      style={{ cursor: 'pointer' }}
+                    />
+
+                    <ImageViewModal
+                      show={isModalOpen}
+                      onHide={handleCloseModal}
+                      imagePath={user.Documents}
                     />
                   </div>
                 </div>

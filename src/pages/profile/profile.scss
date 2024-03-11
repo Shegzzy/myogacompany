@@ -145,6 +145,25 @@
     animation: lds-dual-ring 1.2s linear infinite;
 }
 
+.documents-itemImg {
+    width: 100px;
+    height: 100px;
+    border-radius: 20%;
+    object-fit: cover;
+    margin-right: 10px;
+}
+
+.documents-container {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 50px;
+}
+
+.itemKey {
+    margin-right: 10px;
+    text-align: center;
+}
+
 @keyframes lds-dual-ring {
     0% {
         transform: rotate(0deg);

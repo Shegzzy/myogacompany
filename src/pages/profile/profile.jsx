@@ -10,6 +10,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { db } from "../../firebase";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import ImageViewModal from "../../components/modal/image-view-modal";
 import {
   collection,
   getDocs,
@@ -32,7 +33,15 @@ const AdminProfile = () => {
         const userRef = doc(db, "Companies", currentUser.uid);
         const docs = await getDoc(userRef);
         if (docs.exists) {
-          setUser(docs.data());
+          const userData = docs.data() || {};
+          setUser({
+            ...userData,
+            documents: Array.isArray(userData.documents) ? userData.documents : [],
+            utilityBill: Array.isArray(userData.utilityBill) ? userData.utilityBill : [],
+            cacDocuments: Array.isArray(userData.cacDocuments) ? userData.cacDocuments : [],
+            courierLicense: Array.isArray(userData.courierLicense) ? userData.courierLicense : [],
+            amacDocuments: Array.isArray(userData.amacDocuments) ? userData.amacDocuments : [],
+          });
         } else {
           toast.error("User does not exist");
         }
@@ -79,7 +88,7 @@ const AdminProfile = () => {
           const riderAverageRating =
             riderTotalReviews > 0 ? riderTotalRatings / riderTotalReviews : 0;
 
-          console.log(`Rider ${driverDoc.id} Average Rating:`, riderAverageRating);
+          // console.log(`Rider ${driverDoc.id} Average Rating:`, riderAverageRating);
 
           // Adding rider's average rating to the total
           totalRatings += riderAverageRating;
@@ -91,9 +100,9 @@ const AdminProfile = () => {
         const averageRating = totalRiders > 0 ? totalRatings / totalRiders : 0;
 
         setCompanyRating(averageRating);
-        console.log("Total Riders:", totalRiders);
-        console.log("Total Rating:", totalRatings);
-        console.log("Overall Average Rating:", averageRating);
+        // console.log("Total Riders:", totalRiders);
+        // console.log("Total Rating:", totalRatings);
+        // console.log("Overall Average Rating:", averageRating);
 
       } catch (error) {
         toast.error("Error fetching data:");
@@ -103,7 +112,12 @@ const AdminProfile = () => {
     }
   };
 
-  fetchCompanyRatings();
+  useEffect(() => {
+    fetchCompanyRatings();
+    return () => {
+      setIsMounted(false);
+    }
+  })
 
   // Function to render star icons based on the average rating
   const renderStars = (averageRating) => {
@@ -118,6 +132,18 @@ const AdminProfile = () => {
       );
     }
     return stars;
+  };
+
+  const [selectedImagePath, setSelectedImagePath] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleImageClick = (imageUrl) => {
+    setSelectedImagePath(imageUrl);
+    setIsModalOpen(true); // Open the modal when an image is clicked
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
 
@@ -142,7 +168,11 @@ const AdminProfile = () => {
             <div className="header-left">
               <div className="avatar">
                 <img
-                  src={user["Profile Photo"] || "https://picsum.photos/200"}
+                  src={
+                    user["Profile Photo"] != null && user["Profile Photo"] !== ""
+                      ? user["Profile Photo"]
+                      : "https://cdn-icons-png.flaticon.com/512/3033/3033143.png"
+                  }
                   alt="User Avatar"
                 />
               </div>
@@ -189,6 +219,7 @@ const AdminProfile = () => {
                   </Typography>
                 </CardContent>
               </Card>
+
               <Card className="card">
                 <CardContent>
                   <Typography variant="h6" component="h2">
@@ -196,6 +227,9 @@ const AdminProfile = () => {
                   </Typography>
                   <Typography variant="body2" component="p">
                     Registered Number: {user.regnumber}
+                  </Typography>
+                  <Typography variant="body2" component="p">
+                    Account Name: {user.accountName || ''}
                   </Typography>
                   <Typography variant="body2" component="p">
                     Bank Name: {user.bank || ''}
@@ -207,10 +241,162 @@ const AdminProfile = () => {
                 </CardContent>
               </Card>
             </div>
+            <Card className="card">
+              <CardContent>
+                <Typography variant="body2" component="p">
+
+                  <div className="documents-container">
+                    <span className="itemKey">ID Card: </span>
+
+                    {user.documents && user.documents.length > 0 ? (
+                      user.documents.map((imageUrl, index) => (
+                        <div key={index}>
+                          <img
+                            src={imageUrl}
+                            alt={`Company's Documents ${index + 1}`}
+                            className="documents-itemImg"
+                            onClick={() => handleImageClick(imageUrl)}
+                            style={{ cursor: 'pointer' }}
+                          />
+
+                          <ImageViewModal
+                            title={'Company\'s Document'}
+                            show={isModalOpen}
+                            onHide={handleCloseModal}
+                            imagePath={selectedImagePath}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <p> No documents available.</p>
+                    )}
+
+
+                  </div>
+
+                  <div className="documents-container">
+                    <span className="itemKey">Utility Bill: </span>
+
+                    {user.utilityBill && user.utilityBill.length > 0 ? (
+                      user.utilityBill.map((imageUrl, index) => (
+                        <div key={index}>
+                          <img
+                            src={imageUrl}
+                            alt={`Company's Documents ${index + 1}`}
+                            className="documents-itemImg"
+                            onClick={() => handleImageClick(imageUrl)}
+                            style={{ cursor: 'pointer' }}
+                          />
+
+                          <ImageViewModal
+                            title={'Company\'s Document'}
+                            show={isModalOpen}
+                            onHide={handleCloseModal}
+                            imagePath={selectedImagePath}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <p> No documents available.</p>
+                    )}
+
+
+                  </div>
+
+                  <div className="documents-container">
+                    <span className="itemKey">Courier License: </span>
+
+                    {user.courierLicense && user.courierLicense.length > 0 ? (
+                      user.courierLicense.map((imageUrl, index) => (
+                        <div key={index}>
+                          <img
+                            src={imageUrl}
+                            alt={`Company's Documents ${index + 1}`}
+                            className="documents-itemImg"
+                            onClick={() => handleImageClick(imageUrl)}
+                            style={{ cursor: 'pointer' }}
+                          />
+
+                          <ImageViewModal
+                            title={'Company\'s Document'}
+                            show={isModalOpen}
+                            onHide={handleCloseModal}
+                            imagePath={selectedImagePath}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <p> No documents available.</p>
+                    )}
+
+
+                  </div>
+
+                  <div className="documents-container">
+                    <span className="itemKey">CAC Documents: </span>
+
+                    {user.cacDocuments && user.cacDocuments.length > 0 ? (
+                      user.cacDocuments.map((imageUrl, index) => (
+                        <div key={index}>
+                          <img
+                            src={imageUrl}
+                            alt={`Company's Documents ${index + 1}`}
+                            className="documents-itemImg"
+                            onClick={() => handleImageClick(imageUrl)}
+                            style={{ cursor: 'pointer' }}
+                          />
+
+                          <ImageViewModal
+                            title={'Company\'s Document'}
+                            show={isModalOpen}
+                            onHide={handleCloseModal}
+                            imagePath={selectedImagePath}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <p> No documents available.</p>
+                    )}
+
+
+                  </div>
+
+                  <div className="documents-container">
+                    <span className="itemKey">AMAC Documents: </span>
+
+                    {user.amacDocuments && user.amacDocuments.length > 0 ? (
+                      user.amacDocuments.map((imageUrl, index) => (
+                        <div key={index}>
+                          <img
+                            src={imageUrl}
+                            alt={`Company's Documents ${index + 1}`}
+                            className="documents-itemImg"
+                            onClick={() => handleImageClick(imageUrl)}
+                            style={{ cursor: 'pointer' }}
+                          />
+
+                          <ImageViewModal
+                            title={'Company\'s Document'}
+                            show={isModalOpen}
+                            onHide={handleCloseModal}
+                            imagePath={selectedImagePath}
+                          />
+                        </div>
+                      ))
+                    ) : (
+                      <p> No documents available.</p>
+                    )}
+
+
+                  </div>
+                </Typography>
+
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-    </div>
+    </div >
   );
 };
 

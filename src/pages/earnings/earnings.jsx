@@ -380,7 +380,7 @@ const CompanyEarnings = ({ title }) => {
                     // console.log(queryStartDate.toISOString().slice(0, 23).replace('T', ' '))
                     // console.log(queryEndDate)
 
-                    // Use queryStartDate and queryEndDate in your Firestore query
+                    // Using queryStartDate and queryEndDate in your Firestore query
                     const earningsQuery = query(
                         collection(db, "Earnings"),
                         where("Company", "==", docs.data().company),

@@ -76,7 +76,7 @@ const Navbar = () => {
               <img
                 src={
                   user
-                    ? user["Profile Photo"]
+                    ? user["Profile Photo"] != null && user["Profile Photo"] !== "" ? user["Profile Photo"] : "https://cdn-icons-png.flaticon.com/512/3033/3033143.png"
                     : "https://cdn-icons-png.flaticon.com/512/3033/3033143.png"
                 }
                 alt="User Avatar"

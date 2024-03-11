@@ -1,6 +1,6 @@
 import "./login.scss";
 import logo from "../../components/assets/images/myogaIcon2.png";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 // import { Button } from "react-bootstrap";
 
@@ -23,6 +23,7 @@ import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { toast } from "react-toastify";
 // import { gridColumnVisibilityModelSelector } from "@mui/x-data-grid";
 
+
 const Login = () => {
   const [email, setemail] = useState("");
   const [password, setpassword] = useState("");
@@ -35,6 +36,11 @@ const Login = () => {
   const [phone, setphone] = useState("");
   const [bank, setBank] = useState("");
   const [account, setaccount] = useState("");
+  const [accountName, setaccountName] = useState("");
+  const [utilityBill, setUtilityBill] = useState([]);
+  const [cac, setCAC] = useState([]);
+  const [courierLicense, setCourierLicense] = useState([]);
+  const [amac, setAmac] = useState([]);
   const [documents, setdocuments] = useState([]);
 
   const [error, seterror] = useState(false);
@@ -42,19 +48,14 @@ const Login = () => {
   const [newUser, setnewUser] = useState(false);
   const [companyError, setCompanyError] = useState("");
   const [loading, setLoading] = useState(false);
+  const isMounted = useRef(true);
+
 
   const navigate = useNavigate();
 
   const { dispatch } = useContext(AuthContext);
 
-  const handleFileInputChange = (e) => {
-    const fileList = e.target.files;
-    const fileArray = Array.from(fileList).map((file) =>
-      URL.createObjectURL(file)
-    );
-    setdocuments(fileArray);
-  };
-
+  // company name field validator function
   const handleCompanyInputChange = (e) => {
     const inputCompany = e.target.value;
     const validCompanyRegex = /^[a-zA-Z0-9\s'-]+$/;
@@ -72,30 +73,8 @@ const Login = () => {
     }
   };
 
-  // Company's document uploads
-  useEffect(() => {
-    const uploadDocuments = async () => {
-      const promises = documents.map((file) => {
-        const storageRef = ref(storage, "company_documents/" + file.name);
-        const uploadTask = uploadBytesResumable(storageRef, file);
-        return uploadTask;
-      });
-
-      const snapshots = await Promise.all(promises);
-
-      const downloadURLs = await Promise.all(
-        snapshots.map((snapshot) => {
-          return getDownloadURL(snapshot.ref);
-        })
-      );
-
-      setdocuments((prev) => ({ ...prev, Documents: downloadURLs }));
-    };
-    documents.length > 0 && uploadDocuments();
-  }, [documents]);
-
   // Form submission
-  const submit = async (e) => {
+  const handleAuthentication = async (e) => {
     e.preventDefault();
     setLoading(true);
     seterror(false);
@@ -108,7 +87,50 @@ const Login = () => {
           email,
           password
         );
+
         const user = userCredential.user;
+
+        const documentsUrls = await Promise.all(
+          documents.map(async (file) => {
+            const storageRef = ref(storage, "company_documents/" + file.name);
+            const uploadTask = await uploadBytesResumable(storageRef, file);
+            return await getDownloadURL(uploadTask.ref);
+          })
+        );
+
+
+        const cacDocumentsUrls = await Promise.all(
+          cac.map(async (file) => {
+            const storageRef = ref(storage, "company_documents/" + file.name);
+            const uploadTask = await uploadBytesResumable(storageRef, file);
+            return await getDownloadURL(uploadTask.ref);
+          })
+        );
+
+        const utilityDocumentsUrls = await Promise.all(
+          utilityBill.map(async (file) => {
+            const storageRef = ref(storage, "company_documents/" + file.name);
+            const uploadTask = await uploadBytesResumable(storageRef, file);
+            return await getDownloadURL(uploadTask.ref);
+          })
+        );
+
+        const courierLicenseDocumentsUrls = await Promise.all(
+          courierLicense.map(async (file) => {
+            const storageRef = ref(storage, "company_documents/" + file.name);
+            const uploadTask = await uploadBytesResumable(storageRef, file);
+            return await getDownloadURL(uploadTask.ref);
+          })
+        );
+
+        const amacDocumentsUrls = await Promise.all(
+          amac.map(async (file) => {
+            const storageRef = ref(storage, "company_documents/" + file.name);
+            const uploadTask = await uploadBytesResumable(storageRef, file);
+            return await getDownloadURL(uploadTask.ref);
+          })
+        );
+
         await setDoc(doc(db, "Companies", user.uid), {
           email: email,
           password: password,
@@ -120,13 +142,21 @@ const Login = () => {
           phone: phone,
           bank: bank,
           account: account,
-          documents: documents || [],
+          accountName: accountName,
+          documents: documentsUrls || [],
+          cacDocuments: cacDocumentsUrls || [],
+          utilityBill: utilityDocumentsUrls || [],
+          courierLicense: courierLicenseDocumentsUrls || [],
+          amacDocuments: amacDocumentsUrls || [],
           timeStamp: serverTimestamp(),
         });
+
         navigate("/");
+
       } catch (error) {
         seterror(true);
         const errormsg = error.message;
+        console.log(errormsg);
         seterrormsg(errormsg);
         setLoading(false);
       }
@@ -154,25 +184,35 @@ const Login = () => {
           // Update the state to indicate that the user is logged in
           dispatch({ type: "LOGIN", payload: user });
 
-          // Navigate to the dashboard
-          navigate("/");
+          if (isMounted.current) {
+            console.log('Navigating to /');
+            navigate("/");
+          }
+
         } else {
-          // If the query doesn't return a document, the email and password are invalid
           seterror(true);
           const errormsg = Errormsg;
-          console.log(errormsg);
           seterrormsg(errormsg);
         }
       } catch (error) {
         toast.error(error);
         const errormsg = error.message;
         console.log(errormsg);
+
         seterrormsg(errormsg);
       } finally {
         setLoading(false);
       }
     }
   };
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+      setLoading(false);
+    };
+  }, []);
+
 
   return (
     <div className="login-body">
@@ -186,7 +226,7 @@ const Login = () => {
 
         <img className="logo" src={logo} alt="Logo" />
 
-        <form onSubmit={submit}>
+        <form onSubmit={handleAuthentication}>
           <div className="email">
             <input
               onChange={(e) => setemail(e.target.value)}
@@ -245,7 +285,7 @@ const Login = () => {
           )}
 
           {newUser && (
-            <div className="location">
+            <div className="locations">
               <input
                 onChange={(e) => setloction(e.target.value)}
                 id="location"
@@ -305,14 +345,91 @@ const Login = () => {
           )}
 
           {newUser && (
-            <div className="document">
+            <div className="account">
               <input
-                onChange={handleFileInputChange}
+                onChange={(e) => setaccountName(e.target.value)}
+                id="accountNumber"
+                type="text"
+                placeholder="Account Name"
+                required
+              />
+            </div>
+          )}
+
+          {newUser && (
+            <div className="document">
+              <label className="field-label">
+                ID Card
+              </label>
+
+              <input
+                onChange={(e) => setdocuments([...documents, ...e.target.files])}
                 id="documents"
                 type="file"
                 multiple
                 placeholder="Documents"
                 required
+              />
+            </div>
+          )}
+
+          {newUser && (
+            <div className="document">
+              <label className="field-label">
+                CAC Document
+              </label>
+              <input
+                onChange={(e) => setCAC([...cac, ...e.target.files])}
+                id="cac"
+                type="file"
+                placeholder="CAC Documents"
+                required
+              />
+            </div>
+          )}
+
+          {newUser && (
+            <div className="document">
+              <label className="field-label">
+                Utility Bill
+                <span> (proof of address)</span>
+              </label>
+              <input
+                onChange={(e) => setUtilityBill([...utilityBill, ...e.target.files])}
+                id="utilityBill"
+                type="file"
+                placeholder="Utility Bill"
+                required
+              />
+            </div>
+          )}
+
+          {newUser && (
+            <div className="document">
+              <label className="field-label">
+                Courier License
+                <span> (optional)</span>
+              </label>
+              <input
+                onChange={(e) => setCourierLicense([...courierLicense, ...e.target.files])}
+                id="courierLicense"
+                type="file"
+                placeholder="Courier License"
+              />
+            </div>
+          )}
+
+          {newUser && (
+            <div className="document">
+              <label className="field-label">
+                AMAC
+                <span> (optional)</span>
+              </label>
+              <input
+                onChange={(e) => setAmac([...amac, ...e.target.files])}
+                id="amac"
+                type="file"
+                placeholder="AMAC Documents"
               />
             </div>
           )}

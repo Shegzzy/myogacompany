@@ -407,6 +407,7 @@ const Single = () => {
                     />
 
                     <ImageViewModal
+                      title={'Rider\'s Document'}
                       show={isModalOpen}
                       onHide={handleCloseModal}
                       imagePath={user.Documents}

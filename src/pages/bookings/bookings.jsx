@@ -22,6 +22,8 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import ModalContainer from "../../components/modal/ModalContainer";
 import { AuthContext } from "../../context/authContext";
+import { TablePagination } from "@mui/material";
+import { format } from "date-fns";
 
 const Bookings = ({ inputs, title }) => {
   const [data, setData] = useState([]);
@@ -30,6 +32,8 @@ const Bookings = ({ inputs, title }) => {
   const [isMounted, setIsMounted] = useState(true);
   const [loading, setLoading] = useState(true);
   const [selectedFilter, setSelectedRiderFilter] = useState("all");
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
 
   // Fetching bookings handled by the company's riders
@@ -113,6 +117,7 @@ const Bookings = ({ inputs, title }) => {
     }
   };
 
+  // search function
   useEffect(() => {
     handleSearch();
   }, [searchTerm]);
@@ -236,6 +241,17 @@ const Bookings = ({ inputs, title }) => {
     };
   }, [currentUser, selectedFilter]);
 
+
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
   return (
     <div className="new">
       <Sidebar />
@@ -268,8 +284,7 @@ const Bookings = ({ inputs, title }) => {
           />
         </div>
         {!loading ? (<div className="b-table">
-
-          {data.length === 0 ? (<h6>There are no bookings for this filter</h6>) : (<TableContainer component={Paper} className="table">
+          <TableContainer component={Paper} className="table">
             <Table sx={{ minWidth: 780 }} aria-label="simple table">
               <TableHead>
                 <TableRow>
@@ -283,7 +298,7 @@ const Bookings = ({ inputs, title }) => {
                     Customer Name
                   </TableCell>
                   <TableCell className="tableCell" width={130}>
-                    Date
+                    Date Created
                   </TableCell>
                   <TableCell className="tableCell" width={50}>
                     Amount
@@ -315,7 +330,7 @@ const Bookings = ({ inputs, title }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data.map((row) => (
+                {data.length !== 0 ? (data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                   <TableRow key={row["Booking Number"]}>
                     <TableCell className="tableCell" width={80}>
                       {row["Booking Number"]}
@@ -327,11 +342,7 @@ const Bookings = ({ inputs, title }) => {
                       {row["Customer Name"]}
                     </TableCell>
                     <TableCell className="tableCell">
-                      {new Date(row["Date Created"]).toLocaleDateString("en-US", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                      })}
+                      {format(new Date(row["Date Created"]), "dd/MM/yyyy")}
                     </TableCell>
                     <TableCell className="tableCell">
                       {new Intl.NumberFormat("en-NG", {
@@ -370,10 +381,26 @@ const Bookings = ({ inputs, title }) => {
                       </div>
                     </TableCell>
                   </TableRow>
-                ))}
+                ))) : (
+                  <TableRow>
+                    <TableCell colSpan={10} align="center">
+                      No data available.
+                    </TableCell>
+                  </TableRow>
+                )}
               </TableBody>
             </Table>
-          </TableContainer>)}
+          </TableContainer>
+
+          <TablePagination
+            rowsPerPageOptions={[10, 20, 30]}
+            component="div"
+            count={data.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </div>) :
           (<div className="detailItem">
             <span className="itemKey">

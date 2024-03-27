@@ -44,6 +44,8 @@ const Single = () => {
   const [mData, setMData] = useState([]);
   const [riderRatings, setRiderRatings] = useState({ averageRating: 0 });
 
+  console.log(id);
+
   //Fetching rider's data
   useEffect(() => {
     let isMounted = true;

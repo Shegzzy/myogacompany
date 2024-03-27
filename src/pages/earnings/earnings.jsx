@@ -19,11 +19,15 @@ import {
 import { useEffect, useState, useContext } from "react";
 import { db } from "../../firebase";
 import { toast } from "react-toastify";
-import { Link } from "react-router-dom";
-import ModalContainer from "../../components/modal/ModalContainer";
+// import { Link } from "react-router-dom";
+// import ModalContainer from "../../components/modal/ModalContainer";
 import { AuthContext } from "../../context/authContext";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import DateRangePicker from 'rsuite/DateRangePicker';
+import 'rsuite/DateRangePicker/styles/index.css';
+import { format, parse } from 'date-fns';
+import { TablePagination } from "@mui/material";
 
 const CompanyEarnings = ({ title }) => {
     const [data, setData] = useState([]);
@@ -39,6 +43,7 @@ const CompanyEarnings = ({ title }) => {
     const [cashPayments, setCashPayments] = useState(0);
     const [payOut, setPayOut] = useState(0);
     const [toReceive, setToReceive] = useState(0);
+    const [dateRange, setDateRange] = useState([]);
 
 
 
@@ -158,7 +163,7 @@ const CompanyEarnings = ({ title }) => {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
-                toast.error("Error fetching data. Please check the console for details.");
+                toast.error("Error fetching data.");
             } finally {
                 setLoading(false);
                 if (isMounted) {
@@ -334,7 +339,7 @@ const CompanyEarnings = ({ title }) => {
                         );
 
                         if (isMounted) {
-                            setData(allBookings); // Set the filtered data to the state
+                            setData(allBookings);
                         }
                     }
                 } catch (error) {
@@ -380,7 +385,7 @@ const CompanyEarnings = ({ title }) => {
                     // console.log(queryStartDate.toISOString().slice(0, 23).replace('T', ' '))
                     // console.log(queryEndDate)
 
-                    // Using queryStartDate and queryEndDate in your Firestore query
+                    // Using queryStartDate and queryEndDate in Firestore query
                     const earningsQuery = query(
                         collection(db, "Earnings"),
                         where("Company", "==", docs.data().company),
@@ -488,7 +493,7 @@ const CompanyEarnings = ({ title }) => {
                     );
 
                     if (isMounted) {
-                        setData(allBookings); // Set the filtered data to the state
+                        setData(allBookings);
                     }
 
                 } catch (error) {
@@ -506,6 +511,169 @@ const CompanyEarnings = ({ title }) => {
     }, [currentUser, selectedDate]);
 
 
+    useEffect(() => {
+        let isMounted = true;
+        let earningsTotal = 0;
+        let sumCardPayments = 0;
+        let sumCashPayments = 0;
+        let totalPayOut = 0;
+        let totalReceive = 0;
+
+        const fetchDataByDay = async () => {
+            if (currentUser && isMounted) {
+                try {
+                    const userRef = doc(db, "Companies", currentUser.uid);
+                    const docs = await getDoc(userRef);
+                    setLoading(true);
+
+                    const [startDate, endDate] = dateRange;
+
+                    const startDateFirestore = new Date(startDate).toISOString();
+                    const endDateFirestore = new Date(endDate).toISOString();
+
+                    // Using queryStartDate and queryEndDate in Firestore query
+                    const earningsQuery = query(
+                        collection(db, "Earnings"),
+                        where("Company", "==", docs.data().company),
+                        where("DateCreated", ">=", startDateFirestore),
+                        where("DateCreated", "<=", endDateFirestore)
+                    );
+
+                    const earningsSnapshot = await getDocs(earningsQuery);
+                    // const earningsData = earningsSnapshot.docs.map((doc) => doc.data());
+
+                    // Collecting Bookings IDs
+                    const bookingNumbers = earningsSnapshot.docs.map(
+                        (bookingrDoc) => bookingrDoc.data().BookingID,
+                    );
+
+                    earningsSnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        earningsTotal += parseFloat(data.Amount);
+                    });
+
+                    // Calculating 85% of the total earnings
+                    const eightyFivePercent = earningsTotal * 0.85;
+                    const roundPercentage = eightyFivePercent.toFixed(0);
+
+                    // Calculating 15% of the total earnings
+                    const fifteenPercent = earningsTotal * 0.15;
+                    const roundFifteenPercent = fifteenPercent.toFixed(0);
+
+
+                    const chunkSize = 30;
+                    const bookingChunks = [];
+                    for (let i = 0; i < bookingNumbers.length; i += chunkSize) {
+                        const chunk = bookingNumbers.slice(i, i + chunkSize);
+                        bookingChunks.push(chunk);
+                    }
+
+                    const allBookings = [];
+
+                    for (const chunk of bookingChunks) {
+                        const bookingsQuery = query(
+                            collection(db, "Bookings"),
+                            where("Booking Number", "in", chunk)
+                        );
+
+                        try {
+                            const bookingsSnapshot = await getDocs(bookingsQuery);
+
+                            if (!bookingsSnapshot.empty) {
+                                const bookings = bookingsSnapshot.docs.map((bookingDoc) => bookingDoc.data());
+
+                                // Separate amounts based on payment method and calculate the sum
+                                const cardPayments = bookings.filter((booking) => booking["Payment Method"] === "Card");
+                                const cashPayments = bookings.filter((booking) => booking["Payment Method"] === "Cash on Delivery");
+
+                                sumCardPayments += cardPayments.reduce((total, booking) => total + parseFloat(booking.Amount), 0);
+                                sumCashPayments += cashPayments.reduce((total, booking) => total + parseFloat(booking.Amount), 0);
+
+                                allBookings.push(...bookings);
+                            } else {
+                                console.log("No bookings found with the given Booking Numbers in this chunk.");
+                            }
+                        } catch (error) {
+                            console.error("Error fetching bookings:", error);
+                            toast.error("Error fetching bookings. Please check the console for details.");
+                        }
+                    }
+
+                    if (sumCardPayments > roundFifteenPercent) {
+
+                        totalReceive = sumCardPayments - roundFifteenPercent;
+
+                        if (isMounted) {
+                            setToReceive(totalReceive);
+                            setPayOut(0);
+                        }
+                    } else if (sumCardPayments < roundFifteenPercent) {
+
+                        totalPayOut = roundFifteenPercent - sumCardPayments;
+
+                        if (isMounted) {
+                            setPayOut(totalPayOut);
+                            setToReceive(0);
+                        }
+                    } else {
+                        totalPayOut = roundFifteenPercent - sumCardPayments;
+                        totalReceive = sumCardPayments - roundFifteenPercent;
+
+                        console.log('Total receive: ', totalReceive);
+                        console.log('Total payout: ', totalPayOut);
+
+                        if (isMounted) {
+                            setToReceive(totalReceive);
+                            setPayOut(totalPayOut);
+                        }
+
+                    }
+
+                    setTotal(earningsTotal);
+                    setInFlow(roundPercentage);
+                    setOutFlow(roundFifteenPercent);
+                    setCardPayments(sumCardPayments);
+                    setCashPayments(sumCashPayments);
+                    allBookings.sort(
+                        (a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"])
+                    );
+
+                    if (isMounted) {
+                        setData(allBookings);
+                    }
+
+                } catch (error) {
+                    toast.error(error);
+                } finally {
+                    setLoading(false);
+                }
+            }
+        };
+
+        fetchDataByDay();
+        return () => {
+            isMounted = false;
+        };
+    }, [currentUser, dateRange]);
+
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+
+
+    const handleDateRangeChange = (newDateRange) => {
+        setDateRange(newDateRange);
+    };
+
 
     return (
         <div className="new">
@@ -522,13 +690,22 @@ const CompanyEarnings = ({ title }) => {
                         />
                     </div>
 
+                    <DateRangePicker
+                        value={dateRange}
+                        onChange={handleDateRangeChange}
+                        placeholder="Select Date Range"
+                    />
+
+
+
+
                     <div className="filter-select-container">
                         <select
                             className="chart-selects"
                             value={selectedFilter}
                             onChange={(e) => setSelectedFilter(e.target.value)}
                         >
-                            <option value="all">All</option>
+                            <option value="all">Total Earnings</option>
                             <option value="7">Last Week</option>
                             <option value="1">Two Weeks Ago</option>
                             <option value="2">Three Weeks Ago</option>
@@ -623,7 +800,7 @@ const CompanyEarnings = ({ title }) => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {data.map((row) => (
+                                {data.length !== 0 ? (data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
                                     <TableRow key={row["Booking Number"]}>
                                         <TableCell className="tableCell">
                                             {row["Booking Number"]}
@@ -635,11 +812,7 @@ const CompanyEarnings = ({ title }) => {
                                             {row["Customer Name"]}
                                         </TableCell>
                                         <TableCell className="tableCell">
-                                            {new Date(row["Date Created"]).toLocaleDateString("en-US", {
-                                                day: "2-digit",
-                                                month: "2-digit",
-                                                year: "numeric",
-                                            })}
+                                            {format(new Date(row["Date Created"]), "dd/MM/yyyy")}
                                         </TableCell>
                                         <TableCell className="tableCell">
                                             {new Intl.NumberFormat("en-NG", {
@@ -653,10 +826,26 @@ const CompanyEarnings = ({ title }) => {
                                         </TableCell>
 
                                     </TableRow>
-                                ))}
+                                ))) : (
+                                    <TableRow>
+                                        <TableCell colSpan={10} align="center">
+                                            No data available.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
                             </TableBody>
                         </Table>
                     </TableContainer>
+
+                    <TablePagination
+                        rowsPerPageOptions={[10, 20, 30]}
+                        component="div"
+                        count={data.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
                 </div>) :
                     (<div className="detailItem">
                         <span className="itemKey">

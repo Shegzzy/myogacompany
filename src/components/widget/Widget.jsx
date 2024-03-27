@@ -17,6 +17,7 @@ import {
   where,
 } from "firebase/firestore";
 import { AuthContext } from "../../context/authContext";
+import { toast } from "react-toastify";
 
 const Widget = ({ type }) => {
   let data;
@@ -31,34 +32,34 @@ const Widget = ({ type }) => {
 
 
   // company's total number of riders
-  useEffect(() => {
-    const fetchData = async () => {
-      if (currentUser) {
-        const userRef = doc(db, "Companies", currentUser.uid);
-        const docs = await getDoc(userRef);
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (currentUser) {
+  //       const userRef = doc(db, "Companies", currentUser.uid);
+  //       const docs = await getDoc(userRef);
 
-        const driversQuery = query(
-          collection(db, "Drivers"),
-          where("Company", "==", docs.data().company)
-        );
-        const driversSnapshot = await getDocs(driversQuery);
-        const totalDrivers = driversSnapshot.size;
-        setTotalDrivers(totalDrivers);
+  //       const driversQuery = query(
+  //         collection(db, "Drivers"),
+  //         where("Company", "==", docs.data().company)
+  //       );
+  //       const driversSnapshot = await getDocs(driversQuery);
+  //       const totalDrivers = driversSnapshot.size;
+  //       setTotalDrivers(totalDrivers);
 
-        // Collecting Driver IDs
-        const driverIds = driversSnapshot.docs.map((driverDoc) => driverDoc.id);
+  //       // Collecting Driver IDs
+  //       const driverIds = driversSnapshot.docs.map((driverDoc) => driverDoc.id);
 
-        const bookingsQuery = query(
-          collection(db, "Bookings"),
-          where("Driver ID", "in", driverIds)
-        );
-        const bookingsSnapshot = await getDocs(bookingsQuery);
-        const totalBookings = bookingsSnapshot.size;
-        setTotalBookings(totalBookings);
-      }
-    };
-    fetchData();
-  }, [currentUser]);
+  //       const bookingsQuery = query(
+  //         collection(db, "Bookings"),
+  //         where("Driver ID", "in", driverIds)
+  //       );
+  //       const bookingsSnapshot = await getDocs(bookingsQuery);
+  //       const totalBookings = bookingsSnapshot.size;
+  //       setTotalBookings(totalBookings);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [currentUser]);
 
   //Last month's total
   useEffect(() => {
@@ -134,7 +135,7 @@ const Widget = ({ type }) => {
   useEffect(() => {
     let isMounted = true;
 
-    const fetchDataByWeek = async () => {
+    const fetchRiderDataByWeek = async () => {
       if (currentUser && isMounted) {
         try {
           const userRef = doc(db, "Companies", currentUser.uid);
@@ -193,17 +194,7 @@ const Widget = ({ type }) => {
               startOfPeriod.setHours(0, 0, 0, 0);
               endOfPeriod = new Date(today);
               endOfPeriod.setMonth(today.getMonth() - 1, 0);
-              // Uncomment the line below if you want to set the end time to the last millisecond of the month
-              // endOfPeriod.setHours(23, 59, 59, 999);
             }
-
-            // startOfWeek.setHours(0, 0, 0, 0);
-            // endOfWeek = new Date(startOfWeek);
-            // endOfWeek.setDate(startOfWeek.getDate() + 6);
-            // // endOfWeek.setHours(23, 59, 59, 999);
-
-            console.log('Start of period: ' + startOfPeriod);
-            console.log('End of period: ' + endOfPeriod);
 
             const driversQuery = query(
               collection(db, "Drivers"),
@@ -211,6 +202,7 @@ const Widget = ({ type }) => {
               where("Date Created", ">=", startOfPeriod.toISOString()),
               where("Date Created", "<=", endOfPeriod.toISOString())
             );
+
             const driversSnapshot = await getDocs(driversQuery);
             const totalDrivers = driversSnapshot.size;
 
@@ -218,12 +210,14 @@ const Widget = ({ type }) => {
 
           }
         } catch (error) {
-          // toast.error(error);
+          toast.error(error);
+        } finally {
+          isMounted = false;
         }
       }
     };
 
-    fetchDataByWeek();
+    fetchRiderDataByWeek();
     return () => {
       isMounted = false;
     };
@@ -259,7 +253,6 @@ const Widget = ({ type }) => {
             const bookingsSnapshot = await getDocs(bookingsQuery);
             const totalBookings = bookingsSnapshot.size;
 
-            console.log(totalBookings);
             setTotalBookings(totalBookings);
           } else {
             const today = new Date();
@@ -303,25 +296,14 @@ const Widget = ({ type }) => {
               startOfPeriod.setHours(0, 0, 0, 0);
               endOfPeriod = new Date(today);
               endOfPeriod.setMonth(today.getMonth() - 1, 0);
-              // Uncomment the line below if you want to set the end time to the last millisecond of the month
-              // endOfPeriod.setHours(23, 59, 59, 999);
             }
-
-            // startOfWeek.setHours(0, 0, 0, 0);
-            // endOfWeek = new Date(startOfWeek);
-            // endOfWeek.setDate(startOfWeek.getDate() + 6);
-            // // endOfWeek.setHours(23, 59, 59, 999);
-
-            console.log('Start of period: ' + startOfPeriod);
-            console.log('End of period: ' + endOfPeriod);
 
             const driversQuery = query(
               collection(db, "Drivers"),
               where("Company", "==", docs.data().company),
             );
             const driversSnapshot = await getDocs(driversQuery);
-            const totalDrivers = driversSnapshot.size;
-            setTotalDrivers(totalDrivers);
+
 
             // Collecting Driver IDs
             const driverIds = driversSnapshot.docs.map((driverDoc) => driverDoc.id);
@@ -334,7 +316,6 @@ const Widget = ({ type }) => {
             );
             const bookingsSnapshot = await getDocs(bookingsQuery);
             const totalBookings = bookingsSnapshot.size;
-            console.log(totalBookings);
             setTotalBookings(totalBookings);
 
           }

@@ -266,7 +266,7 @@ const Datatable = () => {
               Delete
             </Button> */}
 
-            {params.row.Verified === "1" ? (
+            {/* {params.row.Verified === "1" ? (
               <div>
                 <Button
                   className="verifyButton"
@@ -286,7 +286,7 @@ const Datatable = () => {
                   Verify
                 </Button>
               </div>
-            )}
+            )} */}
           </div>
         );
       },
@@ -305,12 +305,12 @@ const Datatable = () => {
           }}
         />
       </div>
-      <div className="datatableTitle">
+      {/* <div className="datatableTitle">
         Riders
         <Link to="/users/new" className="link">
           Add New Rider
         </Link>
-      </div>
+      </div> */}
       {!loading ? (<DataGrid
         className="datagrid"
         rows={data}

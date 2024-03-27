@@ -1,3 +1,5 @@
+import { format } from "date-fns";
+
 export const userColumns = [
   // { field: "id", headerName: "ID", width: 70 },
   {
@@ -98,9 +100,7 @@ export const userColumns = [
     headerName: 'Date Created',
     width: 120,
     renderCell: (params) => {
-      const date = new Date(params.value);
-      const formattedDate = date.toLocaleDateString("en-US");
-      return <span>{formattedDate}</span>;
+      return format(new Date(params.value), "dd/MM/yyyy");
     },
   },
 

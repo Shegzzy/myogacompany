@@ -36,14 +36,14 @@ const Bookings = ({ inputs, title }) => {
   useEffect(() => {
     setIsMounted(true);
 
-    fetchData();
+    fetchBookingData();
 
     return () => {
       setIsMounted(false);
     };
   }, [currentUser, isMounted]);
 
-  const fetchData = async () => {
+  const fetchBookingData = async () => {
     try {
       if (currentUser) {
         const userRef = doc(db, "Companies", currentUser.uid);
@@ -98,7 +98,7 @@ const Bookings = ({ inputs, title }) => {
   // Function to search for riders
   const handleSearch = () => {
     if (searchTerm.trim() === '') {
-      fetchData();
+      fetchBookingData();
     } else {
       const filteredData = data.filter((bookingNumber) => {
         const name = bookingNumber['Booking Number']?.toLowerCase() ?? "";
@@ -131,7 +131,7 @@ const Bookings = ({ inputs, title }) => {
           let startOfPeriod, endOfPeriod;
 
           if (selectedFilter === "all") {
-            fetchData();
+            fetchBookingData();
           } else {
             const today = new Date();
 
@@ -174,8 +174,7 @@ const Bookings = ({ inputs, title }) => {
               startOfPeriod.setHours(0, 0, 0, 0);
               endOfPeriod = new Date(today);
               endOfPeriod.setMonth(today.getMonth() - 1, 0);
-              // Uncomment the line below if you want to set the end time to the last millisecond of the month
-              // endOfPeriod.setHours(23, 59, 59, 999);
+
             }
 
             // startOfWeek.setHours(0, 0, 0, 0);

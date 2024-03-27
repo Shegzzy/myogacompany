@@ -61,7 +61,7 @@ const OrderStatus = (props) => {
             arrivedD: doc.data()["Arrive DropOff"],
             complete: doc.data().Completed,
           });
-          console.log(doc.id, " => ", doc.data());
+          // console.log(doc.id, " => ", doc.data());
         });
         setBdata(booking);
       } catch (error) {

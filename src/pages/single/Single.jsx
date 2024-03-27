@@ -24,12 +24,14 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
 } from "@mui/material";
 import ModalContainer from "../../components/modal/ModalContainer";
 import { KeyboardArrowDownOutlined } from "@mui/icons-material";
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 import ImageViewModal from "../../components/modal/image-view-modal";
+import { format } from "date-fns";
 // import { toast } from "react-toastify";
 // import { DisabledByDefault } from "@mui/icons-material";
 
@@ -43,8 +45,6 @@ const Single = () => {
   const [lMData, setLData] = useState([]);
   const [mData, setMData] = useState([]);
   const [riderRatings, setRiderRatings] = useState({ averageRating: 0 });
-
-  console.log(id);
 
   //Fetching rider's data
   useEffect(() => {
@@ -303,6 +303,18 @@ const Single = () => {
     setIsModalOpen(false);
   };
 
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(parseInt(event.target.value, 10));
+    setPage(0);
+  };
+
 
   return (
     <div className="single">
@@ -432,6 +444,7 @@ const Single = () => {
               </div>
             )}
           </div>
+
           <div className="right">
             <div className="featured">
               <div className="top">
@@ -525,7 +538,7 @@ const Single = () => {
                   <TableCell className="tableCell">Booking Number</TableCell>
                   <TableCell className="tableCell">Product</TableCell>
                   <TableCell className="tableCell">Customer</TableCell>
-                  <TableCell className="tableCell">Date</TableCell>
+                  <TableCell className="tableCell">Date Created</TableCell>
                   <TableCell className="tableCell">Amount</TableCell>
                   <TableCell className="tableCell">Payment Method</TableCell>
                   <TableCell className="tableCell">Distance</TableCell>
@@ -535,50 +548,47 @@ const Single = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {data ? (
-                  data.map((row) => (
-                    <TableRow key={row.id}>
-                      <TableCell className="tableCell">
-                        {row["Booking Number"]}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {row["Package Type"]}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {row["Customer Name"]}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {new Date(row["Date Created"]).toLocaleDateString(
-                          "en-US"
-                        )}
-                      </TableCell>
+                {data.length !== 0 ? (data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell className="tableCell">
+                      {row["Booking Number"]}
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      {row["Package Type"]}
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      {row["Customer Name"]}
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      {format(new Date(row["Date Created"]), "dd/MM/yyyy")}
+                    </TableCell>
 
-                      <TableCell className="tableCell">
-                        {new Intl.NumberFormat("en-NG", {
-                          style: "currency",
-                          currency: "NGN",
-                        })
-                          .format(row["Amount"])
-                          .replace(".00", "")}
-                      </TableCell>
-                      <TableCell className="tableCell" width={200}>
-                        {row["Payment Method"]}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {row["Distance"]}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {row["PickUp Address"]}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {row["DropOff Address"]}
-                      </TableCell>
-                      <TableCell className="tableCell">
-                        {row["Status"]}
-                        {<ModalContainer id={row["Booking Number"]} />}
-                      </TableCell>
-                    </TableRow>
-                  ))
+                    <TableCell className="tableCell">
+                      {new Intl.NumberFormat("en-NG", {
+                        style: "currency",
+                        currency: "NGN",
+                      })
+                        .format(row["Amount"])
+                        .replace(".00", "")}
+                    </TableCell>
+                    <TableCell className="tableCell" width={200}>
+                      {row["Payment Method"]}
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      {row["Distance"]}
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      {row["PickUp Address"]}
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      {row["DropOff Address"]}
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      {row["Status"]}
+                      {<ModalContainer id={row["Booking Number"]} />}
+                    </TableCell>
+                  </TableRow>
+                ))
                 ) : (
                   <TableRow>
                     <TableCell colSpan={10} align="center">
@@ -589,6 +599,16 @@ const Single = () => {
               </TableBody>
             </Table>
           </TableContainer>
+
+          <TablePagination
+            rowsPerPageOptions={[10, 20, 30]}
+            component="div"
+            count={data.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </div>
       </div>
     </div>

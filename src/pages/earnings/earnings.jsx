@@ -227,7 +227,7 @@ const CompanyEarnings = ({ title }) => {
                         startOfWeek.setHours(0, 0, 0, 0);
                         endOfWeek = new Date(startOfWeek);
                         endOfWeek.setDate(startOfWeek.getDate() + 6);
-                        // endOfWeek.setHours(23, 59, 59, 999);
+                        endOfWeek.setHours(23, 59, 59, 999);
 
                         // Use startOfWeek and endOfWeek in your Firestore query
                         const earningsQuery = query(
@@ -723,14 +723,14 @@ const CompanyEarnings = ({ title }) => {
                             .format(total)
                             .replace(".00", "")}</h5>
 
-                        <h5>In-Flow: {new Intl.NumberFormat("en-NG", {
+                        <h5>Inflow: {new Intl.NumberFormat("en-NG", {
                             style: "currency",
                             currency: "NGN",
                         })
                             .format(inFlow)
                             .replace(".00", "")}</h5>
 
-                        <h5>Out-Flow: {new Intl.NumberFormat("en-NG", {
+                        <h5>Outflow: {new Intl.NumberFormat("en-NG", {
                             style: "currency",
                             currency: "NGN",
                         })

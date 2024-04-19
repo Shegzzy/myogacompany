@@ -193,9 +193,8 @@ const Featured = () => {
 
   const getData = async () => {
     const today = new Date();
-    const oneWeekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const twoWeekAgo = new Date(today.getTime() - 14 * 24 * 60 * 60 * 1000);
     const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    let startOfPeriod, endOfPeriod;
 
     // Calculate the first day of last month
     const firstDayOfLastMonth = new Date(
@@ -235,22 +234,6 @@ const Featured = () => {
         where("DateCreated", "<=", lastDayOfLastMonth.toISOString())
       );
 
-      //A week ago
-      const oneWeekQuery = query(
-        collection(db, "Earnings"),
-        where("Company", "==", docs.data().company),
-        where("DateCreated", "<=", today.toISOString()),
-        where("DateCreated", ">=", oneWeekAgo.toISOString())
-      );
-
-      //Two weeks ago
-      const twoWeekQuery = query(
-        collection(db, "Earnings"),
-        where("Company", "==", docs.data().company),
-        where("DateCreated", ">=", twoWeekAgo.toISOString()),
-        where("DateCreated", "<=", oneWeekAgo.toISOString())
-      );
-
       const lastMonthData = await getDocs(lastMonthQuery);
       const thisMonthData = await getDocs(thisMonthQuery);
 
@@ -278,27 +261,71 @@ const Featured = () => {
 
       setDiff(roundedDiff);
 
-      //Calculating a week ago amount
-      getDocs(oneWeekQuery).then((querySnapshot) => {
-        let total = 0;
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          total += parseFloat(data.Amount);
-        });
-        setOData(total);
-      });
+      //A week ago
+      const oneWeekQuery = async () => {
+        startOfPeriod = new Date(today);
+        startOfPeriod.setDate(today.getDate() - today.getDay() - 7);
+        startOfPeriod.setHours(0, 0, 0, 0);
 
-      //Calculating two weeks ago amount
-      getDocs(twoWeekQuery).then((querySnapshot) => {
+        endOfPeriod = new Date(today);
+        endOfPeriod.setDate(today.getDate() - today.getDay() - 1);
+        endOfPeriod.setHours(23, 59, 59, 999);
+
+        const lastWeekEarnings = query(
+          collection(db, "Earnings"),
+          where("Company", "==", docs.data().company),
+          where("DateCreated", ">=", startOfPeriod.toISOString()),
+          where("DateCreated", "<=", endOfPeriod.toISOString())
+        );
+
+        //Calculating a week ago amount
+        const lastWeekEarningsSnapshot = await getDocs(lastWeekEarnings);
         let total = 0;
-        querySnapshot.forEach((doc) => {
+
+        lastWeekEarningsSnapshot.forEach((doc) => {
           const data = doc.data();
+          // console.log("Amount", data.Amount);
           total += parseFloat(data.Amount);
         });
+
+        setOData(total);
+      };
+
+      //Two weeks ago
+      const twoWeeksQuery = async () => {
+        startOfPeriod = new Date(today);
+        startOfPeriod.setDate(today.getDate() - today.getDay() - 14);
+        startOfPeriod.setHours(0, 0, 0, 0);
+
+        endOfPeriod = new Date(today);
+        endOfPeriod.setDate(today.getDate() - today.getDay() - 8);
+        endOfPeriod.setHours(23, 59, 59, 999);
+
+        const twoWeekEarnings = query(
+          collection(db, "Earnings"),
+          where("Company", "==", docs.data().company),
+          where("DateCreated", ">=", startOfPeriod.toISOString()),
+          where("DateCreated", "<=", endOfPeriod.toISOString())
+        );
+
+        //Calculating a week ago amount
+        const twoWeekEarningsSnapshot = await getDocs(twoWeekEarnings);
+        let total = 0;
+
+        twoWeekEarningsSnapshot.forEach((doc) => {
+          const data = doc.data();
+          // console.log("Amounts Two", data.Amount);
+          total += parseFloat(data.Amount);
+        });
+
         setLWData(total);
-      });
+      };
+
+      await oneWeekQuery();
+      await twoWeeksQuery();
     }
   };
+
 
   const formattedAmount = new Intl.NumberFormat("en-NG", {
     style: "currency",

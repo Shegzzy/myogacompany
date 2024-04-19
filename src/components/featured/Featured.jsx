@@ -27,10 +27,30 @@ const Featured = () => {
   useEffect(() => {
     const FetchData = async () => {
       let list = [];
+      let total = 0;
+      let startOfPeriod, endOfPeriod;
+
       if (currentUser) {
         const userRef = doc(db, "Companies", currentUser.uid);
         const docs = await getDoc(userRef);
-        if (Selected === "1") {
+        if (Selected === "total") {
+          const sumEarnings = async () => {
+            const querySnapshot = await getDocs(
+              query(
+                collection(db, "Earnings"),
+                where("Company", "==", docs.data().company)
+              )
+            );
+
+            querySnapshot.forEach((doc) => {
+              const data = doc.data();
+              total += parseFloat(data.Amount);
+            });
+
+            setFieldSum(total);
+          };
+          sumEarnings();
+        } else if (Selected === "1") {
           const today = new Date();
           // Calculate the date range for 1 day ago
           const oneDayAgo = new Date(today.getTime() - 1 * 24 * 60 * 60 * 1000);
@@ -51,7 +71,11 @@ const Featured = () => {
             59,
             59,
             999
-          ); // Timestamp for 1 day ago // 24 hours in milliseconds
+          );
+
+          console.log("start of yesterday: ", startOfOneDayAgo);
+          console.log("end of yesterday: ", endOfOneDayAgo);
+
           const q = query(
             collection(db, "Earnings"),
             where("Company", "==", docs.data().company),
@@ -60,302 +84,102 @@ const Featured = () => {
           );
           const querySnapshot = await getDocs(q);
 
-          let total = 0;
           querySnapshot.forEach((doc) => {
             const data = doc.data();
             total += parseFloat(data.Amount);
           });
           setData(list);
           setFieldSum(total);
-        } else if (Selected === "7") {
+        } else {
           const today = new Date();
 
-          // Calculate the date range for 1 week ago
-          const oneWeekAgo = new Date(
-            today.getTime() - 7 * 24 * 60 * 60 * 1000
-          );
+          // Calculate the start and end dates based on the selected filter
+          if (Selected === "7") {
+            // Last Week
+            startOfPeriod = new Date(today);
+            startOfPeriod.setDate(today.getDate() - today.getDay() - 7);
+            startOfPeriod.setHours(0, 0, 0, 0);
 
-          const q = query(
+            endOfPeriod = new Date(today);
+            endOfPeriod.setDate(today.getDate() - today.getDay() - 1);
+            endOfPeriod.setHours(23, 59, 59, 999);
+          } else if (Selected === "30") {
+            // Last Month
+            startOfPeriod = new Date(today);
+            startOfPeriod.setMonth(today.getMonth() - 1, 1);
+            startOfPeriod.setHours(0, 0, 0, 0);
+
+            endOfPeriod = new Date(startOfPeriod.getFullYear(), startOfPeriod.getMonth() + 1, 0);
+            endOfPeriod.setHours(23, 59, 59, 999);
+          } else if (Selected === "60") {
+            // Two Months Ago
+            startOfPeriod = new Date(today);
+            startOfPeriod.setMonth(today.getMonth() - 2, 1);
+            startOfPeriod.setHours(0, 0, 0, 0);
+
+            endOfPeriod = new Date(today);
+            endOfPeriod.setMonth(today.getMonth() - 1, 0);
+            endOfPeriod.setHours(23, 59, 59, 999);
+          } else if (Selected === "90") {
+            // Two Months Ago
+            startOfPeriod = new Date(today);
+            startOfPeriod.setMonth(today.getMonth() - 3, 1);
+            startOfPeriod.setHours(0, 0, 0, 0);
+
+            endOfPeriod = new Date(today);
+            endOfPeriod.setMonth(today.getMonth() - 2, 0);
+            endOfPeriod.setHours(23, 59, 59, 999);
+          } else if (Selected === "120") {
+            // Two Months Ago
+            startOfPeriod = new Date(today);
+            startOfPeriod.setMonth(today.getMonth() - 4, 1);
+            startOfPeriod.setHours(0, 0, 0, 0);
+
+            endOfPeriod = new Date(today);
+            endOfPeriod.setMonth(today.getMonth() - 3, 0);
+            endOfPeriod.setHours(23, 59, 59, 999);
+          } else if (Selected === "150") {
+            // Two Months Ago
+            startOfPeriod = new Date(today);
+            startOfPeriod.setMonth(today.getMonth() - 5, 1);
+            startOfPeriod.setHours(0, 0, 0, 0);
+
+            endOfPeriod = new Date(today);
+            endOfPeriod.setMonth(today.getMonth() - 4, 0);
+            endOfPeriod.setHours(23, 59, 59, 999);
+          } else if (Selected === "180") {
+            // Two Months Ago
+            startOfPeriod = new Date(today);
+            startOfPeriod.setMonth(today.getMonth() - 6, 1);
+            startOfPeriod.setHours(0, 0, 0, 0);
+
+            endOfPeriod = new Date(today);
+            endOfPeriod.setMonth(today.getMonth() - 5, 0);
+            endOfPeriod.setHours(23, 59, 59, 999);
+          }
+
+          // Use startOfWeek and endOfWeek in your Firestore query
+          const earningsQuery = query(
             collection(db, "Earnings"),
             where("Company", "==", docs.data().company),
-            where("DateCreated", ">=", oneWeekAgo.toISOString()),
-            where("DateCreated", "<=", today.toISOString())
+            where("DateCreated", ">=", startOfPeriod.toISOString()),
+            where("DateCreated", "<=", endOfPeriod.toISOString())
           );
-          const querySnapshot = await getDocs(q);
 
-          let total = 0;
-          querySnapshot.forEach((doc) => {
+          const earningsSnapshot = await getDocs(earningsQuery);
+
+          earningsSnapshot.forEach((doc) => {
             const data = doc.data();
             total += parseFloat(data.Amount);
           });
+
           setData(list);
           setFieldSum(total);
-        }
-
-        //Calculate for last month earnings
-        else if (Selected === getPreviousMonth()) {
-          // Calculate today
-          const today = new Date();
-
-          // Calculate the first day of last month
-          const firstDayOfLastMonth = new Date(
-            today.getFullYear(),
-            today.getMonth() - 1,
-            1
-          );
-
-          // Calculate the last day of last month
-          const lastDayOfLastMonth = new Date(
-            today.getFullYear(),
-            today.getMonth(),
-            0,
-            23,
-            59,
-            59,
-            999
-          );
-
-          const q = query(
-            collection(db, "Earnings"),
-            where("Company", "==", docs.data().company),
-            where("DateCreated", ">=", firstDayOfLastMonth.toISOString()),
-            where("DateCreated", "<=", lastDayOfLastMonth.toISOString())
-          );
-          const querySnapshot = await getDocs(q);
-
-          let total = 0;
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            total += parseFloat(data.Amount);
-          });
-          setData(list);
-          setFieldSum(total);
-        }
-
-        //Calculate for two month ago earnings
-        else if (Selected === getPreviousMonth(2)) {
-          // Calculate today
-          const today = new Date();
-
-          // Calculate the first day of last month
-          const firstDayOfLastTwoMonths = new Date(
-            today.getFullYear(),
-            today.getMonth() - 2,
-            1
-          );
-
-          // Calculate the last day of last month
-          const lastDayOfLastTwoMonths = new Date(
-            today.getFullYear(),
-            today.getMonth() - 1,
-            0,
-            23,
-            59,
-            59,
-            999
-          );
-
-          const q = query(
-            collection(db, "Earnings"),
-            where("Company", "==", docs.data().company),
-            where("DateCreated", ">=", firstDayOfLastTwoMonths.toISOString()),
-            where("DateCreated", "<=", lastDayOfLastTwoMonths.toISOString())
-          );
-          const querySnapshot = await getDocs(q);
-
-          let total = 0;
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            total += parseFloat(data.Amount);
-          });
-          setData(list);
-          setFieldSum(total);
-        }
-
-        //Calculate for three month ago earnings
-        else if (Selected === getPreviousMonth(3)) {
-          // Calculate today
-          const today = new Date();
-
-          // Calculate the first day of last month
-          const firstDayOfLastThreeMonths = new Date(
-            today.getFullYear(),
-            today.getMonth() - 3,
-            1
-          );
-
-          // Calculate the last day of last month
-          const lastDayOfLastThreeMonths = new Date(
-            today.getFullYear(),
-            today.getMonth() - 2,
-            0,
-            23,
-            59,
-            59,
-            999
-          );
-
-          const q = query(
-            collection(db, "Earnings"),
-            where("Company", "==", docs.data().company),
-            where("DateCreated", ">=", firstDayOfLastThreeMonths.toISOString()),
-            where("DateCreated", "<=", lastDayOfLastThreeMonths.toISOString())
-          );
-          const querySnapshot = await getDocs(q);
-
-          let total = 0;
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            total += parseFloat(data.Amount);
-          });
-          setData(list);
-          setFieldSum(total);
-        }
-
-        //Calculate for four month ago earnings
-        else if (Selected === getPreviousMonth(4)) {
-          // Calculate today
-          const today = new Date();
-
-          // Calculate the first day of last month
-          const firstDayOfLastFourMonths = new Date(
-            today.getFullYear(),
-            today.getMonth() - 4,
-            1
-          );
-
-          // Calculate the last day of last month
-          const lastDayOfLastFourMonths = new Date(
-            today.getFullYear(),
-            today.getMonth() - 3,
-            0,
-            23,
-            59,
-            59,
-            999
-          );
-
-          const q = query(
-            collection(db, "Earnings"),
-            where("Company", "==", docs.data().company),
-            where("DateCreated", ">=", firstDayOfLastFourMonths.toISOString()),
-            where("DateCreated", "<=", lastDayOfLastFourMonths.toISOString())
-          );
-          const querySnapshot = await getDocs(q);
-
-          let total = 0;
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            total += parseFloat(data.Amount);
-          });
-          setData(list);
-          setFieldSum(total);
-        }
-
-        //Calculate for five month ago earnings
-        else if (Selected === getPreviousMonth(5)) {
-          // Calculate today
-          const today = new Date();
-
-          // Calculate the first day of last month
-          const firstDayOfLastFiveMonths = new Date(
-            today.getFullYear(),
-            today.getMonth() - 5,
-            1
-          );
-
-          // Calculate the last day of last month
-          const lastDayOfLastFiveMonths = new Date(
-            today.getFullYear(),
-            today.getMonth() - 4,
-            0,
-            23,
-            59,
-            59,
-            999
-          );
-
-          const q = query(
-            collection(db, "Earnings"),
-            where("Company", "==", docs.data().company),
-            where("DateCreated", ">=", firstDayOfLastFiveMonths.toISOString()),
-            where("DateCreated", "<=", lastDayOfLastFiveMonths.toISOString())
-          );
-          const querySnapshot = await getDocs(q);
-
-          let total = 0;
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            total += parseFloat(data.Amount);
-          });
-          setData(list);
-          setFieldSum(total);
-        }
-
-        //Calculate for six month ago earnings
-        else if (Selected === getPreviousMonth(6)) {
-          // Calculate today
-          const today = new Date();
-
-          // Calculate the first day of last month
-          const firstDayOfLastSixMonths = new Date(
-            today.getFullYear(),
-            today.getMonth() - 6,
-            1
-          );
-
-          // Calculate the last day of last month
-          const lastDayOfLastSixMonths = new Date(
-            today.getFullYear(),
-            today.getMonth() - 5,
-            0,
-            23,
-            59,
-            59,
-            999
-          );
-
-          const q = query(
-            collection(db, "Earnings"),
-            where("Company", "==", docs.data().company),
-            where("DateCreated", ">=", firstDayOfLastSixMonths.toISOString()),
-            where("DateCreated", "<=", lastDayOfLastSixMonths.toISOString())
-          );
-          const querySnapshot = await getDocs(q);
-
-          let total = 0;
-          querySnapshot.forEach((doc) => {
-            const data = doc.data();
-            total += parseFloat(data.Amount);
-          });
-          setData(list);
-          setFieldSum(total);
-        }
-
-        // Calculate for the current month
-        else if (Selected === "total") {
-          const sumEarnings = async () => {
-            const querySnapshot = await getDocs(
-              query(
-                collection(db, "Earnings"),
-                where("Company", "==", docs.data().company)
-              )
-            );
-
-            let total = 0;
-            querySnapshot.forEach((doc) => {
-              const data = doc.data();
-              total += parseFloat(data.Amount);
-            });
-
-            setFieldSum(total);
-          };
-          sumEarnings();
         }
       }
     };
     FetchData();
-  }, [Selected, currentUser, data]);
+  }, [Selected, currentUser]);
 
   const getPreviousMonth = (monthsAgo = 1) => {
     const today = new Date();
@@ -511,12 +335,12 @@ const Featured = () => {
           <option value="total">Total</option>
           <option value="1">Yesterday</option>
           <option value="7">Last Week</option>
-          <option value={getPreviousMonth()}>{getPreviousMonth()}</option>
-          <option value={getPreviousMonth(2)}>{getPreviousMonth(2)}</option>
-          <option value={getPreviousMonth(3)}>{getPreviousMonth(3)}</option>
-          <option value={getPreviousMonth(4)}>{getPreviousMonth(4)}</option>
-          <option value={getPreviousMonth(5)}>{getPreviousMonth(5)}</option>
-          <option value={getPreviousMonth(6)}>{getPreviousMonth(6)}</option>
+          <option value="30">{getPreviousMonth()}</option>
+          <option value="60">{getPreviousMonth(2)}</option>
+          <option value="90">{getPreviousMonth(3)}</option>
+          <option value="120">{getPreviousMonth(4)}</option>
+          <option value="150">{getPreviousMonth(5)}</option>
+          <option value="180">{getPreviousMonth(6)}</option>
         </select>
       </div>
       <div className="bottom">

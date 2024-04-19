@@ -47,7 +47,7 @@ const Featured = () => {
               total += parseFloat(data.Amount);
             });
 
-            setFieldSum(total);
+            setFieldSum((total * 0.85).toFixed(0));
           };
           sumEarnings();
         } else if (Selected === "1") {
@@ -89,7 +89,7 @@ const Featured = () => {
             total += parseFloat(data.Amount);
           });
           setData(list);
-          setFieldSum(total);
+          setFieldSum((total * 0.85).toFixed(0));
         } else {
           const today = new Date();
 
@@ -174,7 +174,7 @@ const Featured = () => {
           });
 
           setData(list);
-          setFieldSum(total);
+          setFieldSum((total * 0.85).toFixed(0));
         }
       }
     };
@@ -288,7 +288,7 @@ const Featured = () => {
           total += parseFloat(data.Amount);
         });
 
-        setOData(total);
+        setOData((total * 0.85).toFixed(0));
       };
 
       //Two weeks ago
@@ -318,7 +318,7 @@ const Featured = () => {
           total += parseFloat(data.Amount);
         });
 
-        setLWData(total);
+        setLWData((total * 0.85).toFixed(0));
       };
 
       await oneWeekQuery();

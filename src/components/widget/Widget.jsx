@@ -89,7 +89,7 @@ const Widget = ({ type }) => {
           const data = doc.data();
           total += parseFloat(data.Amount);
         });
-        setPreviousMonthTotalPrice(total);
+        setPreviousMonthTotalPrice((total * 0.85).toFixed(0));
       }
     };
     sumPrice();
@@ -125,7 +125,7 @@ const Widget = ({ type }) => {
           const data = doc.data();
           total += parseFloat(data.Amount);
         });
-        setTotalThisMonth(total);
+        setTotalThisMonth((total * 0.85).toFixed(0));
       }
     };
     sumPrice();

@@ -18,6 +18,54 @@ const EarningProfits = () => {
   const [fieldSum, setFieldSum] = useState(0);
   const [profitSum, setProfitSum] = useState(0);
   const { currentUser } = useContext(AuthContext);
+  const [monthlyData, setMonthlyData] = useState([]);
+
+
+  useEffect(() => {
+    getData();
+  });
+
+  const getData = async () => {
+    const today = new Date();
+    const monthData = [];
+
+    if (currentUser) {
+      const userRef = doc(db, "Companies", currentUser.uid);
+      const docs = await getDoc(userRef);
+
+      for (let i = 0; i < 7; i++) {
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth() - i, 1);
+        const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() - i + 1, 0, 23, 59, 59, 999);
+
+        const earningsQuery = query(
+          collection(db, "Earnings"),
+          where("Company", "==", docs.data().company),
+          where("DateCreated", ">=", firstDayOfMonth.toISOString()),
+          where("DateCreated", "<=", lastDayOfMonth.toISOString())
+        );
+
+        try {
+          const querySnapshot = await getDocs(earningsQuery);
+          let total = 0;
+
+          querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            total += parseFloat(data.Amount);
+          });
+
+          monthData.push({
+            name: getPreviousMonth(i),
+            Total: total,
+            EightyFivePercent: total * 0.85
+          });
+        } catch (error) {
+          console.error("Error fetching earnings data:", error);
+          // Handle error
+        }
+      }
+    }
+    setMonthlyData(monthData);
+  };
 
   useEffect(() => {
 
@@ -341,32 +389,6 @@ const EarningProfits = () => {
           setFieldSum(total);
           setProfitSum(roundPercentage);
         }
-
-        // Calculate for all the earnings
-        else if (Selected === "Total") {
-          const sumEarnings = async () => {
-            const querySnapshot = await getDocs(
-              query(
-                collection(db, "Earnings"),
-                where("Company", "==", docs.data().company)
-              )
-            );
-
-            let total = 0;
-            querySnapshot.forEach((doc) => {
-              const data = doc.data();
-              total += parseFloat(data.Amount);
-            });
-
-            // Calculating 85% of the total earnings
-            const eightyFivePercent = total * 0.85;
-            const roundPercentage = eightyFivePercent.toFixed(0);
-
-            setFieldSum(total);
-            setProfitSum(roundPercentage);
-          };
-          sumEarnings();
-        }
       }
     };
     FetchData();
@@ -378,19 +400,16 @@ const EarningProfits = () => {
     return new Intl.DateTimeFormat("en-US", { month: "long" }).format(today);
   };
 
+  function formatCurrency(amount) {
+    return new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency: "NGN",
+    }).format(amount).replace(".00", "");
+  }
 
-  const formattedAmount = new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-  })
-    .format(fieldSum)
-    .replace(".00", "");
+  const formattedAmount = formatCurrency(fieldSum);
 
-  const formattedProfit = new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-  }).format(profitSum)
-    .replace(".00", "");
+  const formattedProfit = formatCurrency(profitSum);
 
   return (
     <div className="featured">
@@ -413,26 +432,48 @@ const EarningProfits = () => {
           <option value={getPreviousMonth(6)}>{getPreviousMonth(6)}</option>
         </select>
       </div>
-      <div className="bottom">
-        <p className="title">{Selected} Earnings and Profits</p>
-        <div className="bottoms">
-          <div className="place__holder">
-            <div className="featuredChart total__holder">
-              <p className="amount amounts">{formattedAmount}</p>
+
+      {Selected === "Total" ? (
+        <div className="bottom">
+          <table className="user-table">
+            <thead>
+              <tr>
+                <th>Months</th>
+                <th>Total Earnings</th>
+                <th>Profits</th>
+              </tr>
+            </thead>
+            <tbody>
+              {monthlyData.map((entry, index) => (
+                <tr key={index} className="user-entry">
+                  <td>{entry.name}</td>
+                  <td>{formatCurrency(entry.Total)}</td>
+                  <td>{formatCurrency(entry.EightyFivePercent.toFixed(0))}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>) : (
+        <div className="bottom">
+          <p className="title">{Selected} Earnings and Profits</p>
+          <div className="bottoms">
+            <div className="place__holder">
+              <div className="featuredChart total__holder">
+                <p className="amount amounts">{formattedAmount}</p>
+              </div>
+
+              <p className="title">Monthly Earnings</p>
             </div>
 
-            <p className="title">Monthly Earnings</p>
-          </div>
+            <div className="place__holder">
+              <div className="featuredChart total__holder">
+                <p className="amount amounts">{formattedProfit}</p>
+              </div>
 
-          <div className="place__holder">
-            <div className="featuredChart total__holder">
-              <p className="amount amounts">{formattedProfit}</p>
+              <p className="title">Monthly Profits</p>
             </div>
-
-            <p className="title">Monthly Profits</p>
           </div>
-        </div>
-      </div>
+        </div>)}
     </div>
   );
 };

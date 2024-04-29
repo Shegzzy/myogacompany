@@ -37,20 +37,20 @@ function App() {
     return currentUser ? children : <Navigate to="/login" />;
   };
 
-  const AppContainer = styled.div`
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-`;
+//  const AppContainer = styled.div`
+//   position: absolute;
+//   width: 100%;
+//   height: 100%;
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   justify-content: center;
+// ` ;
 
 
   return (
     <div className={darkMode ? "app dark" : "app"}>
-      <AppContainer>
+      {/* <AppContainer> */}
         <BrowserRouter>
         <ToastContainer position="top-right" />
         <Routes>
@@ -166,7 +166,7 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
-      </AppContainer>
+      {/* </AppContainer> */}
     </div>
   );
 }

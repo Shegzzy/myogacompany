@@ -162,38 +162,15 @@ const Login = () => {
       }
     } else {
       try {
-        // Query the Companies collection to check if the email and password are valid
-        const companiesCollection = collection(db, "Companies");
-        const q = query(
-          companiesCollection,
-          where("email", "==", email),
-          where("password", "==", password)
+        // Sign in with the email and password
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
         );
-        const querySnapshot = await getDocs(q);
-
-        // If the query returns a document, the email and password are valid
-        if (!querySnapshot.empty) {
-          // Sign in with the email and password
-          const userCredential = await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
-          const user = userCredential.user;
-
-          // Update the state to indicate that the user is logged in
-          dispatch({ type: "LOGIN", payload: user });
-
-          if (isMounted.current) {
-            console.log('Navigating to /');
-            navigate("/");
-          }
-
-        } else {
-          seterror(true);
-          const errormsg = Errormsg;
-          seterrormsg(errormsg);
-        }
+        const user = userCredential.user;
+        dispatch({ type: "LOGIN", payload: user });
+        navigate("/");
       } catch (error) {
         toast.error(error);
         const errormsg = error.message;

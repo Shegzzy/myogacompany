@@ -17,6 +17,8 @@ import {
 import { AuthContext } from "../../context/authContext";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { toast } from "react-toastify";
+import { Button } from "react-bootstrap";
+import { BsEye, BsEyeSlash } from "react-icons/bs";
 // import { gridColumnVisibilityModelSelector } from "@mui/x-data-grid";
 
 
@@ -50,6 +52,11 @@ const Login = () => {
   const navigate = useNavigate();
 
   const { dispatch } = useContext(AuthContext);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
 
   // company name field validator function
   const handleCompanyInputChange = (e) => {
@@ -217,10 +224,12 @@ const Login = () => {
               <input
                 onChange={(e) => setpassword(e.target.value)}
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="Password"
                 required
               />
+
+              {showPassword ? <BsEyeSlash color="white" size={20} onClick={togglePasswordVisibility} /> : <BsEye color="white" size={20} onClick={togglePasswordVisibility} />}
             </div>
 
             {newUser && (

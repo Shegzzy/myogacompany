@@ -142,51 +142,6 @@ const TransactionList = () => {
 
     }, [currentUser, selectedFilter]);
 
-    const companyEarningColumns = [
-        // { field: 'id', headerName: 'ID', width: 100 },
-
-        {
-            field: 'Amount', headerName: 'Amount', width: 150, renderCell: (params) => {
-                return (
-                    <div className='cellStatus'>
-                        {new Intl.NumberFormat("en-NG", {
-                            style: "currency",
-                            currency: "NGN",
-                        })
-                            .format(params.row.Amount)
-                            .replace(".00", "")}
-                    </div>
-                )
-            }
-        },
-
-        {
-            field: 'From',
-            headerName: 'From',
-            width: 150,
-        },
-
-        {
-            field: 'To',
-            headerName: 'To',
-            width: 150,
-        },
-
-        {
-            field: 'Date Paid',
-            headerName: 'Date Paid',
-            width: 200,
-            renderCell: (params) => {
-                return (
-                    <div>
-                        {new Date(params.row["Date Paid"].seconds * 1000).toLocaleString()}
-                    </div>
-                )
-            }
-        },
-
-    ];
-
     return (
         <div className="new">
             <Sidebar />

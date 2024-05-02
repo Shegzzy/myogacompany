@@ -214,6 +214,19 @@ button {
     /* border: 1px solid var(--rs-border-primary); */
 }
 
+.login-page button {
+    background-color: #810555;
+    border: none;
+    border-radius: 20px;
+    margin-top: 20px;
+    padding: 10px;
+    color: #fff;
+    cursor: pointer;
+    position: relative;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
 @keyframes spin {
     0% {
         transform: rotate(0deg);

@@ -1,3 +1,18 @@
 .location {
     padding-top: 20px;
 }
+
+.primaryBtn {
+    background-color: #00002e;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    height: 40px;
+    // width: 80px;
+    padding: 10px;
+
+    &:hover {
+        color: #e290fa;
+        background-color: #103342;
+    }
+}

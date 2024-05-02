@@ -24,6 +24,7 @@ import { toast } from "react-toastify";
 // import { Button } from "react-bootstrap";
 import { BsEye, BsEyeSlash } from "react-icons/bs";
 import { DatePicker } from "rsuite";
+import ForgotPasswordModal from "../../components/modal/forgotPasswordModal";
 // import { gridColumnVisibilityModelSelector } from "@mui/x-data-grid";
 
 
@@ -476,6 +477,7 @@ const Login = () => {
               </span>
             )}
           </form>
+          <ForgotPasswordModal />
         </div>
       </div>
     </>

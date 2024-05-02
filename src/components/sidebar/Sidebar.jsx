@@ -20,6 +20,7 @@ import lightLogo from "../assets/images/myogaIcon2.png";
 import { auth } from "../../firebase";
 import darkLogo from "../assets/images/myogaIcon1.png";
 import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlined";
+import { FaMoneyBillTransfer } from "react-icons/fa6";
 
 
 const Sidebar = () => {
@@ -82,6 +83,13 @@ const Sidebar = () => {
             <li>
               <MonetizationOnOutlinedIcon className="icon" />
               <span>Earnings</span>
+            </li>
+          </Link>
+
+          <Link to="/transactions" style={{ textDecoration: "none" }}>
+            <li>
+              <FaMoneyBillTransfer className="icon" />
+              <span>Transactions</span>
             </li>
           </Link>
 

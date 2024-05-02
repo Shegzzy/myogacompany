@@ -24,6 +24,7 @@ import { companyInputs } from "./companyEditFormSource";
 import styled from "styled-components";
 import "./styles.css";
 import CompanyEarnings from "./pages/earnings/earnings";
+import TransactionList from "./pages/transactions/transactions";
 
 
 
@@ -104,6 +105,15 @@ function App() {
                 </RequiredAuth>
               }
             />
+
+            <Route path="transactions">
+              <Route index element={
+                <RequiredAuth>
+                  <TransactionList />
+                </RequiredAuth>
+              }
+              />
+            </Route>
             
             {/* Bokking status page */}
             <Route

@@ -192,7 +192,7 @@ const AdminProfile = () => {
                   Edit Profile
                 </button>
               </Link>
-
+              <br></br>
               <ChangePasswordModal />
             </div>
           </div>

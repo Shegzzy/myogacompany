@@ -128,7 +128,7 @@ function ChangePasswordModal() {
         <>
             <Snakbar ref={snackbarRef} message={msg} type={sType} />
 
-            <button onClick={handleShowChangePassword} >Change Password</button>
+            <button className="button" onClick={handleShowChangePassword} >Change Password</button>
 
             {/* change password modal */}
             <Modal

@@ -1,14 +1,15 @@
 export const companyInputs = [
-  {
-    id: "company",
-    label: "Company's Name",
-    type: "text",
-  },
-  {
-    id: "email",
-    label: "Email",
-    type: "email",
-  },
+  // {
+  //   id: "company",
+  //   label: "Company's Name",
+  //   type: "text",
+  // },
+  
+  // {
+  //   id: "email",
+  //   label: "Email",
+  //   type: "email",
+  // },
 
   {
     id: "date",

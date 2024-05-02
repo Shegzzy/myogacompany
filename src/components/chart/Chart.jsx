@@ -61,7 +61,7 @@ const Chart = ({ aspect, title }) => {
           monthData.push({
             name: getPreviousMonth(i),
             Total: total,
-            EightyFivePercent: total * 0.85,
+            EightyFivePercent: ((total * 0.85).toFixed(0)),
           });
         } catch (error) {
           console.error("Error fetching earnings data:", error);

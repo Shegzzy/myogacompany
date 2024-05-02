@@ -5,12 +5,13 @@ export const userInputs = [
     type: "text",
     placeholder: "John Doe",
   },
-  {
-    id: "Email",
-    label: "Email",
-    type: "mail",
-    placeholder: "john_doe@gmail.com",
-  },
+  
+  // {
+  //   id: "Email",
+  //   label: "Email",
+  //   type: "mail",
+  //   placeholder: "john_doe@gmail.com",
+  // },
 
   {
     id: "Date of Birth",
@@ -25,11 +26,12 @@ export const userInputs = [
     type: "text",
     placeholder: "+1 234 567 89",
   },
-  {
-    id: "Password",
-    label: "Password",
-    type: "password",
-  },
+
+  // {
+  //   id: "Password",
+  //   label: "Password",
+  //   type: "password",
+  // },
 
   {
     id: "Gender",

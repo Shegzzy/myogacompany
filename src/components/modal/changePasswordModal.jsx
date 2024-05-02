@@ -16,7 +16,7 @@ import Snakbar from '../snackbar/Snakbar';
 function ChangePasswordModal() {
     const [userID, setUserID] = useState('');
     const [item, setItems] = useState([]);
-    const { dispatch } = useContext(AuthContext);
+    const { currentUser } = useContext(AuthContext);
     const navigate = useNavigate();
 
     const [showChangePassword, setShowChangePassword] = useState(false);
@@ -64,16 +64,16 @@ function ChangePasswordModal() {
 
     const handleChangePassword = () => {
         setLoading(true);
-        const user = auth.currentUser;
+        // const user = auth.currentUser;
         // console.log(user.email);
         // console.log(oldPassword)
-        if (user) {
+        if (currentUser) {
             // Reauthenticate the user with their old password
-            const credential = EmailAuthProvider.credential(user.email, oldPassword);
-            reauthenticateWithCredential(user, credential)
+            const credential = EmailAuthProvider.credential(currentUser.email, oldPassword);
+            reauthenticateWithCredential(currentUser, credential)
                 .then(() => {
                     // Update the user's password
-                    updatePassword(user, newPassword)
+                    updatePassword(currentUser, newPassword)
                         .then(() => {
                             // Password updated successfully
                             setLoading(false);
@@ -112,7 +112,7 @@ function ChangePasswordModal() {
             .then(() => {
                 // Sign-out successful.
                 localStorage.removeItem("user");
-                dispatch({ type: "LOGOUT" });
+                currentUser({ type: "LOGOUT" });
                 navigate("/login");
             })
             .catch((error) => {

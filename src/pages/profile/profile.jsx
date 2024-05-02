@@ -18,6 +18,7 @@ import {
   where,
 } from "firebase/firestore";
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
+import ChangePasswordModal from "../../components/modal/changePasswordModal";
 
 
 const AdminProfile = () => {
@@ -29,6 +30,7 @@ const AdminProfile = () => {
 
   useEffect(() => {
     const fetchUser = async () => {
+      // console.log(currentUser)
       if (currentUser) {
         const userRef = doc(db, "Companies", currentUser.uid);
         const docs = await getDoc(userRef);
@@ -190,6 +192,8 @@ const AdminProfile = () => {
                   Edit Profile
                 </button>
               </Link>
+
+              <ChangePasswordModal />
             </div>
           </div>
           <div className="profile-body">

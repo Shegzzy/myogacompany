@@ -12,6 +12,7 @@ import {
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   query,
   serverTimestamp,
@@ -171,47 +172,41 @@ const Login = () => {
       }
     } else {
       try {
-        // Query the Companies collection to check if the email and password are valid
-        const companiesCollection = collection(db, "Companies");
-        const q = query(
-          companiesCollection,
-          where("email", "==", email),
-          where("password", "==", password)
-        );
-        const querySnapshot = await getDocs(q);
+        // Sign in with the email and password
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        const uid = user.uid;
 
-        // If the query returns a document, the email and password are valid
-        if (!querySnapshot.empty) {
-          // Sign in with the email and password
-          const userCredential = await signInWithEmailAndPassword(
-            auth,
-            email,
-            password
-          );
-          const user = userCredential.user;
+        // Query the Companies collection to check if the authenticated user exists
+        // const companiesQuerySnapshot = await getDocs(
+        //   query(collection(db, "Companies"), where("uid", "==", uid))
+        // );
 
+        const companyDocRef = doc(db, "Companies", uid);
+        const companyDocSnapshot = await getDoc(companyDocRef);
+
+        // If the query returns a document, the user is valid
+        if (companyDocSnapshot.exists()) {
           // Update the state to indicate that the user is logged in
           dispatch({ type: "LOGIN", payload: user });
 
           if (isMounted.current) {
             navigate("/");
           }
-
         } else {
           seterror(true);
-          const errormsg = Errormsg;
-          seterrormsg(errormsg);
+          const errorMsg = "Invalid user";
+          seterrormsg(errorMsg);
         }
       } catch (error) {
-        console.log(error)
-        toast.error(error);
-        const errormsg = error.message;
-        console.log(errormsg);
-
-        seterrormsg(errormsg);
+        console.error(error);
+        seterror(true);
+        const errorMsg = error.message;
+        seterrormsg(errorMsg);
       } finally {
         setLoading(false);
       }
+
     }
   };
 

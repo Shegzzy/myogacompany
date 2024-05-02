@@ -21,7 +21,7 @@ function ForgotPasswordModal() {
     const handleShow = () => setShow(true);
 
     const handlesResetPassword = async () => {
-        console.log(email);
+        // console.log(email);
         // let roleEmail = props.email;
 
         try {
@@ -83,7 +83,6 @@ function ForgotPasswordModal() {
                                 placeholder="enter your email address"
                                 onChange={(e) => { setEmail(e.target.value) }}
                             />
-
                         </Form.Group>
                     </Form>
                 </Modal.Body>

@@ -10,15 +10,20 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import {
+  collection,
   doc,
+  getDocs,
+  query,
   serverTimestamp,
   setDoc,
+  where,
 } from "firebase/firestore";
 import { AuthContext } from "../../context/authContext";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { toast } from "react-toastify";
-import { Button } from "react-bootstrap";
+// import { Button } from "react-bootstrap";
 import { BsEye, BsEyeSlash } from "react-icons/bs";
+import { DatePicker } from "rsuite";
 // import { gridColumnVisibilityModelSelector } from "@mui/x-data-grid";
 
 
@@ -165,17 +170,39 @@ const Login = () => {
       }
     } else {
       try {
-        // Sign in with the email and password
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
+        // Query the Companies collection to check if the email and password are valid
+        const companiesCollection = collection(db, "Companies");
+        const q = query(
+          companiesCollection,
+          where("email", "==", email),
+          where("password", "==", password)
         );
-        const user = userCredential.user;
-        dispatch({ type: "LOGIN", payload: user });
-        navigate("/");
+        const querySnapshot = await getDocs(q);
+
+        // If the query returns a document, the email and password are valid
+        if (!querySnapshot.empty) {
+          // Sign in with the email and password
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+          const user = userCredential.user;
+
+          // Update the state to indicate that the user is logged in
+          dispatch({ type: "LOGIN", payload: user });
+
+          if (isMounted.current) {
+            navigate("/");
+          }
+
+        } else {
+          seterror(true);
+          const errormsg = Errormsg;
+          seterrormsg(errormsg);
+        }
       } catch (error) {
-        seterror(true);
+        console.log(error)
         toast.error(error);
         const errormsg = error.message;
         console.log(errormsg);
@@ -246,13 +273,19 @@ const Login = () => {
                 </div>
 
                 <div className="date">
-                  <input
+                  {/* <input
                     onChange={(e) => setdate(e.target.value)}
                     id="date"
                     type="date"
                     placeholder="Date of Establishment"
+                    color="white"
                     required
-                  />
+                  /> */}
+                  <DatePicker
+                    selected={date}
+                    onChange={(date) => setdate(date)}
+                    placeholder="Date of establishment"
+                    className="custom_datepicker" />
                 </div>
 
                 <div className="registration">

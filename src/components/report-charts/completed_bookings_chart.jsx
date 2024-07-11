@@ -19,6 +19,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import { DarkModeContext } from "../../context/darkModeContext";
 
 const CompletedBookingsChart = ({ aspect, title }) => {
   const [totalBookings, setTotalBookings] = useState([]);
@@ -30,6 +31,8 @@ const CompletedBookingsChart = ({ aspect, title }) => {
   const [lastFiveMonthData, setLastFiveMonthData] = useState([]);
   const [lastSixMonthData, setLastSixMonthData] = useState([]);
   const { currentUser } = useContext(AuthContext);
+  const { darkMode } = useContext(DarkModeContext);
+
 
   useEffect(() => {
     getData();
@@ -350,7 +353,7 @@ const CompletedBookingsChart = ({ aspect, title }) => {
             dataKey="Total"
             fill="#8884d8"
             shape={<TriangleBar />}
-            label={{ position: "top" }}
+            label={{ position: "top", fill: darkMode ? "white" : "black"}}
           ></Bar>
         </BarChart>
       </ResponsiveContainer>

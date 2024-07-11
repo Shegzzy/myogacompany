@@ -1,7 +1,5 @@
 import "./chart.scss";
 import {
-  AreaChart,
-  Area,
   XAxis,
   CartesianGrid,
   Tooltip,
@@ -21,10 +19,13 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
+import { DarkModeContext } from "../../context/darkModeContext";
 
 const Chart = ({ aspect, title }) => {
   const { currentUser } = useContext(AuthContext);
   const [monthlyData, setMonthlyData] = useState([]);
+  const { darkMode } = useContext(DarkModeContext);
+
 
 
   useEffect(() => {
@@ -106,14 +107,14 @@ const Chart = ({ aspect, title }) => {
           <XAxis dataKey="name" stroke="#8884d8" />
           <YAxis />
           <Tooltip content={<CustomTooltip />} wrapperStyle={{
-            backgroundColor: "#f5f5f5",
+            backgroundColor: darkMode ? "black" : "#f5f5f5",
             border: "1px solid #ccc",
             padding: "10px",
             fontSize: "14px",
           }} />
           <CartesianGrid stroke="#ccc" strokeDasharray="5 5" />
-          <Bar dataKey="Total" fill="#8884d8" barSize={25} label={{ position: "top", fill: "black" }} />
-          <Bar dataKey="EightyFivePercent" fill="#82ca9d" barSize={25} label={{ position: "center", fill: "black" }} />
+          <Bar dataKey="Total" fill="#8884d8" barSize={25} label={{ position: "top", fill: darkMode ? "white" : "black" }} />
+          <Bar dataKey="EightyFivePercent" fill= {darkMode ? "grey" : "#82ca9d"} barSize={25} label={{ position: "center", fill: darkMode ? "white" : "black" }} />
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -1,6 +1,7 @@
 .app.dark {
   background-color: #111;
-  color: rgb(156, 156, 156);
+  // color: rgb(156, 156, 156);
+  color: white;
 
   .chartGrid {
     stroke: rgba(228, 228, 228, 0.219);
@@ -10,12 +11,81 @@
     background-color: #111;
 
     .tableCell {
-      color: gray;
+      color: white;
     }
   }
 
+  .table th {
+    background-color: #111;
+  }
+
+  .user-table th {
+    background-color: #111;
+  }
+
+  .user-entry {
+    background-color: #111;
+  }
+
+  .user-entry:nth-child(even) {
+    background-color: grey;
+  }
+
+  .table tbody tr:hover {
+    background-color: grey;
+    cursor: pointer;
+  }
+
+
+  .chart {
+    flex: 4;
+    -webkit-box-shadow: 2px 4px 10px 1px rgba(0, 0, 0, 0.47);
+    box-shadow: 2px 4px 10px 1px rgba(201, 201, 201, 0.47);
+    padding: 10px;
+    color: white;
+    border-radius: 10px;
+  
+    .title {
+      margin-bottom: 20px;
+    }
+  
+    .chartGrid {
+      stroke: rgb(228, 225, 225);
+    }
+  }
+
+  .report__chart{
+    color: white;
+  }
+
+  .new .newContainer .b-table .cellWithStatus.completed {
+    color: white;
+    background-color: rgba(0, 128, 0, 0.151);
+  }
+
+  .new .newContainer .b-table .cellWithStatus.active {
+    color: rgb(90, 94, 187);
+    background-color: rgba(202, 221, 202, 0.151);
+  }
+
+  .new .newContainer .b-table .cellWithStatus .assignButton {
+    color: wheat;
+  }
+
+  .assignButton {
+    color: wheat;
+  }
+
+  .reportTitle {
+    color: white;
+  }
+
+  .title {
+    color: white;
+}
+
   .navbar {
-    color: #999;
+    color: white;
     border-color: #333;
 
     .search {
@@ -29,7 +99,7 @@
 
     .top {
       .logo {
-        color: #999;
+        color: white;
       }
     }
     hr {
@@ -51,7 +121,7 @@
 
   .datatable {
     .datagrid {
-      color: gray;
+      color: white;
       border: none;
 
       .viewButton{
@@ -61,7 +131,7 @@
         color: white;
       }
       .cellWithStatus {
-        color: gray;
+        color: white;
         border: none;
       }
     }

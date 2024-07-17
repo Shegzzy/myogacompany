@@ -168,7 +168,7 @@ const Single = () => {
         earningsDataSnapshot.forEach((doc) => {
           const earnings = doc.data();
           totalAmount += parseFloat(earnings.Amount);
-          earningsMap.set(earnings.BookingID, earnings.DateCreated);
+          earningsMap.set(earnings.BookingID, format(new Date(earnings.DateCreated), "dd/MM/yyyy"));
         });
 
         // Process bookings data and map earnings date
@@ -258,8 +258,8 @@ const Single = () => {
           const bookingsQuery = query(
             collection(db, "Bookings"),
             where("Driver ID", "==", id),
-            where("Date Created", ">=", startOfPeriod.toISOString()),
-            where("Date Created", "<=", endOfPeriod.toISOString())
+            // where("Date Created", ">=", startOfPeriod.toISOString()),
+            // where("Date Created", "<=", endOfPeriod.toISOString())
           );
 
           // const completedBookingsQuery = query(
@@ -278,10 +278,12 @@ const Single = () => {
   
           // Process earnings data into a map for quick lookup
           const earningsMap = new Map();
+          const filteredBookingIDs = new Set();
           earningsDataSnapshot.forEach((doc) => {
             const earnings = doc.data();
             totalAmount += parseFloat(earnings.Amount);
-            earningsMap.set(earnings.BookingID, earnings.DateCreated);
+            earningsMap.set(earnings.BookingID, format(new Date(earnings.DateCreated), "dd/MM/yyyy"));
+            filteredBookingIDs.add(earnings.BookingID);
           });
   
           // Process bookings data and map earnings date
@@ -298,12 +300,17 @@ const Single = () => {
               completedDate: earningsDate
             });
           });
+
+
+          const filteredCombinedData = combinedData.filter((booking) =>
+            filteredBookingIDs.has(booking['Booking Number'])
+          );
   
             if (isMounted) {
-              combinedData.sort(
+              filteredCombinedData.sort(
                 (a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"])
               );
-            setData(combinedData);
+            setData(filteredCombinedData);
             setTotalTrips(combinedData.length);
             setTotalEarnings(totalAmount);
             setCompletedTrips(earningsDataSnapshot.docs.length);

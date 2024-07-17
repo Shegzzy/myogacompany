@@ -129,7 +129,7 @@ const Single = () => {
     };
   }, [id]);
 
-    // Function for weekly and monthly query
+    // Function for weekly and monthly earnings query
   useEffect(() => {
     let isMounted = true;
     let startOfPeriod, endOfPeriod;
@@ -279,6 +279,7 @@ const Single = () => {
           // Process earnings data into a map for quick lookup
           const earningsMap = new Map();
           const filteredBookingIDs = new Set();
+          
           earningsDataSnapshot.forEach((doc) => {
             const earnings = doc.data();
             totalAmount += parseFloat(earnings.Amount);

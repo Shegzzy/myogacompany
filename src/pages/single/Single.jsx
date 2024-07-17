@@ -872,6 +872,15 @@ const Single = () => {
           <div className="table-navs">
             <h1 className="title">Last Transactions</h1>
             <h1 className="title">Active Bookings</h1>
+
+            <h1 className={`title ${activeTab === "cancelled" ? "active" : ""}`} onClick={switchToCancelled}>
+                        Cancelled Bookings
+                    </h1>
+
+                    {/* Refunds tab */}
+                    <h1 className={`title ${activeTab === "refunded" ? "active" : ""}`} onClick={switchToRefunds}>
+                        Refunds
+                    </h1>
             <DateRangePicker
                         value={dateRange}
                         onChange={handleDateRangeChange}

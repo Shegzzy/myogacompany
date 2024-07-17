@@ -147,8 +147,13 @@
 .table-navs {
   display: flex;
   flex-direction: row;
-  gap: 20px;
+  gap: 25px;
   // justify-content: space-between;
+}
+
+.title.active {
+  color: #e290fa;
+  font-weight: bold;
 }
 
 @keyframes lds-dual-ring {

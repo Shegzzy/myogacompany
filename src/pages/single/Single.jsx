@@ -33,6 +33,7 @@ import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 import ImageViewModal from "../../components/modal/image-view-modal";
 import { format } from "date-fns";
 import { DarkModeContext } from "../../context/darkModeContext";
+import { DateRangePicker } from "rsuite";
 // import { toast } from "react-toastify";
 // import { DisabledByDefault } from "@mui/icons-material";
 
@@ -51,6 +52,9 @@ const Single = () => {
   const [mData, setMData] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("all");
   const [riderRatings, setRiderRatings] = useState({ averageRating: 0 });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dateRange, setDateRange] = useState([]);
+
 
   //Fetching rider's data
   useEffect(() => {
@@ -327,39 +331,77 @@ const Single = () => {
 
   }, [selectedFilter]);
 
-  // Fetching all rider's deliveries
-  // useEffect(() => {
-  //   let isMounted = true;
+  // function for date range selection queries
+  useEffect(() => {
+    const fetchBookingsByDateRange = async () => {
+      const [startDate, endDate] = dateRange;
 
-  //   const bookingsQuery = query(
-  //     collection(db, "Bookings"),
-  //     where("Driver ID", "==", id)
-  //   );
-  //   const unsubscribe = onSnapshot(bookingsQuery, (snapshot) => {
-  //     const bookingsData = [];
-  //     snapshot.forEach((doc) => {
-  //       const booking = doc.data();
-  //       const bookingId = doc.id;
-  //       bookingsData.push({ ...booking, id: bookingId });
-  //     });
-  //     if (isMounted) {
-  //       bookingsData.sort(
-  //         (a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"])
-  //       );
-  //       setData(bookingsData);
-  //     }
-  //   });
+      const startDateFirestore = new Date(startDate).toISOString();
+      const endDateFirestore = new Date(endDate).toISOString();
+      try{
+        const earningsQuery = query(
+          collection(db, "Earnings"),
+          where("Driver", "==", id)
+        );
 
-  //   return () => {
-  //     isMounted = false;
-  //     unsubscribe();
-  //   };
-  // }, [id]);
+        const bookingsQuery = query(
+          collection(db, "Bookings"),
+          where("Driver ID", "==", id),
+          where("Date Created", ">=", startDateFirestore),
+          where("Date Created", "<=", endDateFirestore)
+        );
 
+        // Fetch Firestore data concurrently
+        const [earningsDataSnapshot, bookingsDataSnapshot] = await Promise.all([
+          getDocs(earningsQuery),
+          getDocs(bookingsQuery)
+        ]);
+
+        // Process earnings data into a map for quick lookup
+        const earningsMap = new Map();
+        earningsDataSnapshot.forEach((doc) => {
+          const earnings = doc.data();
+          earningsMap.set(earnings.BookingID, format(new Date(earnings.DateCreated), "dd/MM/yyyy"));
+        });
+
+        // Process bookings data and map earnings date
+        const combinedData = [];
+        bookingsDataSnapshot.forEach((doc) => {
+          const booking = doc.data();
+          const bookingId = doc.id;
+          const bookingNumber = booking['Booking Number'];
+
+          const earningsDate = earningsMap.get(bookingNumber) || "-";
+          combinedData.push({
+            ...booking,
+            id: bookingId,
+            completedDate: earningsDate
+          });
+        });
+
+        combinedData.sort(
+          (a, b) => new Date(b.completedDate) - new Date(a.completedDate)
+        );
+
+        setData(combinedData);
+        setTotalTrips(bookingsDataSnapshot.docs.length);
+
+      } catch (e){
+        console.log(e);
+      }
+    }
+
+    fetchBookingsByDateRange();
+
+  }, [dateRange, id]);
+
+  // for last week and two weeks ago earnings
   useEffect(() => {
     getData();
   });
 
+
+  // for last week and two weeks ago earnings
   const getData = async () => {
     let startOfPeriod, endOfPeriod;
     let startOfTwoWeeksPeriod, endOfTwoWeeksPeriod;
@@ -506,7 +548,6 @@ const Single = () => {
     return stars;
   };
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleImageClick = () => {
     setIsModalOpen(true);
@@ -528,6 +569,59 @@ const Single = () => {
     setPage(0);
   };
 
+  const handleDateRangeChange = (newDateRange) => {
+    setDateRange(newDateRange);
+  };
+
+  const handleDateRangeClean = async() => {
+    try {
+        const earningsQuery = query(
+          collection(db, "Earnings"),
+          where("Driver", "==", id)
+        );
+
+        const bookingsQuery = query(
+          collection(db, "Bookings"),
+          where("Driver ID", "==", id)
+        );
+
+      // Fetch Firestore data concurrently
+      const [earningsDataSnapshot, bookingsDataSnapshot] = await Promise.all([
+        getDocs(earningsQuery),
+        getDocs(bookingsQuery)
+      ]);
+
+      // Process earnings data into a map for quick lookup
+      const earningsMap = new Map();
+      earningsDataSnapshot.forEach((doc) => {
+        const earnings = doc.data();
+        earningsMap.set(earnings.BookingID, format(new Date(earnings.DateCreated), "dd/MM/yyyy"));
+      });
+
+      // Process bookings data and map earnings date
+      const combinedData = [];
+      bookingsDataSnapshot.forEach((doc) => {
+        const booking = doc.data();
+        const bookingId = doc.id;
+        const bookingNumber = booking['Booking Number'];
+
+        const earningsDate = earningsMap.get(bookingNumber) || "-";
+        combinedData.push({
+          ...booking,
+          id: bookingId,
+          completedDate: earningsDate
+        });
+      });
+
+        combinedData.sort(
+          (a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"])
+        );
+        setData(combinedData);
+        setTotalTrips(bookingsDataSnapshot.docs.length);
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   return (
     <div className="single">
@@ -775,7 +869,17 @@ const Single = () => {
           </div>
         </div>
         <div className="bottom">
-          <h1 className="title">Last Transactions</h1>
+          <div className="table-navs">
+            <h1 className="title">Last Transactions</h1>
+            <h1 className="title">Active Bookings</h1>
+            <DateRangePicker
+                        value={dateRange}
+                        onChange={handleDateRangeChange}
+                        placeholder="select date range"
+                        onClean={handleDateRangeClean}
+                    />
+          </div>
+          
           <TableContainer component={Paper} className="table">
             <Table sx={{ minWidth: 650 }} aria-label="simple table">
               <TableHead>

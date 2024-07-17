@@ -144,6 +144,13 @@
   animation: lds-dual-ring 1.2s linear infinite;
 }
 
+.table-navs {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  // justify-content: space-between;
+}
+
 @keyframes lds-dual-ring {
   0% {
     transform: rotate(0deg);

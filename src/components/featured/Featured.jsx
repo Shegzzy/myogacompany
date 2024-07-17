@@ -94,7 +94,13 @@ const Featured = () => {
           const today = new Date();
 
           // Calculate the start and end dates based on the selected filter
-          if (Selected === "7") {
+          if (Selected === "0") {
+            // Today
+            startOfPeriod = new Date(today);
+            startOfPeriod.setHours(0, 0, 0, 0); // Start of today
+            endOfPeriod = new Date(today);
+            endOfPeriod.setHours(23, 59, 59, 999); // End of today
+          } else if (Selected === "7") {
             // Last Week
             startOfPeriod = new Date(today);
             startOfPeriod.setDate(today.getDate() - today.getDay() - 7);
@@ -360,6 +366,7 @@ const Featured = () => {
           }}
         >
           <option value="total">Total</option>
+          <option value="0">Today's Earning</option>
           <option value="1">Yesterday</option>
           <option value="7">Last Week</option>
           <option value="30">{getPreviousMonth()}</option>

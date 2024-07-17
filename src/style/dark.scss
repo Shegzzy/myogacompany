@@ -2,6 +2,7 @@
   background-color: #111;
   // color: rgb(156, 156, 156);
   color: white;
+  width: fit-content;
 
   .chartGrid {
     stroke: rgba(228, 228, 228, 0.219);
@@ -13,6 +14,10 @@
     .tableCell {
       color: white;
     }
+  }
+
+  .css-78c6dr-MuiToolbar-root-MuiTablePagination-toolbar {
+    color: white;
   }
 
   .table th {
@@ -140,5 +145,13 @@
   input{
       background-color: transparent;
       color: gray;
+  }
+
+  .css-pqjvzy-MuiSvgIcon-root-MuiSelect-icon {
+    color: white;
+  }
+
+  .single .singleContainer .top .left .item .details .itemTitle {
+    color: white;
   }
 }

@@ -54,6 +54,8 @@ const Single = () => {
   const [riderRatings, setRiderRatings] = useState({ averageRating: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dateRange, setDateRange] = useState([]);
+  const [activeTab, setActiveTab] = useState("all");
+
 
 
   //Fetching rider's data
@@ -560,19 +562,23 @@ const Single = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
 
+  // page number
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
 
+  // table paginators
   const handleChangeRowsPerPage = (event) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
   };
 
+  // function for setting date range
   const handleDateRangeChange = (newDateRange) => {
     setDateRange(newDateRange);
   };
 
+  // for clearing date range
   const handleDateRangeClean = async() => {
     try {
         const earningsQuery = query(
@@ -621,6 +627,31 @@ const Single = () => {
     } catch (e) {
       console.log(e);
     }
+  }
+
+  const switchToAllBookings = () => {
+    setTimeout(() => {
+        setActiveTab("all")
+    })
+    
+    handleDateRangeClean();
+  }
+
+const switchToAllActiveBookings = () => {
+    setTimeout(() => {
+        setActiveTab("active")
+    })
+
+    const filteredData = data.filter((bookingNumber) => {
+      const name = bookingNumber['Status']?.toLowerCase() ?? "";
+      return name.includes("active" ?? "");
+    });
+
+    if (filteredData.length === 0) {
+      // toast.error('No search results found.');
+    }
+
+    setData(filteredData);
   }
 
   return (
@@ -870,17 +901,15 @@ const Single = () => {
         </div>
         <div className="bottom">
           <div className="table-navs">
-            <h1 className="title">Last Transactions</h1>
-            <h1 className="title">Active Bookings</h1>
+            
+            <h1 className={`title ${activeTab === "all" ? "active" : ""}`} onClick={switchToAllBookings}>
+                All Bookings
+            </h1>
 
-            <h1 className={`title ${activeTab === "cancelled" ? "active" : ""}`} onClick={switchToCancelled}>
-                        Cancelled Bookings
-                    </h1>
+            <h1 className={`title ${activeTab === "active" ? "active" : ""}`} onClick={switchToAllActiveBookings}>
+                Active Bookings
+            </h1>
 
-                    {/* Refunds tab */}
-                    <h1 className={`title ${activeTab === "refunded" ? "active" : ""}`} onClick={switchToRefunds}>
-                        Refunds
-                    </h1>
             <DateRangePicker
                         value={dateRange}
                         onChange={handleDateRangeChange}

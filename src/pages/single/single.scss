@@ -148,11 +148,12 @@
   display: flex;
   flex-direction: row;
   gap: 25px;
+  cursor: pointer;
   // justify-content: space-between;
 }
 
 .title.active {
-  color: #e290fa;
+  color: yellowgreen !important;
   font-weight: bold;
 }
 

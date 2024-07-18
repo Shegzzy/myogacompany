@@ -803,6 +803,7 @@ const switchToAllActiveBookings = () => {
                 </select>
               </div>
               <div className="bottom">
+                <p>Last Month and Current Month's Percentage Difference</p>
                 <div className="featuredChart">
                   <CircularProgressbar
                     value={diff}
@@ -811,7 +812,7 @@ const switchToAllActiveBookings = () => {
                   />
                 </div>
                 <br />
-                <p className="title">Total</p>
+                <p className="title">Total Earnings</p>
                 <p className="amount">{formattedTotalEarning}</p>
 
                 <div className="summary">

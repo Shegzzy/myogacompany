@@ -55,11 +55,22 @@ const Bookings = ({ inputs, title }) => {
         setLoading(true);
 
         if (docs.exists && isMounted) {
+          // doing this to get the completed date of bookings
+          const earningsQuery = query(
+            collection(db, "Earnings"),
+            where("Company", "==", docs.data().company)
+          );
+
           const driversQuery = query(
             collection(db, "Drivers"),
             where("Company", "==", docs.data().company)
           );
-          const driversSnapshot = await getDocs(driversQuery);
+
+          // Fetch Firestore data concurrently
+        const [earningsDataSnapshot, driversSnapshot] = await Promise.all([
+          getDocs(earningsQuery),
+          getDocs(driversQuery)
+        ]);
 
           const driverMap = new Map();
           driversSnapshot.forEach((driverDoc) => {
@@ -73,11 +84,23 @@ const Bookings = ({ inputs, title }) => {
 
           const bookingsSnapshot = await getDocs(bookingsQuery);
 
+          // Process earnings data into a map for quick lookup
+          const earningsMap = new Map();
+          earningsDataSnapshot.forEach((doc) => {
+            const earnings = doc.data();
+            earningsMap.set(earnings.BookingID, format(new Date(earnings.DateCreated), "dd/MM/yyyy"));
+          });
+
+          
           const bookings = bookingsSnapshot.docs.map((bookingDoc) => {
             const bookingData = bookingDoc.data();
+            const bookingNumber = bookingData['Booking Number'];
+
+            const earningsDate = earningsMap.get(bookingNumber) || "-";
             return {
               ...bookingData,
               driverName: driverMap.get(bookingData["Driver ID"]),
+              completedDate: earningsDate
             };
           });
 
@@ -201,15 +224,24 @@ const Bookings = ({ inputs, title }) => {
             // endOfWeek.setDate(startOfWeek.getDate() + 6);
             // // endOfWeek.setHours(23, 59, 59, 999);
 
-            console.log('Start of period: ' + startOfPeriod);
-            console.log('End of period: ' + endOfPeriod);
 
             if (docs.exists && isMounted) {
+              // doing this to get the completed date of bookings
+              const earningsQuery = query(
+                collection(db, "Earnings"),
+                where("Company", "==", docs.data().company)
+              );
+
               const driversQuery = query(
                 collection(db, "Drivers"),
                 where("Company", "==", docs.data().company)
               );
-              const driversSnapshot = await getDocs(driversQuery);
+
+              // Fetch Firestore data concurrently
+              const [earningsDataSnapshot, driversSnapshot] = await Promise.all([
+                getDocs(earningsQuery),
+                getDocs(driversQuery)
+              ]);
 
               const driverMap = new Map();
               driversSnapshot.forEach((driverDoc) => {
@@ -225,11 +257,22 @@ const Bookings = ({ inputs, title }) => {
 
               const bookingsSnapshot = await getDocs(bookingsQuery);
 
+              // Process earnings data into a map for quick lookup
+              const earningsMap = new Map();
+              earningsDataSnapshot.forEach((doc) => {
+                const earnings = doc.data();
+                earningsMap.set(earnings.BookingID, format(new Date(earnings.DateCreated), "dd/MM/yyyy"));
+              });
+
               const bookings = bookingsSnapshot.docs.map((bookingDoc) => {
                 const bookingData = bookingDoc.data();
+                const bookingNumber = bookingData['Booking Number'];
+
+                const earningsDate = earningsMap.get(bookingNumber) || "-";
                 return {
                   ...bookingData,
                   driverName: driverMap.get(bookingData["Driver ID"]),
+                  completedDate: earningsDate
                 };
               });
 
@@ -344,6 +387,10 @@ const Bookings = ({ inputs, title }) => {
                   <TableCell className="tableCell" width={100}>
                     Status
                   </TableCell>
+
+                  <TableCell className="tableCell" width={100}>
+                    Date Completed
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -399,6 +446,9 @@ const Bookings = ({ inputs, title }) => {
                         {row["Status"]}
                         {<ModalContainer id={row["Booking Number"]} />}
                       </div>
+                    </TableCell>
+                    <TableCell className="tableCell">
+                      {row.completedDate}
                     </TableCell>
                   </TableRow>
                 ))) : (

@@ -510,7 +510,7 @@ const CompanyEarnings = ({ title }) => {
         };
     }, [currentUser, selectedDate]);
 
-
+    // date range filtering 
     useEffect(() => {
         let isMounted = true;
         let earningsTotal = 0;
@@ -528,15 +528,17 @@ const CompanyEarnings = ({ title }) => {
 
                     const [startDate, endDate] = dateRange;
 
-                    const startDateFirestore = new Date(startDate).toISOString();
-                    const endDateFirestore = new Date(endDate).toISOString();
+                    const startDateFirestore = new Date(startDate);
+                    startDateFirestore.setHours(0, 0, 0, 0);
+                    const endDateFirestore = new Date(endDate);
+                    endDateFirestore.setHours(23, 59, 59, 999);
 
                     // Using queryStartDate and queryEndDate in Firestore query
                     const earningsQuery = query(
                         collection(db, "Earnings"),
                         where("Company", "==", docs.data().company),
-                        where("DateCreated", ">=", startDateFirestore),
-                        where("DateCreated", "<=", endDateFirestore)
+                        where("DateCreated", ">=", startDateFirestore.toISOString()),
+                        where("DateCreated", "<=", endDateFirestore.toISOString())
                     );
 
                     const earningsSnapshot = await getDocs(earningsQuery);
@@ -691,6 +693,7 @@ const CompanyEarnings = ({ title }) => {
                     </div>
 
                     <DateRangePicker
+                        showOneCalendar
                         value={dateRange}
                         onChange={handleDateRangeChange}
                         placeholder="Select Date Range"

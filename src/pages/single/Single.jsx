@@ -336,11 +336,15 @@ const Single = () => {
   // function for date range selection queries
   useEffect(() => {
     const fetchBookingsByDateRange = async () => {
-      const [startDate, endDate] = dateRange;
-
-      const startDateFirestore = new Date(startDate).toISOString();
-      const endDateFirestore = new Date(endDate).toISOString();
       try{
+        const [startDate, endDate] = dateRange;
+
+        const startDateFirestore = new Date(startDate);
+        startDateFirestore.setHours(0, 0, 0, 0);
+        const endDateFirestore = new Date(endDate);
+        endDateFirestore.setHours(23, 59, 59, 999);
+
+
         const earningsQuery = query(
           collection(db, "Earnings"),
           where("Driver", "==", id)
@@ -349,8 +353,8 @@ const Single = () => {
         const bookingsQuery = query(
           collection(db, "Bookings"),
           where("Driver ID", "==", id),
-          where("Date Created", ">=", startDateFirestore),
-          where("Date Created", "<=", endDateFirestore)
+          where("Date Created", ">=", startDateFirestore.toISOString()),
+          where("Date Created", "<=", endDateFirestore.toISOString())
         );
 
         // Fetch Firestore data concurrently
@@ -382,7 +386,7 @@ const Single = () => {
         });
 
         combinedData.sort(
-          (a, b) => new Date(b.completedDate) - new Date(a.completedDate)
+          (a, b) => new Date(b["Date Created"]) - new Date(a["Date Created"])
         );
 
         setData(combinedData);
@@ -912,6 +916,7 @@ const switchToAllActiveBookings = () => {
             </h1>
 
             <DateRangePicker
+                        showOneCalendar
                         value={dateRange}
                         onChange={handleDateRangeChange}
                         placeholder="select date range"

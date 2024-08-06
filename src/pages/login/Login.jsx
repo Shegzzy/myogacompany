@@ -10,22 +10,19 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import {
-  collection,
   doc,
   getDoc,
-  getDocs,
-  query,
   serverTimestamp,
   setDoc,
-  where,
 } from "firebase/firestore";
 import { AuthContext } from "../../context/authContext";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
-import { toast } from "react-toastify";
+// import { toast } from "react-toastify";
 // import { Button } from "react-bootstrap";
 import { BsEye, BsEyeSlash } from "react-icons/bs";
 import { DatePicker } from "rsuite";
 import ForgotPasswordModal from "../../components/modal/forgotPasswordModal";
+import TermsModal from "../../components/modal/termsandconditionmodal";
 // import { gridColumnVisibilityModelSelector } from "@mui/x-data-grid";
 
 
@@ -54,6 +51,7 @@ const Login = () => {
   const [companyError, setCompanyError] = useState("");
   const [loading, setLoading] = useState(false);
   const isMounted = useRef(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
 
   const navigate = useNavigate();
@@ -210,6 +208,20 @@ const Login = () => {
     }
   };
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setIsModalOpen(true);
+  };
+
+  const handleAgree = async (e) => {
+    await handleAuthentication(e);
+    setIsModalOpen(false);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   useEffect(() => {
     return () => {
       isMounted.current = false;
@@ -232,7 +244,7 @@ const Login = () => {
 
           <img className="logo" src={logo} alt="Logo" />
 
-          <form onSubmit={handleAuthentication}>
+          <form onSubmit={newUser ? handleSubmit : handleAuthentication}>
             <div className="email">
               <input
                 onChange={(e) => setemail(e.target.value)}
@@ -269,14 +281,6 @@ const Login = () => {
                 </div>
 
                 <div className="date">
-                  {/* <input
-                    onChange={(e) => setdate(e.target.value)}
-                    id="date"
-                    type="date"
-                    placeholder="Date of Establishment"
-                    color="white"
-                    required
-                  /> */}
                   <DatePicker
                     selected={date}
                     onChange={(date) => setdate(date)}
@@ -426,7 +430,6 @@ const Login = () => {
             )}
 
             {error && <span className="error">Process Failed. Invalid email or password</span>}
-            {/* {error && <span className="error">{Errormsg}</span>} */}
 
             <button
               type="submit"
@@ -472,9 +475,17 @@ const Login = () => {
               </span>
             )}
           </form>
+
           <ForgotPasswordModal />
+          
         </div>
       </div>
+      <TermsModal
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onAgree={handleAgree}
+            isLoading={loading}
+          />
     </>
   );
 };

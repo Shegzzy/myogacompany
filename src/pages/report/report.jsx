@@ -9,7 +9,7 @@ import Chart from "../../components/chart/Chart";
 import { useReactToPrint } from "react-to-print";
 import { Button } from "react-bootstrap";
 
-const Report = () => {
+const Report = ({verificationStatus}) => {
 
   const componentRef = useRef();
   const handlePagePrint = useReactToPrint({
@@ -18,7 +18,7 @@ const Report = () => {
 
   return (
     <div className="list">
-      <Sidebar />
+      <Sidebar verificationStatus = {verificationStatus}/>
       <div className="listContainer" ref={componentRef}>
         <Navbar />
         <div className="reportTitle">Reports</div>

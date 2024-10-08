@@ -25,7 +25,7 @@ import { AuthContext } from "../../context/authContext";
 import { TablePagination } from "@mui/material";
 import { format } from "date-fns";
 
-const Bookings = ({ inputs, title }) => {
+const Bookings = ({ inputs, title, verificationStatus }) => {
   const [data, setData] = useState([]);
   const { currentUser } = useContext(AuthContext);
   const [searchTerm, setSearchTerm] = useState("");
@@ -311,7 +311,7 @@ const Bookings = ({ inputs, title }) => {
 
   return (
     <div className="new">
-      <Sidebar />
+      <Sidebar verificationStatus = {verificationStatus}/>
       <div className="newContainer">
         <Navbar />
         <div className="top">

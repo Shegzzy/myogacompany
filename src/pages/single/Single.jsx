@@ -37,7 +37,7 @@ import { DateRangePicker } from "rsuite";
 // import { toast } from "react-toastify";
 // import { DisabledByDefault } from "@mui/icons-material";
 
-const Single = () => {
+const Single = ({verificationStatus}) => {
   const { id } = useParams();
   const { darkMode } = useContext(DarkModeContext);
   const [data, setData] = useState([]);
@@ -660,7 +660,7 @@ const switchToAllActiveBookings = () => {
 
   return (
     <div className="single">
-      <Sidebar />
+      <Sidebar verificationStatus = {verificationStatus}/>
       <div className="singleContainer">
         <Navbar />
         <div className="top">

@@ -8,7 +8,7 @@ import Report from "./pages/report/report";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { userInputs } from "./formSource";
 import "./style/dark.scss";
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { DarkModeContext } from "./context/darkModeContext";
 import { AuthContext } from "./context/authContext";
 import Edittable from "./pages/edit/edit";
@@ -25,6 +25,9 @@ import styled from "styled-components";
 import "./styles.css";
 import CompanyEarnings from "./pages/earnings/earnings";
 import TransactionList from "./pages/transactions/transactions";
+import VerificationPage from "./pages/awaiting-verification/awaiting_verification";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "./firebase";
 
 
 
@@ -33,10 +36,33 @@ import TransactionList from "./pages/transactions/transactions";
 function App() {
   const { darkMode } = useContext(DarkModeContext);
   const { currentUser } = useContext(AuthContext);
+  const [verificationStatus, setVerificationStatus] = useState('');
 
   const RequiredAuth = ({ children }) => {
     return currentUser ? children : <Navigate to="/login" />;
   };
+
+  // const uid = currentUser.uid;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const companyDocRef = doc(db, "Companies", currentUser.uid);
+        const companyDocSnapshot = await getDoc(companyDocRef);
+
+        if (companyDocSnapshot.exists()) {
+          // console.log(companyDocSnapshot.data().verification);
+          setVerificationStatus(companyDocSnapshot.data().verification);
+          // console.log(verificationStatus);
+        }
+
+      }catch (e) {
+        console.log(e);
+      }
+    }
+
+    fetchData();
+  }, [currentUser]);
 
 //  const AppContainer = styled.div`
 //   position: absolute;
@@ -58,121 +84,149 @@ function App() {
           <Route path="/">
             {/* Login page */}
             <Route path="login" element={<Login />} />
-
             {/* Home page */}
             <Route index element={
-              <RequiredAuth>
-                <Home />
-              </RequiredAuth>
-            } />
+                <RequiredAuth>
+                  <Home verificationStatus = {verificationStatus}/>
+                </RequiredAuth>
+              } />
 
-            {/* User page */}
-            <Route path="users">
+            {verificationStatus &&(
+            <>
+              {/* Home page */}
               <Route index element={
                 <RequiredAuth>
-                  <List />
+                  <Home verificationStatus = {verificationStatus}/>
                 </RequiredAuth>
               } />
-              <Route path="/users/:id" element={
-                <RequiredAuth>
-                  <Single />
-                </RequiredAuth>
-              } />
+
+              {/* User page */}
+              <Route path="users">
+                <Route index element={
+                  <RequiredAuth>
+                    <List verificationStatus = {verificationStatus}/>
+                  </RequiredAuth>
+                } />
+                <Route path="/users/:id" element={
+                  <RequiredAuth>
+                    <Single verificationStatus = {verificationStatus}/>
+                  </RequiredAuth>
+                } />
+                <Route
+                  path="new"
+                  element={
+                    <RequiredAuth>
+                      <New inputs={userInputs} title="Add New Driver" verificationStatus = {verificationStatus}/>
+                    </RequiredAuth>
+                  }
+                />
+              </Route>
               <Route
-                path="new"
+                path="edit/:id"
                 element={
                   <RequiredAuth>
-                    <New inputs={userInputs} title="Add New Driver" />
+                    <Edittable inputs={userInputs} title="Update Driver" verificationStatus = {verificationStatus}/>
                   </RequiredAuth>
                 }
               />
-            </Route>
-            <Route
-              path="edit/:id"
-              element={
-                <RequiredAuth>
-                  <Edittable inputs={userInputs} title="Update Driver" />
-                </RequiredAuth>
-              }
-            />
 
-              {/* Booking page */}
-            <Route
-              path="bookings"
-              element={
-                <RequiredAuth>
-                  <Bookings title="Bookings" />
-                </RequiredAuth>
-              }
-            />
-
-            <Route path="transactions">
-              <Route index element={
-                <RequiredAuth>
-                  <TransactionList />
-                </RequiredAuth>
-              }
+                {/* Booking page */}
+              <Route
+                path="bookings"
+                element={
+                  <RequiredAuth>
+                    <Bookings title="Bookings" verificationStatus = {verificationStatus}/>
+                  </RequiredAuth>
+                }
               />
-            </Route>
-            
-            {/* Bokking status page */}
-            <Route
-              path="bookingstatus"
-              element={
-                <RequiredAuth>
-                  <Bookingstatus title="Bookings Status" />
-                </RequiredAuth>
-              }
-            />
 
-            {/* Reports page */}
-            <Route
-              path="report"
-              element={
-                <RequiredAuth>
-                  <Report title="Report Page" />
-                </RequiredAuth>
-              }
-            />
+              <Route path="transactions">
+                <Route index element={
+                  <RequiredAuth>
+                    <TransactionList verificationStatus = {verificationStatus}/>
+                  </RequiredAuth>
+                }
+                />
+              </Route>
+              
+              {/* Bokking status page */}
+              <Route
+                path="bookingstatus"
+                element={
+                  <RequiredAuth>
+                    <Bookingstatus title="Bookings Status" verificationStatus = {verificationStatus}/>
+                  </RequiredAuth>
+                }
+              />
 
-            {/* Earnings page */}
-            <Route
-              path="earnings"
-              element={
-                <RequiredAuth>
-                  <CompanyEarnings title="Earnings" />
-                </RequiredAuth>
-              }
-            />
+              {/* Reports page */}
+              <Route
+                path="report"
+                element={
+                  <RequiredAuth>
+                    <Report title="Report Page" verificationStatus = {verificationStatus}/>
+                  </RequiredAuth>
+                }
+              />
 
-            {/* Delivery Page */}
-            <Route
-              path="delivery"
-              element={
-                <RequiredAuth>
-                  <Delivery title="Pending Orders" />
-                </RequiredAuth>
-              }
-            />
+              {/* Earnings page */}
+              <Route
+                path="earnings"
+                element={
+                  <RequiredAuth>
+                    <CompanyEarnings title="Earnings" verificationStatus = {verificationStatus}/>
+                  </RequiredAuth>
+                }
+              />
 
+              {/* Delivery Page */}
+              <Route
+                path="delivery"
+                element={
+                  <RequiredAuth>
+                    <Delivery title="Pending Orders" verificationStatus = {verificationStatus}/>
+                  </RequiredAuth>
+                }
+              />
+
+              {/* Profile page */}
+              <Route
+                path="profile/:id"
+                element={
+                  <RequiredAuth>
+                    <AdminProfile title="Admin Profile" verificationStatus = {verificationStatus}/>
+                  </RequiredAuth>
+                }
+              />
+
+              {/* Admin edit page */}
+              <Route path="admin/:id"
+                element={
+                  <RequiredAuth>
+                    <EdittableAdmin inputs={companyInputs} title="Update Profile" verificationStatus = {verificationStatus}/>
+                  </RequiredAuth>
+                }
+              />
+            </>
+            )}
             {/* Profile page */}
             <Route
-              path="profile/:id"
-              element={
-                <RequiredAuth>
-                  <AdminProfile title="Admin Profile" />
-                </RequiredAuth>
-              }
-            />
+                path="profile/:id"
+                element={
+                  <RequiredAuth>
+                    <AdminProfile title="Admin Profile"/>
+                  </RequiredAuth>
+                }
+              />
 
-            {/* Admin page */}
-            <Route path="admin/:id"
-              element={
-                <RequiredAuth>
-                  <EdittableAdmin inputs={companyInputs} title="Update Profile" />
-                </RequiredAuth>
-              }
-            />
+              {/* Admin edit page */}
+              <Route path="admin/:id"
+                element={
+                  <RequiredAuth>
+                    <EdittableAdmin inputs={companyInputs} title="Update Profile" />
+                  </RequiredAuth>
+                }
+              />
           </Route>
         </Routes>
       </BrowserRouter>

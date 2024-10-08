@@ -12,12 +12,15 @@ import {
   query,
   where,
   updateDoc,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { toast } from "react-toastify";
 import { AuthContext } from "../../context/authContext";
 import { Button } from "react-bootstrap";
 import MapModal from "../modal/mapModal";
+import ImageViewModal from "../modal/image-view-modal";
+import IdentificationModal from "../modal/verificationModal";
 // import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 
 
@@ -29,8 +32,28 @@ const Datatable = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMounted, setIsMounted] = useState(true);
   const [loading, setLoading] = useState(true);
+  const [selectedImagePath, setSelectedImagePath] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRiderId, setSelectedRiderId] = useState(null);
+  const [isIdentificationModalOpen, setIsIdentificationModalOpen] = useState(false);
 
+  const handleImageClick = (imageUrl) => {
+    setSelectedImagePath(imageUrl);
+    setIsModalOpen(true);
+  };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleIdentifyClick = (id) => {
+    setSelectedRiderId(id);  
+    setIsIdentificationModalOpen(true);
+  };
+
+  const handleCloseIdentificationModal = () => {
+    setIsIdentificationModalOpen(false);
+  };
 
 
   useEffect(() => {
@@ -58,7 +81,7 @@ const Datatable = () => {
           (snapShot) => {
             let list = [];
             snapShot.docs.forEach((doc) => {
-              list.push({ id: doc.id, ...doc.data() });
+              list.push({ id: doc.id, documents: Array.isArray(doc.data().Documents) ? doc.data().Documents : [], ...doc.data() });
             });
             list.sort(
               (a, b) =>
@@ -86,24 +109,6 @@ const Datatable = () => {
   };
 
   // Function to open the map modal and set the selected rider's location
-  // const handleTrackButtonClick = async (id) => {
-  //   try {
-  //     const riderRef = doc(db, "Drivers", id);
-  //     const riderDoc = await getDoc(riderRef);
-  //     if (riderDoc.exists()) {
-  //       const riderData = riderDoc.data();
-  //       setSelectedRiderLocation(riderData);
-  //       setShowMapModal(true);
-  //       console.log("Latitude:", riderData["Driver Latitude"]);
-  //       console.log("Longitude:", riderData["Driver Longitude"]);
-
-  //     } else {
-  //       toast.error("Rider data not found.");
-  //     }
-  //   } catch (error) {
-  //     toast.error("Error fetching rider data.");
-  //   }
-  // };
   const handleTrackButtonClick = async (id) => {
     try {
       const riderRef = doc(db, "Drivers", id);
@@ -166,42 +171,33 @@ const Datatable = () => {
     }
   };
 
-  // Function to verify riders
-  const handleVerify = async (id) => {
+  // Function to identify riders
+  const handleIdentification = async (id) => {
     try {
       const driverRef = doc(db, "Drivers", id);
-      await updateDoc(driverRef, { Verified: "1" });
-      setData(
-        data.map((driver) => {
-          if (driver.id === id) {
-            return { ...driver, Verified: "1" };
-          } else {
-            return driver;
-          }
-        })
-      );
-      toast.success("Driver verified!");
+      
+      await setDoc(driverRef, { Identification: "identified" }, { merge: true });
+  
+      fetchData();
+      toast.success("Rider identified!");
+      handleCloseIdentificationModal();
     } catch (err) {
+      console.error("Error identifying rider: ", err);
       toast.error("Something went wrong");
     }
   };
+  
 
 
-  // Function to unverify riders
-  const handleUnVerify = async (id) => {
+  // Function to unidentify riders
+  const handleUnidentify = async (id) => {
     try {
       const driverRef = doc(db, "Drivers", id);
-      await updateDoc(driverRef, { Verified: "0" });
-      setData(
-        data.map((driver) => {
-          if (driver.id === id) {
-            return { ...driver, Verified: "0" };
-          } else {
-            return driver;
-          }
-        })
-      );
+      await setDoc(driverRef, { Company: "" }, { merge: true });
+      
+      fetchData();
       toast.success("Rider Unverified!");
+      handleCloseIdentificationModal();
     } catch (err) {
       toast.error("Something went wrong");
     }
@@ -231,9 +227,34 @@ const Datatable = () => {
 
   const actionColumn = [
     {
+      field: "Identification",
+      headerName: "Identification",
+      width: 250,
+      renderCell: (params) => {
+        const value = params.value;
+        const id = params.row.id;
+        if (value === '' || value === undefined) {
+          return <div className="cellAction">
+              <span>Unidentified</span>
+              <Button
+              className="trackButton"
+              onClick={() => handleIdentifyClick(id)}
+            >
+              Identify
+            </Button>
+            </div>;
+        } else if (value === 'identified') {
+          return <span>Identified</span>;
+        } else {
+          return null;
+        }
+      },
+    },
+
+    {
       field: "action",
       headerName: "Action",
-      width: 350,
+      width: 300,
       renderCell: (params) => {
         return (
           <div className="cellAction">
@@ -314,7 +335,7 @@ const Datatable = () => {
       {!loading ? (<DataGrid
         className="datagrid"
         rows={data}
-        columns={userColumns.concat(actionColumn)}
+        columns={userColumns(handleImageClick).concat(actionColumn)}
         pageSize={9}
         rowsPerPageOptions={[9]}
       />) : (<div className="detailItem">
@@ -338,6 +359,20 @@ const Datatable = () => {
         />
       )}
 
+      <ImageViewModal
+        title={"Rider's Document"}
+        show={isModalOpen}
+        onHide={handleCloseModal}
+        imagePath={selectedImagePath}
+      />
+
+      <IdentificationModal 
+        id={selectedRiderId}
+        isOpen={isIdentificationModalOpen}
+        onClose={handleCloseIdentificationModal}
+        onYes={handleIdentification}
+        onNo={handleUnidentify}
+      />
     </div>
   );
 };

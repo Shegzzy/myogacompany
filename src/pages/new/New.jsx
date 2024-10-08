@@ -11,7 +11,7 @@ import { AuthContext } from "../../context/authContext";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-const New = ({ inputs, title }) => {
+const New = ({ inputs, title, verificationStatus }) => {
   const [file, setFile] = useState("");
   const [data, setData] = useState({});
   const [per, setPerc] = useState(0);
@@ -136,7 +136,7 @@ const New = ({ inputs, title }) => {
 
   return (
     <div className="new">
-      <Sidebar />
+      <Sidebar verificationStatus = {verificationStatus}/>
       <div className="newContainer">
         <Navbar />
         <div className="top">

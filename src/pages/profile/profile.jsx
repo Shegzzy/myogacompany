@@ -21,7 +21,7 @@ import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
 import ChangePasswordModal from "../../components/modal/changePasswordModal";
 
 
-const AdminProfile = () => {
+const AdminProfile = ({verificationStatus}) => {
   const { currentUser } = useContext(AuthContext);
   const [user, setUser] = useState(null);
   const [isMounted, setIsMounted] = useState(true);
@@ -162,7 +162,7 @@ const AdminProfile = () => {
 
   return (
     <div className="single">
-      <Sidebar />
+      <Sidebar verificationStatus = {verificationStatus}/>
       <div className="singleContainer">
         <Navbar />
         <div className="profile-page">

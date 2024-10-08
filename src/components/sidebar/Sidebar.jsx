@@ -23,7 +23,7 @@ import MonetizationOnOutlinedIcon from "@mui/icons-material/MonetizationOnOutlin
 import { FaMoneyBillTransfer } from "react-icons/fa6";
 
 
-const Sidebar = () => {
+const Sidebar = ({verificationStatus}) => {
   const { dispatch: darkModeDispatch } = useContext(DarkModeContext);
   const { darkMode } = useContext(DarkModeContext);
   const { logout } = useContext(AuthContext);
@@ -57,7 +57,9 @@ const Sidebar = () => {
               <span>Users</span>
             </li>
           </Link> */}
-          <Link to="/users" style={{ textDecoration: "none" }}>
+          {(verificationStatus === "verified") && (
+            <>
+            <Link to="/users" style={{ textDecoration: "none" }}>
             <li>
               <LocalShippingIcon className="icon" />
               <span>Riders</span>
@@ -99,6 +101,8 @@ const Sidebar = () => {
               <span>Reports</span>
             </li>
           </Link>
+          </>
+          )}
 
           <p className="title">USER</p>
           <Link to={`/profile/${userId}`} style={{ textDecoration: "none" }}>

@@ -23,6 +23,7 @@ import { BsEye, BsEyeSlash } from "react-icons/bs";
 import { DatePicker } from "rsuite";
 import ForgotPasswordModal from "../../components/modal/forgotPasswordModal";
 import TermsModal from "../../components/modal/termsandconditionmodal";
+import { format } from "date-fns";
 // import { gridColumnVisibilityModelSelector } from "@mui/x-data-grid";
 
 
@@ -156,6 +157,7 @@ const Login = () => {
           utilityBill: utilityDocumentsUrls || [],
           courierLicense: courierLicenseDocumentsUrls || [],
           amacDocuments: amacDocumentsUrls || [],
+          "verification" : "pending",
           timeStamp: serverTimestamp(),
         });
 
@@ -283,7 +285,7 @@ const Login = () => {
                 <div className="date">
                   <DatePicker
                     selected={date}
-                    onChange={(date) => setdate(date)}
+                    onChange={(date)  => setdate(format(new Date(date), 'yyyy-MM-dd'))}
                     placeholder="Date of establishment"
                     className="custom_datepicker" />
                 </div>

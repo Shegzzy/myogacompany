@@ -1,6 +1,7 @@
 import { format } from "date-fns";
+import "./components/datatable/datatable.scss"
 
-export const userColumns = [
+export const userColumns = (handleImageClick, renderVerified) => [
   // { field: "id", headerName: "ID", width: 70 },
   {
     field: "FullName",
@@ -121,10 +122,29 @@ export const userColumns = [
   },
 
   {
-    field: "Documents",
-    headerName: "Documents",
-    width: 100,
-  },
+    field: "Documents", headerName: "Documents", width: 150,
+    renderCell: (params) => {
+        return (
+            <div className="cellWithImg">
+                {params.row.documents && params.row.documents.length > 0 ? (
+                  params.row.documents.map((imageUrl, index) => (
+                    <div key={index}>
+                      <img
+                        src={imageUrl}
+                        alt={`Rider's Documents ${index + 1}`}
+                        className="cellImg"
+                        onClick={() => handleImageClick(imageUrl)}
+                        style={{ cursor: 'pointer' }}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p> No documents available.</p>
+                )}
+            </div>
+        )
+    }
+},
 
 ];
 

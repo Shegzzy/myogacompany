@@ -3,10 +3,10 @@ import Sidebar from "../../components/sidebar/Sidebar"
 import Navbar from "../../components/navbar/Navbar"
 import Datatable from "../../components/datatable/Datatable"
 
-const List = () => {
+const List = ({verificationStatus}) => {
   return (
     <div className="list">
-      <Sidebar/>
+      <Sidebar verificationStatus = {verificationStatus}/>
       <div className="listContainer">
         <Navbar/>
         <Datatable/>

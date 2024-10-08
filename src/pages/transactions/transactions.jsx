@@ -10,7 +10,7 @@ import { Paper, TableBody, TableCell, TableContainer, TableHead, TablePagination
 import { Table } from "react-bootstrap";
 // import TransactionDataTable from "../../components/datatable/transactionDatatable"
 
-const TransactionList = () => {
+const TransactionList = ({verificationStatus}) => {
     const [selectedFilter, setSelectedFilter] = useState("all");
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -144,7 +144,7 @@ const TransactionList = () => {
 
     return (
         <div className="new">
-            <Sidebar />
+            <Sidebar verificationStatus = {verificationStatus}/>
             <div className="newContainer">
                 <Navbar />
                 <div className="top">

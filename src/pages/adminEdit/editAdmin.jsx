@@ -9,7 +9,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
-const EdittableAdmin = ({ inputs, title }) => {
+const EdittableAdmin = ({ inputs, title, verificationStatus }) => {
   const [file, setFile] = useState("");
   const [files, setFiles] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
@@ -122,7 +122,7 @@ const EdittableAdmin = ({ inputs, title }) => {
 
   return (
     <div className="new">
-      <Sidebar />
+      <Sidebar verificationStatus = {verificationStatus}/>
       <div className="newContainer">
 
         <Navbar />

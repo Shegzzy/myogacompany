@@ -29,7 +29,7 @@ import 'rsuite/DateRangePicker/styles/index.css';
 import { format, parse } from 'date-fns';
 import { TablePagination } from "@mui/material";
 
-const CompanyEarnings = ({ title }) => {
+const CompanyEarnings = ({ title, verificationStatus }) => {
     const [data, setData] = useState([]);
     const { currentUser } = useContext(AuthContext);
     const [selectedFilter, setSelectedFilter] = useState("all");
@@ -679,7 +679,7 @@ const CompanyEarnings = ({ title }) => {
 
     return (
         <div className="new">
-            <Sidebar />
+            <Sidebar verificationStatus = {verificationStatus}/>
             <div className="newContainer">
                 <Navbar />
                 <div className="top">

@@ -1,0 +1,13 @@
+.verification-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    text-align: center;
+    // background-color: #f0f0f0; /* Light grey background */
+}
+
+.verification-body h4 {
+    font-size: 24px;
+    font-weight: bold;
+}
